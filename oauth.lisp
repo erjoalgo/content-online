@@ -14,6 +14,7 @@
   client-secret
   token-uri
   scopes
+  auth-uri
   )
 
 (defmacro assoq (alist item)
@@ -61,7 +62,8 @@ grant_type=authorization_code
   "https://accounts.google.com/o/oauth2/v2/auth")
 
 (defun auth-server-redirect-url (oauth-client redirect-uri)
-  "https://accounts.google.com/o/oauth2/v2/auth?
+  "example
+https://accounts.google.com/o/oauth2/v2/auth?
  scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.metadata.readonly&
  access_type=offline&
  include_granted_scopes=true&
@@ -70,15 +72,17 @@ grant_type=authorization_code
  response_type=code&
  client_id=client_id
 "
-  (with-slots (scopes client-id) oauth-client
-    (-> (flat-to-alist-macro
-      "scope" scopes
-      "access_type" "online"
-      "include_granted_scopes" "true"
-      "redirect_uri" redirect-uri
-      "response_type" "code"
-      "client_id" client-id)
-    (drakma::alist-to-url-encoded-string :utf-8 'drakma:url-encode))))
+  (with-slots (scopes client-id auth-uri) oauth-client
+    (format nil "~A?~A"
+            auth-uri
+            (-> (flat-to-alist-macro
+                 "scope" scopes
+                 "access_type" "online"
+                 "include_granted_scopes" "true"
+                 "redirect_uri" redirect-uri
+                 "response_type" "code"
+                 "client_id" client-id)
+                (drakma::alist-to-url-encoded-string :utf-8 'drakma:url-encode)))))
 
 (defun oauth-exchange-code-for-token (code)
   (declare (ignore code)))
