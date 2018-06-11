@@ -14,7 +14,8 @@
   (:import-from #:yt-comments/oauth
                 #:make-oauth-client-from-file
                 #:auth-server-redirect-url
-                #:oauth-exchange-code-for-token)
+                #:exchange-code-for-token
+                )
   (:import-from #:hunchentoot
                 #:session-value
                 #:redirect
