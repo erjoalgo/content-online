@@ -176,3 +176,6 @@
         while ,loop-ex-sym
         finally (if ,loop-ex-sym (error ,loop-ex-sym)
                     (return ,loop-ret-sym)))))
+
+(defmacro assoq (alist item)
+  `(cdr (assoc ,item ,alist :test 'equal)))
