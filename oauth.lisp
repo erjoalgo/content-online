@@ -80,12 +80,12 @@ grant_type=authorization_code
   "example
 https://accounts.google.com/o/oauth2/v2/auth?
  scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.metadata.readonly&
- access_type=offline&
- include_granted_scopes=true&
- state=state_parameter_passthrough_value&
- redirect_uri=http%3A%2F%2Foauth2.example.com%2Fcallback&
- response_type=code&
- client_id=client_id
+ access-type=offline&
+ include-granted-scopes=true&
+ state=state-parameter-passthrough-value&
+ redirect-uri=http%3A%2F%2Foauth2.example.com%2Fcallback&
+ response-type=code&
+ client-id=client-id
 "
   (with-slots (scopes client-id auth-uri) oauth-client
     (format nil "~A?~A"
