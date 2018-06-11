@@ -162,7 +162,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   (setf (session-value username) username)
   (hunchentoot:redirect "/subscription/"))
 
-(define-regexp-route subscriptions-handler ("^/subscription/([^/]*)$" channel-id)
+(define-regexp-route subscriptions-handler ("^/subscription/([^/]*)/?$" channel-id)
     "list subscriptions for the given channel id"
   ;; (format t "have ~A subs~%" (length subs))
   ;; (setf db subs)
