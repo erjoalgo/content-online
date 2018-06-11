@@ -42,8 +42,10 @@
                                                    (api-login-access-token login))))))
          (api-base-url default-api-base-url)
          (url (concatenate 'string api-base-url resource))
-         (orig-params (lisp-alist-to-json-map (cons (cons :key api-key)
-                                                    params-alist))))
+         (orig-params (lisp-alist-to-json-map (if (api-login-key login)
+                                                (cons (cons :key (api-login-key login))
+                                                      params-alist)
+                                                params-alist))))
     (loop
        with page-token = nil
        with total-results = nil
