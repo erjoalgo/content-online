@@ -62,15 +62,16 @@
                      (jonathan:parse :as as)
                      (make-from-json-alist resp-page)))
        do (format t "params: ~A~%" params)
-       do
+       as error = (resp-page-error page)
+       when (null error) do
          (setf (cdr page-token-param)
                (resp-page-next-page-token page))
        do (setf db page)
        append (resp-page-items page) into items
-       while (cdr page-token-param)
+       while (and (cdr page-token-param) (not error))
        finally (progn
                  (format t "fetched ~A items~%" (length items))
-                 (return items)))))
+                 (return (values items error))))))
 
 (defmacro def-api-endpoint (resource-as-sym &key defaults (as :alist))
   (declare (ignore as))
