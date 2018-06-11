@@ -184,8 +184,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                             (markup (:a :href sub-url sub-url))
                             (markup (:a :href sub-comments-link "comments!")))))))
 
-(define-regexp-route comments
-    ("^/user/([^/]*)/subscription/([^/]*)$" user-name sub-channel-id)
+(define-regexp-route list-comments-handler
+    ("^/user/([^/]*)/subscription/([^/]*)/comments$" user-name sub-channel-id)
     "list comments for the given user on the given subscription"
   (make-table '("#" "id" "author" "video or channel id" "reply count" "text")
               (comment-threads (config-api-login (service-config *service*))
