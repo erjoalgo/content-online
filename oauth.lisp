@@ -92,7 +92,8 @@ https://accounts.google.com/o/oauth2/v2/auth?
             auth-uri
             ;; "http://localhost:1234/"
             (-> (flat-to-alist-macro
-                 "scope" scopes
+                 "scope" (format nil "~{~A~^ ~}"
+                                 youtube-scopes)
                  "access_type" "online"
                  "include_granted_scopes" "true"
                  "redirect_uri" redirect-uri
