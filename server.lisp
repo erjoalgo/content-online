@@ -94,11 +94,20 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (hunchentoot:define-easy-handler (oauth-authorize-handler :uri oauth-authorize-uri-path)
     (code)
-  (assert (session-value 'original-url))
-  (let ((token (oauth-exchange-code-for-token code))
-        (original-url (session-value 'original-url)))
-    (setf (session-value token) token)
-    (redirect original-url)))
+  ;; (assert (session-value 'original-url))
+  (let (
+        (resp-token (exchange-code-for-token code (service-oauth-client *service*))))
+    (if (resp-token-access-token resp-token)
+        (progn
+          (setf (session-value 'api-login)
+                (make-api-login
+                 :key nil
+                 :access-token (resp-token-access-token resp-token)
+                 :refresh-token (resp-token-refresh-token resp-token)))
+          (redirect original-url))
+        (progn (setf (hunchentoot:return-code*)
+                     hunchentoot:+http-authorization-required+)
+               (format nil "token request rejected: ~A~%" resp-token)))))
 
 '(defmacro with-html-string (&body body)
   `(with-html-output-to-string (*standard-output* nil :prologue t :indent t)
