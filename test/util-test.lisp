@@ -47,4 +47,17 @@
   (stefil:is (equal (my-unmarshal-test-2-error-description obj) "Code was already redeemed."))
   (stefil:is (equal (my-unmarshal-test-2-error obj) "invalid_grant")))
 
+
+(let ((i 0))
+  (stefil:is (eq 42 (retry-times 3 .1
+                      (if (< (1- (incf i)) 2)
+                          (error "err") 42)))))
+(let ((i 0))
+  (stefil:is (eq 43
+                 (handler-case
+                     (retry-times 3 .1
+                       (if (< (1- (incf i)) 3)
+                           (error "err") 42))
+                   (error nil 43)))))
+
 (run-tests)
