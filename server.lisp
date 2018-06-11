@@ -2,6 +2,8 @@
   (:use :cl :cl-markup)
   (:import-from #:yt-comments/util
                 #:with-json-paths
+                #:->
+                #:get-nested-macro
                 )
   (:import-from #:yt-comments/client
                 #:make-api-login
@@ -183,6 +185,19 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                       (list (format nil "~D" sub-idx) sub-chan-id sub-title
                             (markup (:a :href sub-url sub-url))
                             (markup (:a :href sub-comments-link "comments!")))))))
+
+(defun session-channel-title ()
+  (or
+   (session-value 'channel-title)
+   (setf
+    (session-value 'channel-title)
+    (->
+     (yt-comments/client::channels
+      (session-value 'api-login)
+      :part "snippet"
+      :mine "true")
+     car
+     (get-nested-macro "snippet.title")))))
 
 (define-regexp-route list-comments-handler
     ("^/user/([^/]*)/subscription/([^/]*)/comments$" user-name sub-channel-id)
