@@ -47,23 +47,26 @@
                                                       params-alist)
                                                 params-alist))))
     (loop
-       with page-token = nil
+       with page-token-param = (cons "pageToken" nil)
        with total-results = nil
        for page-idx from 1
-       as params = (if (null page-token)
+       as params = (if (null (cdr page-token-param))
                        orig-params
-                       (list (cons "pageToken" page-token)))
-       as page = (-> (drakma:http-request url :parameters params)
+                       (cons page-token-param
+                             orig-params))
+       as page = (-> (drakma:http-request url
+                                          :parameters params
+                                          :additional-headers additional-headers)
                      (babel:octets-to-string :encoding :utf-8)
                      (jonathan:parse :as as)
                      (make-from-json-alist resp-page))
-       when (null page-token) do
-            (setf page-token (resp-page-next-page-token page)
-                  total-results (resp-page-total-results page))
        do (format t "params: ~A~%" params)
+       do
+         (setf (cdr page-token-param)
+               (resp-page-next-page-token page))
        do (setf db page)
        append (resp-page-items page) into items
-       while page-token
+       while (cdr page-token-param)
        finally (progn
                  (format t "fetched ~A items~%" (length items))
                  (return items)))))
