@@ -27,6 +27,15 @@
 (defun underscore-to-dash (string)
   (cl-ppcre:regex-replace-all "_" string "-"))
 
+(defmacro -> (&rest forms)
+  (if (cadr forms)
+      (destructuring-bind (first second . rest) forms
+	(destructuring-bind (a . a-rest) (if (atom second)
+					     (cons second nil)
+                                             second)
+	  `(-> ,(apply 'list a first a-rest) ,@rest)))
+      (car forms)))
+
 (defun json-key-to-lisp (json-key)
   (-> json-key
       from-camel-case
@@ -46,14 +55,6 @@
                  bindings)
      ,@body))
 
-(defmacro -> (&rest forms)
-  (if (cadr forms)
-      (destructuring-bind (first second . rest) forms
-	(destructuring-bind (a . a-rest) (if (atom second)
-					     (cons second nil)
-                                             second)
-	  `(-> ,(apply 'list a first a-rest) ,@rest)))
-      (car forms)))
 
 (defmacro ->> (&rest forms)
   (if (cadr forms)
