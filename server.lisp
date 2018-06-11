@@ -109,7 +109,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defmacro make-table (headers rows row-idx-sym row-sym row-cols-list)
   `(markup
     (:table
-     :border 0
+     :border 1
      :cellpadding 4
      (:tr :align "right"
           (loop for header in ,headers collect
