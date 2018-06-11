@@ -7,7 +7,9 @@
     (format t "uninterned ~D shadowing symbols ~%"
             (length syms))))
 
-'(progn (when *service*
+(swank:set-package "YT-COMMENTS/SERVER")
+(swank-repl::in-package "YT-COMMENTS/SERVER")
+(progn (when *service*
          (stop *service*))
        (let ((secrets-file-path (loop for path in (uiop:directory-files ".")
                                    thereis (and (equal "json" (pathname-type path)) path))))
