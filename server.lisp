@@ -169,7 +169,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   ;; defmacro (headers rows-form row-idx-sym row-sym row-cols-list-form)
   (make-table '("#" "channel id" "description" "url" "commments")
               ;; db
-              (subscriptions (config-api-login (service-config *service*))
+              (subscriptions (session-value 'api-login)
                                     :channel-id channel-id
                                     :part "snippet")
               sub-idx sub
