@@ -213,3 +213,11 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                         (format nil "~D" comment-reply-count)
                         comment-text
                         (markup (:a :href delete-comment-link "delete!")))))))
+
+(define-regexp-route delete-comments-handler
+    ("/comment/([^/]+)/delete" comment-id)
+    "delete a given comment"
+  (format t "deleting comment ~A~%" comment-id)
+  (let ((resp (delete-comment (session-value 'api-login) comment-id)))
+    (format t "response: ~A~%" resp)
+    (format nil "~A" resp)))
