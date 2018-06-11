@@ -229,3 +229,5 @@ if __name__ == "__main__":
               import pdb;pdb.set_trace()
 
 
+  comment_id="..."
+  comments_delete(client, id=comment_id)

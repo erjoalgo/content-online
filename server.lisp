@@ -1,8 +1,8 @@
 (defpackage #:yt-comments/server
   (:use :cl :cl-markup)
-  ;; '(:import-from #:yt-comments/util
-  ;;               #:with-json-paths
-  ;;               )
+  (:import-from #:yt-comments/util
+                #:with-json-paths
+                )
   (:import-from #:yt-comments/client
                 #:subscriptions
                 #:comment-threads
