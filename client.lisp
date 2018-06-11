@@ -84,15 +84,17 @@
        (api-req login ,(to-camel-case resource-as-sym)
                 (append params-alist ,defaults)))))
 
-(def-api-endpoint comment-threads :defaults '((:part . "snippet")))
+(def-api-endpoint comment-threads :defaults '((:part . "snippet")
+                                              (:max-results . "100")))
 
-(def-api-endpoint subscriptions :defaults '((:part . "snippet")))
+(def-api-endpoint subscriptions :defaults '((:part . "snippet")
+                                            (:max-results . "50")))
 
-(def-api-endpoint playlists)
+(def-api-endpoint playlists :defaults '((:max-results . "50")))
 
-(def-api-endpoint playlist-items)
+(def-api-endpoint playlist-items :defaults '((:max-results . "50")))
 
-(def-api-endpoint channels)
+(def-api-endpoint channels :defaults '((:max-results . "50")))
 
 ;; due to conflict with search function...
 (def-api-endpoint search :fun-sym yt-search)
