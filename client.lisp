@@ -87,4 +87,26 @@
 
 (def-api-endpoint subscriptions :defaults '((:part . "snippet")))
 
-;; (def-api-endpoint comments "comments" :defaults (:part "id"))
+
+(defparameter youtube-comments-base-url
+  "https://www.googleapis.com/youtube/v3/comments"
+  ;; "http://www.googleapis.com/youtube/v3/comments"
+  )
+
+(defun delete-comment (api-login comment-id)
+  "DELETE https://www.googleapis.com/youtube/v3/comments"
+  (format t "delete token: ~A~%" (api-login-access-token api-login))
+    (-> (drakma:http-request
+         youtube-comments-base-url
+         ;; "http://localhost:1234/"
+         ;; "http://localhost/"
+         :method :delete
+         :parameters (list (cons "id" comment-id))
+         ;; TODO factor out authenticated drakma request
+         ;; TODO refresh token
+         :additional-headers (list
+                              (cons "authorization"
+                                    (format nil "Bearer ~A"
+                                            (api-login-access-token api-login)))))
+        (babel:octets-to-string :encoding :utf-8)
+        (jonathan:parse :as :alist)))
