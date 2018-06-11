@@ -103,12 +103,14 @@
 ;;              ,instance))
 
 (defun get-nested (alist path)
+  (when (stringp path)
+    (setf path (cl-ppcre:split "[.]" path)))
   (reduce (lambda (alist attr) (cdr (assoc attr alist :test #'equal)))
           path :initial-value alist))
 
 (defmacro with-json-paths (obj var-paths &body body)
   `(let ,(loop for (var path) on var-paths by #'cddr collect
-              `(,var (get-nested ,obj ',(cl-ppcre:split "[.]" path))))
+              `(,var (get-nested ,obj ,path)))
      ,@body))
 
 (defun drakma-json-content-type-hack (&optional remove)
