@@ -95,7 +95,7 @@ https://accounts.google.com/o/oauth2/v2/auth?
                  "scope" (format nil "~{~A~^ ~}"
                                  youtube-scopes)
                  "access_type" "online"
-                 "include_granted_scopes" "true"
+                 "include_granted_scopes" "false"
                  "redirect_uri" redirect-uri
                  "response_type" "code"
                  "client_id" client-id)
