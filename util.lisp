@@ -147,3 +147,27 @@
 '(let ((pack (find-package 'yt-comments/util)))
   (do-all-symbols (sym pack)
     (when (eql (symbol-package sym) pack) (export sym))))
+
+(defmacro retry-times (n timeout-secs &body body)
+  (let ((i-sym (gensym "i"))
+        (ex-sym (gensym "ex"))
+        (loop-ex-sym (gensym "loop-ex"))
+        (loop-ret-sym (gensym "loop-ret"))
+        (timeout-secs (or timeout-secs 1)))
+    `(loop
+        with ,loop-ex-sym = nil
+        with ,loop-ret-sym = nil
+        for ,i-sym below ,n
+        do (format t "~A ~A ~A~%" ,i-sym ,loop-ex-sym ,loop-ret-sym)
+        do
+          (handler-case
+              (setf ,loop-ret-sym (progn ,@body)
+                    ,loop-ex-sym nil)
+            (error (,ex-sym)
+                      (setf ,loop-ex-sym ,ex-sym)
+                      (format nil "failed with ~A retrying ~D/~D... ~%"
+                              ,ex-sym (1+ ,i-sym) ,n)
+                      (sleep ,timeout-secs)))
+        while ,loop-ex-sym
+        finally (if ,loop-ex-sym (error ,loop-ex-sym)
+                    (return ,loop-ret-sym)))))
