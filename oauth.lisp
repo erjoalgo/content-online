@@ -4,7 +4,9 @@
                 #:flat-to-alist-macro
                 #:read-file
                 #:make-from-json-alist
-                #:->)
+                #:->
+                #:assoq
+                )
   (:export #:make-oauth-client-from-file))
 
 (in-package #:yt-comments/oauth)
@@ -17,9 +19,6 @@
   auth-uri
   redirect-uris
   )
-
-(defmacro assoq (alist item)
-  `(cdr (assoc ,item ,alist :test 'equal)))
 
 (defun make-oauth-client-from-file (filename)
   (let ((client (->
