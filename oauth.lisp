@@ -66,6 +66,16 @@ grant_type=authorization_code
 (defvar auth-server-redirect-base-url
   "https://accounts.google.com/o/oauth2/v2/auth")
 
+(defparameter youtube-scopes
+'("https://www.googleapis.com/auth/youtube"
+"https://www.googleapis.com/auth/youtube.force-ssl"
+"https://www.googleapis.com/auth/youtube.upload"
+"https://www.googleapis.com/auth/youtubepartner"
+"https://www.googleapis.com/auth/youtubepartner-channel-audit"))
+
+'("https://www.googleapis.com/auth/youtubepartner-channel-audit"
+    "https://www.googleapis.com/auth/youtube.force-ssl")
+
 (defun auth-server-redirect-url (oauth-client redirect-uri)
   "example
 https://accounts.google.com/o/oauth2/v2/auth?
