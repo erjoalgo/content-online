@@ -141,7 +141,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                    for cell in ,row-cols-list
                    collect (markup (:td (raw cell))))))))))
 
-(defvar home-path "/user")
+(defparameter home-path "/channels")
 
 (define-regexp-route root-handler ("^/$")
     "initiate session and fetch token"
@@ -159,12 +159,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                   (auth-server-redirect-url oauth-client remote-redirect-url))))
     (hunchentoot:redirect url)))
 
-(define-regexp-route user-name-handler ("^/user/(.*)?$" username)
-    "user-name handler"
-  (setf (session-value username) username)
-  (hunchentoot:redirect "/subscription/"))
+(define-regexp-route channels-handler ("^/channels/?$")
 
-(define-regexp-route subscriptions-handler ("^/subscription/([^/]*)/?$" channel-id)
     "list subscriptions for the given channel id"
   ;; (format t "have ~A subs~%" (length subs))
   ;; (setf db subs)
@@ -179,9 +175,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
               (with-json-paths sub
                   (sub-chan-id "snippet.resourceId.channelId" sub-title "snippet.title")
                 (let* ((sub-url (channel-url sub-chan-id))
-                      (user-id (session-value 'username))
-                      (sub-comments-link (format nil "/user/~A/subscription/~A/comments"
-                                                 user-id sub-chan-id)))
+                       (sub-comments-link (format nil "/channels/~A/comments"
+                                                  sub-chan-id)))
                       (list (format nil "~D" sub-idx) sub-chan-id sub-title
                             (markup (:a :href sub-url sub-url))
                             (markup (:a :href sub-comments-link "comments!")))))))
@@ -200,12 +195,13 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
      (get-nested-macro "snippet.title")))))
 
 (define-regexp-route list-comments-handler
-    ("^/user/([^/]*)/subscription/([^/]*)/comments$" user-name sub-channel-id)
+    ("^/channels/([^/]*)/comments$" sub-channel-id)
     "list comments for the given user on the given subscription"
+  (assert (session-channel-title))
   (make-table '("#" "id" "author" "video or channel id" "reply count" "text")
               (comment-threads (session-value 'api-login)
                                :part "snippet"
-                               :search-terms user-name
+                               :search-terms (session-channel-title)
                                :all-threads-related-to-channel-id sub-channel-id
                                )
               comment-idx comment
