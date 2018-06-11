@@ -15,6 +15,8 @@
                 #:make-oauth-client-from-file
                 #:auth-server-redirect-url
                 #:exchange-code-for-token
+                #:resp-token-access-token
+                #:resp-token-refresh-token
                 )
   (:import-from #:hunchentoot
                 #:session-value
