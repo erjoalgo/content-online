@@ -157,10 +157,10 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                   (auth-server-redirect-url oauth-client remote-redirect-url))))
     (hunchentoot:redirect url)))
 
-(define-regexp-route user-name-handler ("^user/([^/]*)$" username)
-    "initiate session and fetch token"
-  (hunchentoot:start-session)
-  (setf (session-value username) username))
+(define-regexp-route user-name-handler ("^/user/(.*)?$" username)
+    "user-name handler"
+  (setf (session-value username) username)
+  (hunchentoot:redirect "/subscription/"))
 
 (define-regexp-route subscriptions-handler ("^/subscription/([^/]*)$" channel-id)
     "list subscriptions for the given channel id"
