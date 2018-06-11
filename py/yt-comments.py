@@ -160,6 +160,27 @@ def get_comments(client,
 def get_subscriptions(client, channel_id=None, mine=None):
     return depaginate(client, "subscriptions", mine=mine, channelId=channel_id)
 
+
+def remove_empty_kwargs(**kwargs):
+    good_kwargs = {}
+    if kwargs is not None:
+        for key, value in kwargs.items():
+            if value:
+                good_kwargs[key] = value
+    return good_kwargs
+
+# Sample python code for comments.delete
+def comments_delete(client, **kwargs):
+  # See full sample for function
+  kwargs = remove_empty_kwargs(**kwargs)
+
+  response = client.comments().delete(
+    **kwargs
+  ).execute()
+
+  print (response)
+  return response
+
 if __name__ == "__main__":
   # The "channelid" option specifies the YouTube channel ID that uniquely
   # identifies the channel for which the comment will be inserted.
