@@ -95,7 +95,13 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (hunchentoot:define-easy-handler (oauth-authorize-handler :uri oauth-authorize-uri-path)
     (code)
   ;; (assert (session-value 'original-url))
-  (let (
+  (let ((original-url
+         (if (not hunchentoot:*session*)
+             (progn (hunchentoot:start-session)
+                    "/")
+             (progn
+               (assert (session-value 'original-url))
+                    (session-value 'original-url))))
         (resp-token (exchange-code-for-token code (service-oauth-client *service*))))
     (if (resp-token-access-token resp-token)
         (progn
