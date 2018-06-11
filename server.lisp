@@ -188,7 +188,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     ("^/user/([^/]*)/subscription/([^/]*)/comments$" user-name sub-channel-id)
     "list comments for the given user on the given subscription"
   (make-table '("#" "id" "author" "video or channel id" "reply count" "text")
-              (comment-threads (config-api-login (service-config *service*))
+              (comment-threads (session-value 'api-login)
                                :part "snippet"
                                :search-terms user-name
                                :all-threads-related-to-channel-id sub-channel-id
