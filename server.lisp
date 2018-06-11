@@ -159,28 +159,48 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                   (auth-server-redirect-url oauth-client remote-redirect-url))))
     (hunchentoot:redirect url)))
 
+(defstruct channel
+  id
+  title
+  description
+  )
+
 (define-regexp-route channels-handler ("^/channels/?$")
     "list a subset of channels where the current user may have posted comments"
 
   ;; (format t "have ~A subs~%" (length subs))
   ;; (setf db subs)
   ;; defmacro (headers rows-form row-idx-sym row-sym row-cols-list-form)
-  (make-table '("#" "channel id" "description" "url" "commments")
-              ;; db
-              (subscriptions (session-value 'api-login)
-                             ;; :channel-id channel-id
-                             :mine "true"
-                             :part "snippet")
-              sub-idx sub
-              (with-json-paths sub
-                  ((sub-chan-id "snippet.resourceId.channelId")
-                   (sub-title "snippet.title"))
-                (let* ((sub-url (channel-url sub-chan-id))
-                       (sub-comments-link (format nil "/channels/~A/comments"
-                                                  sub-chan-id)))
-                      (list (format nil "~D" sub-idx) sub-chan-id sub-title
-                            (markup (:a :href sub-url sub-url))
-                            (markup (:a :href sub-comments-link "comments!")))))))
+  (let ((channs (make-hash-table :test 'equal)))
+    (loop for sub in (subscriptions (session-value 'api-login)
+                                    ;; :channel-id channel-id
+                                    :mine "true"
+                                    :part "snippet")
+       do (with-json-paths sub
+              ((chan-id "snippet.resourceId.channelId")
+               (title "snippet.title")
+               (description "snippet.description"))
+            (unless (gethash chan-id channs)
+              (setf (gethash chan-id channs)
+                    (make-channel
+                     :id chan-id
+                     :title title
+                     :description description)))))
+
+    (make-table '("#" "channel id" "description" "url" "commments")
+                ;; db
+                (loop for chan being the hash-values of channs
+                   collect chan)
+                chan-idx chan
+                (let* ((chan-id (channel-id chan))
+                       (chan-url (channel-url chan-id))
+                       (chan-comments-link (format nil "/channels/~A/comments"
+                                                   chan-id)))
+                  (list (format nil "~D" chan-idx)
+                        chan-id
+                        (channel-title chan)
+                        (markup (:a :href chan-url chan-url))
+                        (markup (:a :href chan-comments-link "comments!")))))))
 
 (defun session-channel-title ()
   (or
