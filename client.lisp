@@ -62,11 +62,11 @@
                      (babel:octets-to-string :encoding :utf-8)
                      (jonathan:parse :as as)
                      (make-from-json-alist resp-page)))
-       do (format t "params: ~A~%" params)
        as error = (resp-page-error page)
        when (null error) do
          (setf (cdr page-token-param)
                (resp-page-next-page-token page))
+       do (format t "page: ~A/~A params: ~A~%" page-idx total-results params)
        do (setf db page)
        append (resp-page-items page) into items
        while (and (cdr page-token-param) (not error))
