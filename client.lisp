@@ -28,7 +28,9 @@
 
 (defstruct api-login
   key
-  token)
+  access-token
+  refresh-token
+  )
 
 (defvar db)
 
