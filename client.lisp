@@ -36,7 +36,10 @@
 
 (defun api-req (login resource params-alist)
   (let* ((as :alist)
-         (api-key (api-login-key login))
+         (additional-headers (when (api-login-access-token login)
+                               (list (cons :authorization
+                                           (format nil "Bearer ~A"
+                                                   (api-login-access-token login))))))
          (api-base-url default-api-base-url)
          (url (concatenate 'string api-base-url resource))
          (orig-params (lisp-alist-to-json-map (cons (cons :key api-key)
