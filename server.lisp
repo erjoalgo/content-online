@@ -143,8 +143,6 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                    for cell in ,row-cols-list
                    collect (markup (:td (raw cell))))))))))
 
-(defparameter home-path "/channels")
-
 (define-regexp-route root-handler ("^/$")
     "initiate session and fetch token"
   (unless hunchentoot:*session*
@@ -155,11 +153,20 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
          (remote-redirect-url (format nil "~A~A"
                                       (hunchentoot:host)
                                       oauth-authorize-uri-path))
-         (oauth-client (service-oauth-client *service*))
-         (url (if token
-                  home-path
-                  (auth-server-redirect-url oauth-client remote-redirect-url))))
-    (hunchentoot:redirect url)))
+         (oauth-client (service-oauth-client *service*)))
+    (if token
+        (home-handler)
+        (hunchentoot:redirect
+         (auth-server-redirect-url oauth-client remote-redirect-url)))))
+
+(defparameter home-urls
+  '("/subscriptions"
+    "/playlists"))
+
+(defun home-handler ()
+  (markup (:ul (loop for url in home-urls
+                  collect (markup (:li (:a :href url url)))))))
+
 
 (defstruct channel
   id
