@@ -4,7 +4,8 @@
                 #:to-camel-case
                 #:->
                 #:make-from-json-alist
-                #:lisp-alist-to-json-map)
+                #:lisp-alist-to-json-map
+                #:retry-times)
   (:export #:make-api-login
            #:default-base-url))
 
