@@ -16,3 +16,6 @@
          (start (make-config :port 4244
                              :oauth-client-secret-json-path
                              secrets-file-path))))
+
+
+'(setf (hunchentoot::session-db (service-acceptor *service*)) nil)
