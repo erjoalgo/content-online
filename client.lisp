@@ -90,6 +90,8 @@
 
 (def-api-endpoint playlists)
 
+(def-api-endpoint playlist-items)
+
 (def-api-endpoint channels)
 
 ;; due to conflict with search function...
