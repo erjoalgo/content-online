@@ -54,12 +54,13 @@
                        orig-params
                        (cons page-token-param
                              orig-params))
-       as page = (-> (drakma:http-request url
+       as page = (retry-times 5 1
+                   (-> (drakma:http-request url
                                           :parameters params
                                           :additional-headers additional-headers)
                      (babel:octets-to-string :encoding :utf-8)
                      (jonathan:parse :as as)
-                     (make-from-json-alist resp-page))
+                     (make-from-json-alist resp-page)))
        do (format t "params: ~A~%" params)
        do
          (setf (cdr page-token-param)
