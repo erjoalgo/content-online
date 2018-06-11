@@ -90,6 +90,7 @@ https://accounts.google.com/o/oauth2/v2/auth?
   (with-slots (scopes client-id auth-uri) oauth-client
     (format nil "~A?~A"
             auth-uri
+            ;; "http://localhost:1234/"
             (-> (flat-to-alist-macro
                  "scope" scopes
                  "access_type" "online"
