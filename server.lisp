@@ -170,8 +170,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   (make-table '("#" "channel id" "description" "url" "commments")
               ;; db
               (subscriptions (session-value 'api-login)
-                                    :channel-id channel-id
-                                    :part "snippet")
+                             ;; :channel-id channel-id
+                             :mine "true"
+                             :part "snippet")
               sub-idx sub
               (with-json-paths sub
                   (sub-chan-id "snippet.resourceId.channelId" sub-title "snippet.title")
