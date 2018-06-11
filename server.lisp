@@ -147,11 +147,14 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     (format t "starting session...~%" )
     (hunchentoot:start-session))
   ;; TODO ask for username?
-  (let* ((remote-redirect-url (format nil "~A~A"
+  (let* ((token (session-value 'api-login))
+         (remote-redirect-url (format nil "~A~A"
                                       (hunchentoot:host)
                                       oauth-authorize-uri-path))
          (oauth-client (service-oauth-client *service*))
-        (url (auth-server-redirect-url oauth-client remote-redirect-url)))
+         (url (if token
+                  home-path
+                  (auth-server-redirect-url oauth-client remote-redirect-url))))
     (hunchentoot:redirect url)))
 
 (define-regexp-route user-name-handler ("^user/([^/]*)$" username)
