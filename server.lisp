@@ -319,6 +319,16 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                     :search-terms (session-channel-title)
                     :all-threads-related-to-channel-id sub-channel-id)))
 
+(define-regexp-route list-video-comment-threads-handler
+    ("^/videos/([^/]*)/comments$" video-id)
+    "list comments for the current user on the given video"
+  (assert (session-channel-title))
+  (list-comment-threads-handler
+   (comment-threads (session-value 'api-login)
+                    :part "snippet"
+                    :search-terms (session-channel-title)
+                    :video-id video-id)))
+
 (define-regexp-route delete-comments-handler
     ("/comment/([^/]+)/delete" comment-id)
     "delete a given comment"
