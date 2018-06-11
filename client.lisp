@@ -96,6 +96,7 @@
 (defun delete-comment (api-login comment-id)
   "DELETE https://www.googleapis.com/youtube/v3/comments"
   (format t "delete token: ~A~%" (api-login-access-token api-login))
+  (retry-times 5 1
     (-> (drakma:http-request
          youtube-comments-base-url
          ;; "http://localhost:1234/"
@@ -109,4 +110,4 @@
                                     (format nil "Bearer ~A"
                                             (api-login-access-token api-login)))))
         (babel:octets-to-string :encoding :utf-8)
-        (jonathan:parse :as :alist)))
+        (jonathan:parse :as :alist))))
