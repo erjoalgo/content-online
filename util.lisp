@@ -1,4 +1,4 @@
-'(defpackage #:yt-comments/util
+(defpackage #:yt-comments/util
   (:use :cl)
   )
 
