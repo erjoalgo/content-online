@@ -23,6 +23,7 @@
   next-page-token
   etag
   kind
+  error
   )
 
 (defstruct api-login
