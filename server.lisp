@@ -210,6 +210,6 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                         comment-id
                         comment-author
                         comment-page-url
-                        comment-reply-count
+                        (format nil "~D" comment-reply-count)
                         comment-text
                         (markup (:a :href delete-comment-link "delete!")))))))
