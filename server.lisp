@@ -209,7 +209,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                   (list (format nil "~D" comment-idx)
                         comment-id
                         comment-author
-                        comment-page-url
+                        (markup (:a :href comment-page-url comment-page-url))
                         (format nil "~D" comment-reply-count)
                         comment-text
                         (markup (:a :href delete-comment-link "delete!")))))))
