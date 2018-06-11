@@ -63,7 +63,11 @@
 (defvar oauth-authorize-uri-path "/oauth/authorize")
 
 (defun oauth-authorize-uri ()
-  (format nil "~A~A" (hunchentoot:host) oauth-authorize-uri-path))
+  (format nil "http://~A~A"
+          ;; TODO get request protocol
+          ;; https://stackoverflow.com/questions/40693291/
+          ;; (hunchentoot:server-protocol*)
+          (hunchentoot:host) oauth-authorize-uri-path))
 
 (defun oauth-redirect (original-url)
   (setf (session-value original-url) original-url)
