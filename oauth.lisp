@@ -15,17 +15,22 @@
   token-uri
   scopes
   auth-uri
+  redirect-uris
   )
 
 (defmacro assoq (alist item)
   `(cdr (assoc ,item ,alist :test 'equal)))
 
 (defun make-oauth-client-from-file (filename)
-  (->
-   (read-file filename)
-   (jonathan:parse :as :alist)
-   (assoq "installed")
-   (make-from-json-alist oauth-client)))
+  (let ((client (->
+                 (read-file filename)
+                 (jonathan:parse :as :alist)
+                 ;; (assoq "installed")
+                 cdar
+                 (make-from-json-alist oauth-client))))
+    (assert (with-slots (client-id client-secret) client
+              (and client-id client-secret)))
+    client))
 
 (defun fetch-token (oauth-client redirect-uri)
   (with-slots (client-id client-secret token-uri) oauth-client
