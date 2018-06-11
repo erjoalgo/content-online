@@ -167,8 +167,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   description
   )
 
-(define-regexp-route channels-handler ("^/channels/?$")
-    "list a subset of channels where the current user may have posted comments"
+(define-regexp-route subscriptions-handler ("^/subscriptions/?$")
+    "list user's subscription channels"
 
   ;; (format t "have ~A subs~%" (length subs))
   ;; (setf db subs)
