@@ -126,6 +126,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (define-regexp-route root-handler ("^/$")
     "initiate session and fetch token"
+  (unless hunchentoot:*session*
+    (format t "starting session...~%" )
+    (hunchentoot:start-session))
   ;; TODO ask for username?
   (let* ((redirect-url (format nil "~A~A"
                               (hunchentoot:host)
