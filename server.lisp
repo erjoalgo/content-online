@@ -160,8 +160,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     (hunchentoot:redirect url)))
 
 (define-regexp-route channels-handler ("^/channels/?$")
+    "list a subset of channels where the current user may have posted comments"
 
-    "list subscriptions for the given channel id"
   ;; (format t "have ~A subs~%" (length subs))
   ;; (setf db subs)
   ;; defmacro (headers rows-form row-idx-sym row-sym row-cols-list-form)
