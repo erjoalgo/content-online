@@ -119,11 +119,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                      hunchentoot:+http-authorization-required+)
                (format nil "token request rejected: ~A~%" resp-token)))))
 
-'(defmacro with-html-string (&body body)
-  `(with-html-output-to-string (*standard-output* nil :prologue t :indent t)
-     ,@body))
-
-(defvar db)
+(defvar db);;debugging
 
 (defmacro make-table (headers rows row-idx-sym row-sym row-cols-list)
   `(markup
