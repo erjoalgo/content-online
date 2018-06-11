@@ -41,6 +41,7 @@
                                            (format nil "Bearer ~A"
                                                    (api-login-access-token login))))))
          (api-base-url default-api-base-url)
+         ;; (api-base-url "http://localhost:1234/")
          (url (concatenate 'string api-base-url resource))
          (orig-params (lisp-alist-to-json-map (if (api-login-key login)
                                                 (cons (cons :key (api-login-key login))
