@@ -4,6 +4,7 @@
                 #:with-json-paths
                 )
   (:import-from #:yt-comments/client
+                #:make-api-login
                 #:subscriptions
                 #:comment-threads
                 #:channel-url
