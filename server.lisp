@@ -173,7 +173,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                              :part "snippet")
               sub-idx sub
               (with-json-paths sub
-                  (sub-chan-id "snippet.resourceId.channelId" sub-title "snippet.title")
+                  ((sub-chan-id "snippet.resourceId.channelId")
+                   (sub-title "snippet.title"))
                 (let* ((sub-url (channel-url sub-chan-id))
                        (sub-comments-link (format nil "/channels/~A/comments"
                                                   sub-chan-id)))
@@ -206,13 +207,13 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                                )
               comment-idx comment
               (with-json-paths comment
-                  (comment-author "snippet.topLevelComment.snippet.authorDisplayName"
-                                  comment-id "id"
-                                  comment-video-id "snippet.videoId"
-                                  comment-channel-id "snippet.channelId"
-                                  comment-reply-count "snippet.totalReplyCount"
-                                  comment-text "snippet.topLevelComment.snippet.textOriginal"
-                                  )
+                  ((comment-author "snippet.topLevelComment.snippet.authorDisplayName")
+                   (comment-id "id")
+                   (comment-video-id "snippet.videoId")
+                   (comment-channel-id "snippet.channelId")
+                   (comment-reply-count "snippet.totalReplyCount")
+                   (comment-text "snippet.topLevelComment.snippet.textOriginal")
+                   )
                 (let ((comment-page-url (if comment-video-id
                                             (video-url comment-video-id)
                                             (channel-url comment-channel-id)))

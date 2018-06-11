@@ -112,7 +112,7 @@
   `(get-nested ,alist ',(cl-ppcre:split "[.]" path)))
 
 (defmacro with-json-paths (obj var-paths &body body)
-  `(let ,(loop for (var path) on var-paths by #'cddr collect
+  `(let ,(loop for (var path) in var-paths collect
               `(,var (get-nested ,obj ,path)))
      ,@body))
 
