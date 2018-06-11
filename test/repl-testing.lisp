@@ -3,6 +3,8 @@
 
 (progn (when *service*
          (stop *service*))
-       (start (make-config :port 4244
-                           :oauth-client-secret-json-path
-                           "client_secret_REMOVED.apps.googleusercontent.com.json")))
+       (let ((secrets-file-path (loop for path in (uiop:directory-files ".")
+                                   thereis (and (equal "json" (pathname-type path)) path))))
+         (start (make-config :port 4244
+                             :oauth-client-secret-json-path
+                             secrets-file-path))))
