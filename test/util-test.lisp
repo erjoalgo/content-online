@@ -32,4 +32,19 @@
 
 
 
+(defstruct my-unmarshal-test-2
+  access-token
+  error
+  error-description
+  )
+
+(let* ((json "{
+  \"error\" : \"invalid_grant\",
+  \"error_description\" : \"Code was already redeemed.\"
+}")
+       (json-alist (jonathan:parse json :as :alist))
+       (obj (make-from-json-alist json-alist my-unmarshal-test-2)))
+  (stefil:is (equal (my-unmarshal-test-2-error-description obj) "Code was already redeemed."))
+  (stefil:is (equal (my-unmarshal-test-2-error obj) "invalid_grant")))
+
 (run-tests)
