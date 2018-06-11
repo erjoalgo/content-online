@@ -88,6 +88,13 @@
 
 (def-api-endpoint subscriptions :defaults '((:part . "snippet")))
 
+(def-api-endpoint playlists)
+
+(def-api-endpoint channels)
+
+;; due to conflict with search function...
+(def-api-endpoint search :fun-sym yt-search)
+
 
 (defparameter youtube-comments-base-url
   "https://www.googleapis.com/youtube/v3/comments"
