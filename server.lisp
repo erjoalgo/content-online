@@ -12,6 +12,8 @@
                 #:channel-url
                 #:video-url
                 #:delete-comment
+                #:playlists
+                #:playlist-items
                 )
   (:import-from #:yt-comments/oauth
                 #:make-oauth-client-from-file
@@ -201,6 +203,52 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                         (channel-title chan)
                         (markup (:a :href chan-url chan-url))
                         (markup (:a :href chan-comments-link "comments!")))))))
+
+(define-regexp-route playlists-handler ("^/playlists/?$")
+    "list user's playlists"
+  (make-table '("#" "id" "title" "published" "commments")
+              (playlists (session-value 'api-login)
+                         :mine "true"
+                         :part "snippet")
+              idx playlist
+              (with-json-paths playlist
+                  ((id "id")
+                   (title "snippet.title")
+                   (published "snippet.publishedAt"))
+                (list (format nil "~D" idx)
+                      id
+                      title
+                      published
+                      (markup
+                       (:a :href (format nil "/playlists/~A/videos"
+                                         id) "videos"))))))
+
+(define-regexp-route playlist-videos-handler ("^/playlists/([^/]+)/videos/?$" playlist-id)
+    "list user's playlist videos"
+  (make-table '("#" "id" "title" "channel" "published" "description" "commments")
+              (loop for item in (playlist-items (session-value 'api-login)
+                                                :playlist-id playlist-id
+                                                :mine "true"
+                                                :part "snippet")
+                   do (format t "item is ~A~%" item)
+                 ;; when (equal "youtube#video" (get-nested-macro item "kind"))
+                 collect item)
+              idx video
+              (with-json-paths video
+                  ((id "snippet.resourceId.videoId")
+                   (title "snippet.title")
+                   (channel-id "snippet.channelId")
+                   (published "snippet.publishedAt")
+                   (description "snippet.description"))
+                (list (format nil "~D" idx)
+                      (markup
+                       (:a :href (video-url id) id))
+                      title
+                      channel-id
+                      published
+                      (subseq description 0 (min (length description) 100))
+                      (markup
+                       (:a :href (format nil "/videos/~A/comments" id) "comments"))))))
 
 (defun session-channel-title ()
   (or
