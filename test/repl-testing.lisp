@@ -1,6 +1,12 @@
 (declaim (optimize (debug 3) (speed 0)))
 (setf hunchentoot:*catch-errors-p* nil)
 
+(defun unintern-shadowing-symbols (package)
+  (let ((syms (package-shadowing-symbols package)))
+    (dolist (sym syms) (unintern sym package))
+    (format t "uninterned ~D shadowing symbols ~%"
+            (length syms))))
+
 '(progn (when *service*
          (stop *service*))
        (let ((secrets-file-path (loop for path in (uiop:directory-files ".")
