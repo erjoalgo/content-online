@@ -139,6 +139,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                    for cell in ,row-cols-list
                    collect (markup (:td (raw cell))))))))))
 
+(defvar home-path "/user")
+
 (define-regexp-route root-handler ("^/$")
     "initiate session and fetch token"
   (unless hunchentoot:*session*
