@@ -111,7 +111,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     (:table
      :border 1
      :cellpadding 4
-     (:tr :align "right"
+     (:tr :align "left"
           (loop for header in ,headers collect
                (markup (:td (:b header)))))
      (loop
@@ -119,7 +119,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
         for ,row-idx-sym from 1
         collect
           (markup
-           (:tr :align "right"
+           (:tr :align "left"
                 (loop
                    for cell in ,row-cols-list
                    collect (markup (:td (raw cell))))))))))
