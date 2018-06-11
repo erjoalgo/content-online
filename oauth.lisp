@@ -101,5 +101,65 @@ https://accounts.google.com/o/oauth2/v2/auth?
                  "client_id" client-id)
                 (drakma::alist-to-url-encoded-string :utf-8 'drakma:url-encode)))))
 
-(defun oauth-exchange-code-for-token (code)
-  (declare (ignore code)))
+(defstruct resp-token
+  access-token
+  refresh-token
+  expires-in
+  token-type
+  error
+  error-description
+  )
+
+
+(defun exchange-code-for-token (code oauth-client)
+  "code	The authorization code returned from the initial request.
+client_id	The client ID obtained from the API Console.
+client_secret	The client secret obtained from the API Console.
+redirect_uri	One of the redirect URIs listed for your project in the API Console.
+grant_type	As defined in the OAuth 2.0 specification, this field must contain a value of authorization_code.
+"
+  '"
+The following snippet shows a sample request:
+
+POST /oauth2/v4/token HTTP/1.1
+Host: www.googleapis.com
+Content-Type: application/x-www-form-urlencoded
+
+code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7&
+client_id=your_client_id&
+client_secret=your_client_secret&
+redirect_uri=https://oauth2.example.com/code&
+grant_type=authorization_code"
+
+
+  '"
+(response)
+{
+\"access_token\":\"1/fFAGRNJru1FTz70BzhT3Zg\",
+\"expires_in\":3920,
+\"token_type\":\"Bearer\",
+\"refresh_token\":\"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI\"
+}
+
+"
+
+  (format t "code is ~A~%" code)
+(let ((resp-json
+       (with-slots (scopes client-id client-secret token-uri redirect-uris) oauth-client
+         (->
+          (drakma:http-request
+           token-uri
+           ;; "http://localhost:1234"
+           :method :post
+           :parameters (flat-to-alist-macro
+                        "code" code
+                        "grant_type" "authorization_code"
+                        "client_secret" client-secret
+                        "redirect_uri" (car redirect-uris)
+                        "client_id" client-id))
+          (babel:octets-to-string :encoding :utf-8)
+          ))))
+      (format t "token resp ~A~%" resp-json)
+      (format t "token resp ~A~%" (-> resp-json (jonathan:parse :as :alist)))
+      (make-from-json-alist (-> resp-json (jonathan:parse :as :alist)) resp-token)
+      ))
