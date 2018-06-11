@@ -99,6 +99,7 @@
 ;; due to conflict with search function...
 (def-api-endpoint search :fun-sym yt-search)
 
+(def-api-endpoint activities :defaults '((:max-results . "50")))
 
 (defparameter youtube-comments-base-url
   "https://www.googleapis.com/youtube/v3/comments"
