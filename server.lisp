@@ -86,7 +86,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
        ,docstring
        (ppcre:register-groups-bind ,capture-names
            (,url-regexp (hunchentoot:script-name*))
-         (if (not (session-value 'token))
+         (if (not (session-value 'api-login))
              (oauth-redirect (hunchentoot:request-uri*))
              (progn ,@body))))
      (push (hunchentoot:create-regex-dispatcher ,url-regexp ',name)
