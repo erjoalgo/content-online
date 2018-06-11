@@ -7,3 +7,6 @@
 
 (defun video-url (video-id)
   (format nil "~A/watch?v=~A" youtube-base-url video-id))
+
+(defun playlist-url (playlist-id)
+  (format nil "~A/playlist?list=~A" youtube-base-url playlist-id))

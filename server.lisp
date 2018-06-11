@@ -11,6 +11,7 @@
                 #:comment-threads
                 #:channel-url
                 #:video-url
+                #:playlist-url
                 #:delete-comment
                 #:playlists
                 #:playlist-items
@@ -219,7 +220,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                    (title "snippet.title")
                    (published "snippet.publishedAt"))
                 (list (format nil "~D" idx)
-                      id
+                      (markup
+                       (:a :href (playlist-url id) id))
+                      (playlist-url id)
                       title
                       published
                       (markup
