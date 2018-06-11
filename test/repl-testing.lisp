@@ -1,7 +1,7 @@
 (declaim (optimize (debug 3) (speed 0)))
 (setf hunchentoot:*catch-errors-p* nil)
 
-(progn (when *service*
+'(progn (when *service*
          (stop *service*))
        (let ((secrets-file-path (loop for path in (uiop:directory-files ".")
                                    thereis (and (equal "json" (pathname-type path)) path))))
