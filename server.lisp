@@ -70,7 +70,7 @@
           (hunchentoot:host) oauth-authorize-uri-path))
 
 (defun oauth-redirect (original-url)
-  (setf (session-value original-url) original-url)
+  (setf (session-value 'original-url) original-url)
   (let* ((local-auth-url (oauth-authorize-uri))
          (oauth-client (service-oauth-client *service*))
          (remote-auth-url (auth-server-redirect-url oauth-client local-auth-url)))
