@@ -289,32 +289,35 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                       text
                       (markup (:a :href (format nil "/comment/~A/delete" id) "delete!"))))))
 
+(defun list-comment-threads-handler (comment-threads)
+  (list-comments-handler
+   (loop for comment-thread in comment-threads
+     collect
+       (with-json-paths comment-thread
+           ((comment-author "snippet.topLevelComment.snippet.authorDisplayName")
+            (comment-id "id")
+            (comment-video-id "snippet.videoId")
+            (comment-channel-id "snippet.channelId")
+            (comment-reply-count "snippet.totalReplyCount")
+            (comment-text "snippet.topLevelComment.snippet.textOriginal")
+            )
+         (make-comment
+          :author comment-author
+          :id comment-id
+          :video-id comment-video-id
+          :channel-id comment-channel-id
+          :reply-count comment-reply-count
+          :text comment-text)))))
+
 (define-regexp-route list-channel-comment-threads-handler
     ("^/channels/([^/]*)/comments$" sub-channel-id)
     "list comments for the current user on the given channel"
   (assert (session-channel-title))
-  (list-comments-handler
-   (loop for comment-thread in (comment-threads (session-value 'api-login)
-                                                :part "snippet"
-                                                :search-terms (session-channel-title)
-                                                :all-threads-related-to-channel-id sub-channel-id
-                                                )
-      collect
-        (with-json-paths comment-thread
-            ((comment-author "snippet.topLevelComment.snippet.authorDisplayName")
-             (comment-id "id")
-             (comment-video-id "snippet.videoId")
-             (comment-channel-id "snippet.channelId")
-             (comment-reply-count "snippet.totalReplyCount")
-             (comment-text "snippet.topLevelComment.snippet.textOriginal")
-             )
-          (make-comment
-           :author comment-author
-           :id comment-id
-           :video-id comment-video-id
-           :channel-id comment-channel-id
-           :reply-count comment-reply-count
-           :text comment-text)))))
+  (list-comment-threads-handler
+   (comment-threads (session-value 'api-login)
+                    :part "snippet"
+                    :search-terms (session-channel-title)
+                    :all-threads-related-to-channel-id sub-channel-id)))
 
 (define-regexp-route delete-comments-handler
     ("/comment/([^/]+)/delete" comment-id)
