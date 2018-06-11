@@ -8,6 +8,7 @@
                 #:comment-threads
                 #:channel-url
                 #:video-url
+                #:delete-comment
                 )
   (:import-from #:yt-comments/oauth
                 #:make-oauth-client-from-file
