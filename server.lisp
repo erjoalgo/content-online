@@ -204,7 +204,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                        (chan-url (channel-url chan-id))
                        (chan-comments-link (format nil "/channels/~A/comments"
                                                    chan-id)))
-                  (list (format nil "~D" chan-idx)
+                  (list (write-to-string chan-idx)
                         chan-id
                         (channel-title chan)
                         (markup (:a :href chan-url chan-url))
@@ -221,7 +221,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                   ((id "id")
                    (title "snippet.title")
                    (published "snippet.publishedAt"))
-                (list (format nil "~D" idx)
+                (list (write-to-string idx)
                       (markup
                        (:a :href (playlist-url id) id))
                       (playlist-url id)
@@ -248,7 +248,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                    (channel-id "snippet.channelId")
                    (published "snippet.publishedAt")
                    (description "snippet.description"))
-                (list (format nil "~D" idx)
+                (list (write-to-string idx)
                       (markup
                        (:a :href (video-url id) id))
                       title
@@ -301,12 +301,12 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
               comment-idx comment
               (with-slots (id author video-id channel-id reply-count text)
                   comment
-                (list (format nil "~D" comment-idx)
+                (list (write-to-string comment-idx)
                       id
                       author
                       (markup (:a :href (if video-id (video-url video-id) (channel-url channel-id))
                                   (or video-id channel-id)))
-                      (format nil "~D" reply-count)
+                      (write-to-string reply-count)
                       text
                       (markup (:a :href (format nil "/comment/~A/delete" id) "delete!"))))))
 
