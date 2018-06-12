@@ -129,11 +129,6 @@
 
 (def-api-endpoint activities :defaults '((:max-results . "50")))
 
-(defparameter youtube-comments-base-url
-  "https://www.googleapis.com/youtube/v3/comments"
-  ;; "http://www.googleapis.com/youtube/v3/comments"
-  )
-
 (defun delete-comment (api-login comment-id)
   "DELETE https://www.googleapis.com/youtube/v3/comments"
   (format t "delete token: ~A~%" (api-login-access-token api-login))
