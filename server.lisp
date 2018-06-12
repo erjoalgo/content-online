@@ -259,7 +259,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                       (markup
                        (:a :href (format nil "/videos/~A/comments" id) "comments"))
                       (js-lazy-element (format nil "/videos/~A/comments-count" id)
-                                       (markup (:img :src (format nil "/loading.gif"))))))))
+                                       (markup (:img :src (format nil "/loading-small.gif"))))))))
 
 (define-regexp-route playlist-videos-handler ("^/playlists/([^/]+)/videos/?$" playlist-id)
     "list user's playlist videos"
