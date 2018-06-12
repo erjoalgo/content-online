@@ -4,6 +4,7 @@
                 #:with-json-paths
                 #:->
                 #:get-nested-macro
+                #:assoq
                 )
   (:import-from #:yt-comments/server-util
                 #:js-lazy-element)
@@ -160,7 +161,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (defparameter home-urls
   '("/subscriptions"
-    "/playlists"))
+    "/playlists"
+    "/feed-history-dom-html"
+    ))
 
 (defun home-handler ()
   (markup (:ul (loop for url in home-urls
@@ -251,7 +254,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                       title
                       channel-id
                       published
-                      (subseq description 0 (min (length description) 100))
+                      (when description
+                        (subseq description 0 (min (length description) 100)))
                       (markup
                        (:a :href (format nil "/videos/~A/comments" id) "comments"))
                       (js-lazy-element (format nil "/videos/~A/comments-count" id)
@@ -375,3 +379,49 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   (let ((resp (delete-comment (session-value 'api-login) comment-id)))
     (format t "response: ~A~%" resp)
     (format nil "~A" resp)))
+
+(defun parse-unique-video-ids (text)
+  (loop with table = (make-hash-table :test 'equal)
+     with video-ids = (cl-ppcre:all-matches-as-strings
+                       "(?<=/watch[?]v=)([^\"&\]*)" text)
+
+     for id in video-ids do
+       (setf (gethash id table) t)
+       finally (return (loop for id being the hash-keys of table collect id))))
+
+
+
+
+(defun fetch-videos-by-ids (video-ids)
+  (declare (ignore video-ids)))
+
+(define-regexp-route feed-history-dom-html-handler
+    ("/feed-history-dom-html")
+    "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
+  (let ((form-id "inner-html")
+        (feed-url "https://www.youtube.com/feed/history/comment_history"))
+    (case (hunchentoot:request-method*)
+      (:get (markup (:form
+                     :action "/feed-history-dom-html"
+                     :method "post"
+                     (:ol
+                      (:li "navigate to " (:a :href feed-url feed-url))
+                      (:li "open browser console, type \"document.body.innerHTML\"")
+                      (:li "copy the result and paste it in the form below, then submit"))
+                     (:textarea
+                      :id form-id
+                      :name form-id
+                      :rows "20"
+                      :cols "80"
+                      nil)
+                     (:br)
+                     (:input :type "submit"
+                             :name "submit"))))
+      (:post
+       (setf db (hunchentoot:post-parameters*))
+       (let ((video-ids (-> (hunchentoot:post-parameters*)
+                                   (assoq form-id)
+                                   (parse-unique-video-ids))))
+         (videos-handler (loop for video-id in video-ids collect
+                              (make-video
+                               :id video-id))))))))
