@@ -440,6 +440,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
               :cols "80"
               nil)
              (:br)
+             (:input :type "radio" :name "aggregation" :value "videos" "videos")
+             (:input :type "radio" :name "aggregation" :value "channels" "channels")
              (:input :type "submit"
                      :name "submit")))))
 
@@ -448,10 +450,18 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
   (let ((video-ids (-> (hunchentoot:post-parameters*)
                        (assoq inner-html-form-id)
-                       (parse-unique-video-ids))))
-    (videos-handler (loop for video-id in video-ids collect
-                         (make-video
-                          :id video-id)))))
+                       (parse-unique-video-ids)))
+        (aggregation (-> (hunchentoot:post-parameters*)
+                         (assoq "aggregation"))))
+    (assert (and aggregation video-ids));; TODO http status
+    (cond
+      ((equal "videos" aggregation)
+       (videos-handler (loop for video-id in video-ids collect
+                            (make-video
+                             :id video-id))))
+      ((equal "channels" aggregation)
+       (channels-handler (video-ids-to-unique-channel-ids video-ids)))
+      (t (error "unknown aggregation")))))
 
 (define-regexp-route liked-videos-handler ("^/liked-videos/?$")
     "list user's liked videos"
@@ -480,3 +490,17 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
         finally (when ,chunk-sym
                   (progn ,@body)))))
 
+
+(defun video-ids-to-unique-channel-ids (video-ids &key (n 25))
+  ;; TODO parallelize
+  (let (chans)
+    (loop-do-chunked video-ids-chunk video-ids n
+         (loop for video-alist in (yt-comments/client::videos
+                                   (session-value 'api-login)
+                                   :part "snippet"
+                                   :id (format nil "~{~A~^,~}" video-ids-chunk))
+            as chan = (make-channel
+                       :id (get-nested-macro video-alist "snippet.channelId")
+                       :title (get-nested-macro video-alist "snippet.channelTitle"))
+            do (push chan chans)))
+    (uniquify chans chan (channel-id chan))))
