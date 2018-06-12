@@ -299,15 +299,17 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defun session-channel-title ()
   (or
    (session-value 'channel-title)
-   (setf
-    (session-value 'channel-title)
-    (->
-     (yt-comments/client::channels
-      (session-value 'api-login)
-      :part "snippet"
-      :mine "true")
-     car
-     (get-nested-macro "snippet.title")))))
+   (let ((title (->
+                 (yt-comments/client::channels
+                  (session-value 'api-login)
+                  :part "snippet"
+                  :mine "true")
+                 car
+                 (get-nested-macro "snippet.title"))))
+     (assert title)
+     (setf
+      (session-value 'channel-title) title))))
+
 
 (defstruct comment
   id
