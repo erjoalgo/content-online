@@ -289,7 +289,24 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                 "commentThreads"
                 `(("part" . "id")
                   ("searchTerms" . ,(session-channel-title))
-                  ("videoId" . ,video-id))
+                  ("videoId" . ,video-id)
+                  ("maxResults" . "50")
+                  )
+                :depaginate-p nil))
+         (total-results (get-nested-macro resp "pageInfo.totalResults")))
+    (write-to-string total-results)))
+
+;; TODO consolidate
+(define-regexp-route list-channel-comment-counts-handler
+    ("^/channels/([^/]*)/comments-count$" channel-id)
+    "list number of matching comments for the current user on the given video"
+  (assert (session-channel-title))
+  (let* ((resp (yt-comments/client::api-req
+                (session-value 'api-login)
+                "commentThreads"
+                `(("part" . "id")
+                  ("searchTerms" . ,(session-channel-title))
+                  ("allThreadsRelatedToChannelId" . ,channel-id))
                 :depaginate-p nil))
          (total-results (get-nested-macro resp "pageInfo.totalResults")))
     (write-to-string total-results)))
