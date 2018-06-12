@@ -122,6 +122,8 @@
 
 (def-api-endpoint channels :defaults '((:max-results . "50")))
 
+(def-api-endpoint videos :defaults '((:max-results . "50")))
+
 ;; due to conflict with search function...
 (def-api-endpoint search :fun-sym yt-search)
 
