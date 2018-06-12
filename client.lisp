@@ -35,8 +35,8 @@
 (defun api-req (login resource params-alist
                 &key (method :get)
                   (depaginate-p t)
-                  (retry-count 5)
-                  (retry-delay 1)
+                  (retry-count 50)
+                  (retry-delay 2)
                   (auto-refresh-p t)
                   )
   (let* ((as :alist)
