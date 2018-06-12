@@ -163,6 +163,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   '("/subscriptions"
     "/playlists"
     "/feed-history/form"
+    "/liked-videos"
     ))
 
 (defun home-handler ()
@@ -429,3 +430,14 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     (videos-handler (loop for video-id in video-ids collect
                          (make-video
                           :id video-id)))))
+
+(define-regexp-route liked-videos-handler ("^/liked-videos/?$")
+    "list user's liked videos"
+  (videos-handler
+   (loop for rating in '("like" "dislike") append
+        (loop for video-alist in (yt-comments/client::videos
+                                  (session-value 'api-login)
+                                  :my-rating rating
+                                  :part "id")
+           collect (make-video
+                    :id (get-nested-macro video-alist "id"))))))
