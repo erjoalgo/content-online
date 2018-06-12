@@ -180,12 +180,24 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defun string-truncate (string n)
   (subseq string 0 (min (length string) n)))
 
+(defun channels-handler (channels &key (max-description-chars 100))
+  (make-table '("#" "channel id" "title" "description" "commments" "count")
+              channels
+              chan-idx chan
+              (with-slots (id title description) chan
+                (let* ((url (channel-url id))
+                       (comments-link (format nil "/channels/~A/comments" id)))
+                  (list (write-to-string chan-idx)
+                        (markup (:a :href url id))
+                        title
+                        (string-truncate description max-description-chars)
+                        (markup (:a :href comments-link "comments!"))
+                        (js-lazy-element (format nil "/channels/~A/comments-count" id)
+                                       (markup (:img :src (format nil "/loading-small.gif")))))))))
+
 (define-regexp-route subscriptions-handler ("^/subscriptions/?$")
     "list user's subscription channels"
 
-  ;; (format t "have ~A subs~%" (length subs))
-  ;; (setf db subs)
-  ;; defmacro (headers rows-form row-idx-sym row-sym row-cols-list-form)
   (let ((channs (make-hash-table :test 'equal)))
     (loop for sub in (subscriptions (session-value 'api-login)
                                     ;; :channel-id channel-id
@@ -202,20 +214,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                      :title title
                      :description description)))))
 
-    (make-table '("#" "channel id" "description" "url" "commments")
-                ;; db
-                (loop for chan being the hash-values of channs
-                   collect chan)
-                chan-idx chan
-                (let* ((chan-id (channel-id chan))
-                       (chan-url (channel-url chan-id))
-                       (chan-comments-link (format nil "/channels/~A/comments"
-                                                   chan-id)))
-                  (list (write-to-string chan-idx)
-                        chan-id
-                        (channel-title chan)
-                        (markup (:a :href chan-url chan-url))
-                        (markup (:a :href chan-comments-link "comments!")))))))
+    (channels-handler (loop for chan being the hash-values of channs collect chan))))
 
 (define-regexp-route playlists-handler ("^/playlists/?$")
     "list user's playlists"
