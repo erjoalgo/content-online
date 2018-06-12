@@ -177,6 +177,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   description
   )
 
+(defun string-truncate (string n)
+  (subseq string 0 (min (length string) n)))
+
 (define-regexp-route subscriptions-handler ("^/subscriptions/?$")
     "list user's subscription channels"
 
@@ -256,7 +259,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                       channel-id
                       published
                       (when description
-                        (subseq description 0 (min (length description) 100)))
+                        (string-truncate description max-description-chars))
                       (markup
                        (:a :href (format nil "/videos/~A/comments" id) "comments"))
                       (js-lazy-element (format nil "/videos/~A/comments-count" id)
