@@ -34,45 +34,70 @@
 
 (defvar db)
 
-(defun api-req (login resource params-alist)
+(defun api-req (login resource params-alist
+                &key (method :get)
+                  (depaginate-p t)
+                  (retry-count 5)
+                  (retry-delay 1)
+                  (auto-refresh-p t)
+                  )
   (let* ((as :alist)
-         (additional-headers (when (api-login-access-token login)
-                               (list (cons :authorization
-                                           (format nil "Bearer ~A"
-                                                   (api-login-access-token login))))))
          (api-base-url default-api-base-url)
-         ;; (api-base-url "http://localhost:1234/")
          (url (concatenate 'string api-base-url resource))
-         (orig-params (lisp-alist-to-json-map (if (api-login-key login)
-                                                (cons (cons :key (api-login-key login))
-                                                      params-alist)
-                                                params-alist))))
-    (loop
-       with page-token-param = (cons "pageToken" nil)
-       with total-results = nil
-       for page-idx from 1
-       as params = (if (null (cdr page-token-param))
-                       orig-params
-                       (cons page-token-param
-                             orig-params))
-       as page = (retry-times 5 1
-                   (-> (drakma:http-request url
+         (params (lisp-alist-to-json-map params-alist))
+         additional-headers)
+
+    (assert (= 1 (+
+                  (if (api-login-access-token login) 1 0)
+                  (if (api-login-key login) 1 0))))
+
+    (if (api-login-key login)
+        (push (cons :key (api-login-key login)) params)
+        (push (cons :authorization
+                    (format nil "Bearer ~A" (api-login-access-token login)))
+              additional-headers))
+
+    (labels ((req (&optional already-refreshed-p)
+               (multiple-value-bind (body http-code)
+                   (retry-times retry-count retry-delay
+                     (drakma:http-request url
+                                          :method method
                                           :parameters params
-                                          :additional-headers additional-headers)
-                     (babel:octets-to-string :encoding :utf-8)
-                     (jonathan:parse :as as)
-                     (make-from-json-alist resp-page)))
-       as error = (resp-page-error page)
-       when (null error) do
-         (setf (cdr page-token-param)
-               (resp-page-next-page-token page))
-       do (format t "page: ~A/~A params: ~A~%" page-idx total-results params)
-       do (setf db page)
-       append (resp-page-items page) into items
-       while (and (cdr page-token-param) (not error))
-       finally (progn
-                 (format t "fetched ~A items~%" (length items))
-                 (return (values items error))))))
+                                          :additional-headers additional-headers))
+                 (if (and auto-refresh-p (= 403 http-code) (not already-refreshed-p))
+                     (req t)
+                     (-> body
+                         (babel:octets-to-string :encoding :utf-8)
+                         (jonathan:parse :as as))))))
+      (if (not depaginate-p)
+          (req)
+          (loop
+             with page-token-param = (cons "pageToken" nil)
+             with total-pages = nil
+             for page-idx from 1
+
+             as page = (-> (req) (make-from-json-alist resp-page))
+             as error = (resp-page-error page)
+
+             do (format t "page: ~A/~A params: ~A~%" page-idx total-pages params)
+
+             when (null error) do
+               (progn
+                 (setf (cdr page-token-param)
+                       (resp-page-next-page-token page))
+
+                 (when (null total-pages)
+                   (setf total-pages t
+                         params (cons page-token-param params)))))
+
+
+             append (resp-page-items page) into items
+
+             while (and (cdr page-token-param) (not error))
+
+             finally (progn
+                       (format t "fetched ~A items~%" (length items))
+                       (return (values items error))))))))
 
 (defmacro def-api-endpoint (resource-as-sym &key defaults (as :alist)
                                               fun-sym)
@@ -109,18 +134,6 @@
 (defun delete-comment (api-login comment-id)
   "DELETE https://www.googleapis.com/youtube/v3/comments"
   (format t "delete token: ~A~%" (api-login-access-token api-login))
-  (retry-times 5 1
-    (-> (drakma:http-request
-         youtube-comments-base-url
-         ;; "http://localhost:1234/"
-         ;; "http://localhost/"
-         :method :delete
-         :parameters (list (cons "id" comment-id))
-         ;; TODO factor out authenticated drakma request
-         ;; TODO refresh token
-         :additional-headers (list
-                              (cons "authorization"
-                                    (format nil "Bearer ~A"
-                                            (api-login-access-token api-login)))))
-        (babel:octets-to-string :encoding :utf-8)
-        (jonathan:parse :as :alist))))
+  (api-req api-login "comments"
+           `(("id" . ,comment-id))
+           :method :delete))
