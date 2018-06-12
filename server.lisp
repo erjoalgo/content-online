@@ -463,3 +463,20 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                                   :part "id")
            collect (make-video
                     :id (get-nested-macro video-alist "id"))))))
+
+(defmacro loop-do-chunked (chunk-sym list n &body body)
+  (let ((elt-sym (gensym "elt"))
+        (i-sym (gensym "i"))
+        (n-sym (gensym "n")))
+    `(loop
+        with ,chunk-sym = nil
+        with ,n-sym = ,n
+        for ,elt-sym in ,list
+        for ,i-sym from 1
+        do (push ,elt-sym ,chunk-sym)
+        when (zerop (mod ,i-sym ,n-sym)) do
+          (progn (progn ,@body)
+                 (setf ,chunk-sym nil))
+        finally (when ,chunk-sym
+                  (progn ,@body)))))
+
