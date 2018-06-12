@@ -453,8 +453,10 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                        (parse-unique-video-ids)))
         (aggregation (-> (hunchentoot:post-parameters*)
                          (assoq "aggregation"))))
-    (assert (and aggregation video-ids));; TODO http status
     (cond
+      ((not (and aggregation video-ids))
+       (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+)
+       (format nil "aggregation and ~A parameters are required" inner-html-form-id))
       ((equal "videos" aggregation)
        (videos-handler (loop for video-id in video-ids collect
                             (make-video
