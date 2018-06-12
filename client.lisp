@@ -32,8 +32,6 @@
   refresh-token
   )
 
-(defvar db)
-
 (defun api-req (login resource params-alist
                 &key (method :get)
                   (depaginate-p t)
