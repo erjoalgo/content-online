@@ -5,7 +5,8 @@
                 #:->
                 #:make-from-json-alist
                 #:lisp-alist-to-json-map
-                #:retry-times)
+                #:retry-times
+                #:with-json-paths)
   (:export #:make-api-login
            #:default-base-url))
 
@@ -19,7 +20,6 @@
 (defstruct resp-page
   items
   page-info
-  total-results
   next-page-token
   etag
   kind
@@ -87,7 +87,10 @@
                        (resp-page-next-page-token page))
 
                  (when (null total-pages)
-                   (setf total-pages t
+                   (with-json-paths (resp-page-page-info page)
+                       ((per-page "resultsPerPage")
+                        (total "totalResults"))
+                   (setf total-pages (/ total per-page)
                          params (cons page-token-param params)))))
 
 
