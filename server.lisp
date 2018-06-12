@@ -380,17 +380,24 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     (format t "response: ~A~%" resp)
     (format nil "~A" resp)))
 
+(defmacro uniquify (list elt-sym elt-key-form &key (test ''equal))
+  (let ((table-sym (gensym "table")))
+    `(loop with ,table-sym = (make-hash-table :test ,test)
+        for ,elt-sym in ,list
+        do (setf (gethash ,elt-key-form ,table-sym) ,elt-sym)
+        finally (return (loop for ,elt-sym being the hash-values of ,table-sym
+                           collect ,elt-sym)))))
+
+(stefil:deftest test-uniquify nil
+  (stefil:is (eq 3 (length (uniquify '((1 . 1) (1 . 2) (2 . 3)) elt (car elt)))))
+  (stefil:is (eq 3 (length (uniquify '((1 . 1) (1 . 2) (2 . 3)) elt (cdr elt))))))
+
+
 (defun parse-unique-video-ids (text)
-  (loop with table = (make-hash-table :test 'equal)
-     with video-ids = (cl-ppcre:all-matches-as-strings
-                       "(?<=/watch[?]v=)([^\"&\]*)" text)
-
-     for id in video-ids do
-       (setf (gethash id table) t)
-       finally (return (loop for id being the hash-keys of table collect id))))
-
-
-
+  (uniquify
+   (cl-ppcre:all-matches-as-strings
+    "(?<=/watch[?]v=)([^\"&\]*)" text)
+   string string))
 
 (defun fetch-videos-by-ids (video-ids)
   (declare (ignore video-ids)))
