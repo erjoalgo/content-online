@@ -5,6 +5,8 @@
                 #:->
                 #:get-nested-macro
                 )
+  (:import-from #:yt-comments/server-util
+                #:js-lazy-element)
   (:import-from #:yt-comments/client
                 #:make-api-login
                 #:subscriptions
@@ -231,7 +233,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (define-regexp-route playlist-videos-handler ("^/playlists/([^/]+)/videos/?$" playlist-id)
     "list user's playlist videos"
-  (make-table '("#" "id" "title" "channel" "published" "description" "commments")
+  (make-table '("#" "id" "title" "channel" "published" "description" "commments" "count")
               (loop for item in (playlist-items (session-value 'api-login)
                                                 :playlist-id playlist-id
                                                 :mine "true"
@@ -254,7 +256,23 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                       published
                       (subseq description 0 (min (length description) 100))
                       (markup
-                       (:a :href (format nil "/videos/~A/comments" id) "comments"))))))
+                       (:a :href (format nil "/videos/~A/comments" id) "comments"))
+                      (js-lazy-element (format nil "/videos/~A/comments-count" id)
+                                       (markup (:img :src (format nil "/loading.gif"))))))))
+
+(define-regexp-route list-video-comment-counts-handler
+    ("^/videos/([^/]*)/comments-count$" video-id)
+    "list number of matching comments for the current user on the given video"
+  (assert (session-channel-title))
+  (let* ((resp (yt-comments/client::api-req
+                (session-value 'api-login)
+                "commentThreads"
+                `(("part" . "snippet")
+                  ("searchTerms" . ,(session-channel-title))
+                  ("videoId" . ,video-id))
+                :depaginate-p nil))
+         (total-results (get-nested-macro resp "pageInfo.totalResults")))
+    (write-to-string total-results)))
 
 (defun session-channel-title ()
   (or
