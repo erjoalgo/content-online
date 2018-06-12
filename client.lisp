@@ -71,24 +71,26 @@
           (req)
           (loop
              with page-token-param = (cons "pageToken" nil)
-             with total-pages = nil
+             with total-pages = -1
              for page-idx from 1
 
              as page = (-> (req) (make-from-json-alist resp-page))
              as error = (resp-page-error page)
 
-             do (format t "page: ~A/~A params: ~A~%" page-idx total-pages params)
+             do (format t "page: ~A/~A params: ~A~%" page-idx
+                        (ceiling total-pages)
+                        params)
 
              when (null error) do
                (progn
                  (setf (cdr page-token-param)
                        (resp-page-next-page-token page))
 
-                 (when (null total-pages)
+                 (when (eq -1 total-pages)
                    (with-json-paths (resp-page-page-info page)
                        ((per-page "resultsPerPage")
                         (total "totalResults"))
-                   (setf total-pages (/ total per-page)
+                   (setf total-pages (ceiling (/ total per-page))
                          params (cons page-token-param params)))))
 
 
