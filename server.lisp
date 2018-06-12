@@ -162,7 +162,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defparameter home-urls
   '("/subscriptions"
     "/playlists"
-    "/feed-history-dom-html"
+    "/feed-history/form"
     ))
 
 (defun home-handler ()
@@ -397,33 +397,35 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defun fetch-videos-by-ids (video-ids)
   (declare (ignore video-ids)))
 
+(defvar inner-html-form-id "inner-html")
+
+(define-regexp-route feed-history-form-handler
+    ("/feed-history/form")
+    "form to input video ids from the youtube feed history page inner html"
+  (let ((feed-url "https://www.youtube.com/feed/history/comment_history"))
+    (markup (:form
+             :action "/feed-history/dom-html"
+             :method "post"
+             (:ol
+              (:li "navigate to " (:a :href feed-url feed-url))
+              (:li "open browser console, type \"document.body.innerHTML\"")
+              (:li "copy the result and paste it in the form below, then submit"))
+             (:textarea
+              :id inner-html-form-id
+              :name inner-html-form-id
+              :rows "20"
+              :cols "80"
+              nil)
+             (:br)
+             (:input :type "submit"
+                     :name "submit")))))
+
 (define-regexp-route feed-history-dom-html-handler
-    ("/feed-history-dom-html")
+    ("/feed-history/dom-html")
     "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
-  (let ((form-id "inner-html")
-        (feed-url "https://www.youtube.com/feed/history/comment_history"))
-    (case (hunchentoot:request-method*)
-      (:get (markup (:form
-                     :action "/feed-history-dom-html"
-                     :method "post"
-                     (:ol
-                      (:li "navigate to " (:a :href feed-url feed-url))
-                      (:li "open browser console, type \"document.body.innerHTML\"")
-                      (:li "copy the result and paste it in the form below, then submit"))
-                     (:textarea
-                      :id form-id
-                      :name form-id
-                      :rows "20"
-                      :cols "80"
-                      nil)
-                     (:br)
-                     (:input :type "submit"
-                             :name "submit"))))
-      (:post
-       (setf db (hunchentoot:post-parameters*))
-       (let ((video-ids (-> (hunchentoot:post-parameters*)
-                                   (assoq form-id)
-                                   (parse-unique-video-ids))))
-         (videos-handler (loop for video-id in video-ids collect
-                              (make-video
-                               :id video-id))))))))
+  (let ((video-ids (-> (hunchentoot:post-parameters*)
+                       (assoq inner-html-form-id)
+                       (parse-unique-video-ids))))
+    (videos-handler (loop for video-id in video-ids collect
+                         (make-video
+                          :id video-id)))))
