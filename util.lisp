@@ -157,25 +157,26 @@
   (let ((i-sym (gensym "i"))
         (ex-sym (gensym "ex"))
         (loop-ex-sym (gensym "loop-ex"))
-        (loop-ret-sym (gensym "loop-ret"))
+        (loop-tag-sym (gensym "loop-tag"))
         (timeout-secs (or timeout-secs 1)))
     `(loop
+        named ,loop-tag-sym
         with ,loop-ex-sym = nil
-        with ,loop-ret-sym = nil
         for ,i-sym below ,n
-        do (format t "~A ~A ~A~%" ,i-sym ,loop-ex-sym ,loop-ret-sym)
+        do (format t "~A ~A~%" ,i-sym ,loop-ex-sym)
         do
           (handler-case
-              (setf ,loop-ret-sym (progn ,@body)
-                    ,loop-ex-sym nil)
+              (progn
+                (setf ,loop-ex-sym nil)
+                (return-from ,loop-tag-sym
+                  (progn ,@body)))
             (error (,ex-sym)
-                      (setf ,loop-ex-sym ,ex-sym)
-                      (format nil "failed with ~A retrying ~D/~D... ~%"
-                              ,ex-sym (1+ ,i-sym) ,n)
-                      (sleep ,timeout-secs)))
+              (setf ,loop-ex-sym ,ex-sym)
+              (format nil "failed with ~A retrying ~D/~D... ~%"
+                      ,ex-sym (1+ ,i-sym) ,n)
+              (sleep ,timeout-secs)))
         while ,loop-ex-sym
-        finally (if ,loop-ex-sym (error ,loop-ex-sym)
-                    (return ,loop-ret-sym)))))
+        finally (error ,loop-ex-sym))))
 
 (defmacro assoq (alist item)
   `(cdr (assoc ,item ,alist :test 'equal)))
