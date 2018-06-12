@@ -239,7 +239,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   published
   description)
 
-(defun videos-handler (videos)
+(defun videos-handler (videos &key (max-description-chars 100))
   "videos is a video struct"
   (make-table '("#" "id" "title" "channel" "published" "description" "commments" "count")
               videos
