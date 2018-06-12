@@ -197,24 +197,19 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (define-regexp-route subscriptions-handler ("^/subscriptions/?$")
     "list user's subscription channels"
-
-  (let ((channs (make-hash-table :test 'equal)))
-    (loop for sub in (subscriptions (session-value 'api-login)
-                                    ;; :channel-id channel-id
-                                    :mine "true"
-                                    :part "snippet")
-       do (with-json-paths sub
-              ((chan-id "snippet.resourceId.channelId")
-               (title "snippet.title")
-               (description "snippet.description"))
-            (unless (gethash chan-id channs)
-              (setf (gethash chan-id channs)
-                    (make-channel
-                     :id chan-id
-                     :title title
-                     :description description)))))
-
-    (channels-handler (loop for chan being the hash-values of channs collect chan))))
+  (channels-handler
+   (loop for sub in (subscriptions (session-value 'api-login)
+                                   ;; :channel-id channel-id
+                                   :mine "true"
+                                   :part "snippet")
+      collect (with-json-paths sub
+                  ((chan-id "snippet.resourceId.channelId")
+                   (title "snippet.title")
+                   (description "snippet.description"))
+                (make-channel
+                 :id chan-id
+                 :title title
+                 :description description)))))
 
 (define-regexp-route playlists-handler ("^/playlists/?$")
     "list user's playlists"
