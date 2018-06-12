@@ -289,7 +289,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   (let* ((resp (yt-comments/client::api-req
                 (session-value 'api-login)
                 "commentThreads"
-                `(("part" . "snippet")
+                `(("part" . "id")
                   ("searchTerms" . ,(session-channel-title))
                   ("videoId" . ,video-id))
                 :depaginate-p nil))
