@@ -231,23 +231,20 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                        (:a :href (format nil "/playlists/~A/videos"
                                          id) "videos"))))))
 
-(define-regexp-route playlist-videos-handler ("^/playlists/([^/]+)/videos/?$" playlist-id)
-    "list user's playlist videos"
+(defstruct video
+  id
+  title
+  channel-id
+  published
+  description)
+
+(defun videos-handler (videos)
+  "videos is a video struct"
   (make-table '("#" "id" "title" "channel" "published" "description" "commments" "count")
-              (loop for item in (playlist-items (session-value 'api-login)
-                                                :playlist-id playlist-id
-                                                :mine "true"
-                                                :part "snippet")
-                   do (format t "item is ~A~%" item)
-                 ;; when (equal "youtube#video" (get-nested-macro item "kind"))
-                 collect item)
+              videos
               idx video
-              (with-json-paths video
-                  ((id "snippet.resourceId.videoId")
-                   (title "snippet.title")
-                   (channel-id "snippet.channelId")
-                   (published "snippet.publishedAt")
-                   (description "snippet.description"))
+              (with-slots (id title channel-id published description)
+                  video
                 (list (write-to-string idx)
                       (markup
                        (:a :href (video-url id) id))
@@ -259,6 +256,27 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                        (:a :href (format nil "/videos/~A/comments" id) "comments"))
                       (js-lazy-element (format nil "/videos/~A/comments-count" id)
                                        (markup (:img :src (format nil "/loading.gif"))))))))
+
+(define-regexp-route playlist-videos-handler ("^/playlists/([^/]+)/videos/?$" playlist-id)
+    "list user's playlist videos"
+  (videos-handler
+   (loop for video-alist in (playlist-items (session-value 'api-login)
+                                            :playlist-id playlist-id
+                                            :mine "true"
+                                            :part "snippet")
+      collect (with-json-paths video-alist
+                  ((id "snippet.resourceId.videoId")
+                   (title "snippet.title")
+                   (channel-id "snippet.channelId")
+                   (published "snippet.publishedAt")
+                   (description "snippet.description"))
+                (make-video
+                 :id id
+                 :title title
+                 :channel-id channel-id
+                 :published published
+                 :description description
+                 )))))
 
 (define-regexp-route list-video-comment-counts-handler
     ("^/videos/([^/]*)/comments-count$" video-id)
