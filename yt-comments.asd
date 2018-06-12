@@ -16,4 +16,5 @@
                (:file "client")
                (:file "repr")
                (:file "oauth")
+               (:file "server-util")
                (:file "server")))
