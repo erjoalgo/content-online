@@ -200,34 +200,9 @@ if __name__ == "__main__":
     exit("Please specify videoid using the --videoid= parameter.")
 
   client = get_authenticated_service(args)
+  results = client.activities().list(mine=True, part='snippet').execute()
+  import pdb;pdb.set_trace()
+
   channel_id="***REMOVED***"
 
-  comments = get_comments(client, channel_id=channel_id)
-  for comment in comments:
-      print (resource_fmt_default(comment))
-
-  # print_comments(comments)
-
-  # for sub in get_subscriptions(client, mine=True):
-  #     print (resource_fmt_default(sub))
-  # print ([comment])
-
-  for (i, sub) in enumerate(get_subscriptions(client, channel_id=channel_id)):
-      print (resource_fmt_default(sub))
-      chan=nested_get(sub, "snippet.resourceId.channelId")
-      for comment in get_comments(client, channel_id=chan,
-                                  search_terms="***REMOVED***"):
-          try:
-              video_id=nested_get(comment, "snippet.videoId")
-              url="https://www.youtube.com/watch?v={}".format(video_id)
-          except:
-              url=None
-          try:
-              print ("\t{} ({})".format("\t".join(resource_fmt_default(comment)), url))
-          except:
-              traceback.print_exc()
-              import pdb;pdb.set_trace()
-
-
-  comment_id="..."
   comments_delete(client, id=comment_id)
