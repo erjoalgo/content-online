@@ -380,15 +380,18 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
           :reply-count comment-reply-count
           :text comment-text)))))
 
+(defun channel-comment-threads (channel-id)
+  "channel comments for the current user"
+  (comment-threads (session-value 'api-login)
+                   :part "snippet"
+                   :search-terms (session-channel-title)
+                   :all-threads-related-to-channel-id channel-id))
+
 (define-regexp-route list-channel-comment-threads-handler
     ("^/channels/([^/]*)/comments$" sub-channel-id)
     "list comments for the current user on the given channel"
   (assert (session-channel-title))
-  (list-comment-threads-handler
-   (comment-threads (session-value 'api-login)
-                    :part "snippet"
-                    :search-terms (session-channel-title)
-                    :all-threads-related-to-channel-id sub-channel-id)))
+  (list-comment-threads-handler (channel-comment-threads sub-channel-id)))
 
 (define-regexp-route list-video-comment-threads-handler
     ("^/videos/([^/]*)/comments$" video-id)
