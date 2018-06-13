@@ -410,6 +410,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   (format t "deleting comment ~A~%" comment-id)
   (multiple-value-bind (resp-alist http-code)
       (delete-comment (session-value 'api-login) comment-id)
+    (unless (= 204 http-code)
+      (format nil "non-204 delete resp: ~A~%" resp-alist))
     (markup (:font :color (if (= 204 http-code) "green" "red")
                    (:b (write-to-string http-code))))))
 
