@@ -58,10 +58,20 @@
     (labels ((req (&optional already-refreshed-p)
                (multiple-value-bind (body http-code)
                    (retry-times retry-count retry-delay
-                     (drakma:http-request url
-                                          :method method
-                                          :parameters params
-                                          :additional-headers additional-headers))
+                     (loop
+                          named annoying-NS-TRY-AGAIN-CONDITION-retry
+                        for i from 0 do
+                          (handler-case
+                              (return-from annoying-NS-TRY-AGAIN-CONDITION-retry
+                                (drakma:http-request url
+                                                     :method method
+                                                     :parameters params
+                                                     :additional-headers additional-headers))
+                            (USOCKET:NS-TRY-AGAIN-CONDITION
+                                (ex)
+                              (format nil "failed with ~A: ~A retrying ~D... ~%"
+                                      'USOCKET:NS-TRY-AGAIN-CONDITION ex i)
+                              (sleep 1)))))
                  (if (and auto-refresh-p (= 403 http-code) (not already-refreshed-p))
                      (req t)
                      (values (-> body
