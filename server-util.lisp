@@ -4,24 +4,21 @@
                 #:->)
   (:export #:js-lazy-element))
 
-(defvar js-lazy-load-self-replace-fmt-def
-  "function XHR_self_replace_:ID () {
+(defparameter js-lazy-load-self-replace-fmt-def
+  "function XHR_self_replace (id, url, verb) {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
 	if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
 	    var innerHTML = xmlhttp.responseText;
-            document.getElementById(':ID').innerHTML = innerHTML;
+            document.getElementById(id).innerHTML = innerHTML;
 	}
     };
-    xmlhttp.open(':VERB', ':URL', true);
+    xmlhttp.open(verb, url, true);
     xmlhttp.send();
   }")
 
-(defvar js-lazy-load-self-replace-fmt-funcall
-  "XHR_self_replace_:ID();")
-
-(defun replace-all (string from to)
-  (cl-ppcre:regex-replace-all from string to))
+(defparameter js-lazy-load-self-replace-fmt-funcall
+  "XHR_self_replace('~A', '~A', '~A');")
 
 (defun js-lazy-element (url tmp-content &key as-button (verb :get))
   "Return a 'lazy' element which makes an XHR request to the
@@ -32,21 +29,18 @@ If as-button is non-nil, the XHR request does not happen until the button is cli
 as-button should be a string to be used as the button's value
 "
   (let* ((id (write-to-string (random (ash 1 31))))
-         (js-defun (-> js-lazy-load-self-replace-fmt-def
-                       (replace-all ":ID" id)
-                       (replace-all ":URL" url)
-                       (replace-all ":VERB" (string-upcase (symbol-name verb)))))
-         (js-funcall (-> js-lazy-load-self-replace-fmt-funcall
-                         (replace-all ":ID" id)))
          (tmp-content-id (write-to-string (random (ash 1 31))))
+         (js-funcall (format nil js-lazy-load-self-replace-fmt-funcall
+                             id url verb))
          (js-unhide-tmp-and-funcall
           (format nil
                   "document.getElementById('~A').style = 'display:show';
 ~A;"
                   tmp-content-id
                   js-funcall)))
+
     (markup (:div :id id
-                  (:script :type "text/javascript" (raw js-defun))
+                  (:script :type "text/javascript" (raw js-lazy-load-self-replace-fmt-def))
                   (:div :style "display:none" :visibility "hidden"
                         :id tmp-content-id (raw tmp-content))
                   (raw
