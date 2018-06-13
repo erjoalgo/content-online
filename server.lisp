@@ -452,10 +452,10 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
               (:ul
                (:li "possibly use a script to scroll down automatically. e.g.")
                (:li "while true; do xdotool key End; sleep 1; done"))
-              (:li "open the browser console, type \"document.body.innerHTML\"")
+              (:li "open the browser's developer console, possibly via cltr+shift+c")
               (:li (concatenate 'string
-                                "copy the result (containing all video ids) "
-                                "and paste it in the form below, then submit")))
+                    "type \"document.body.innerHTML\", "
+                    "copy and paste into the form below")))
              (:textarea
               :id inner-html-form-id
               :name inner-html-form-id
