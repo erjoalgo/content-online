@@ -180,6 +180,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defun string-truncate (string n)
   (subseq string 0 (min (length string) n)))
 
+(defvar loading-gif-img-tag
+  (markup (:img :src (format nil "/loading-small.gif"))))
+
 (defun channels-handler (channels &key (max-description-chars 100))
   (make-table '("#" "channel id" "title" "description" "commments" "count")
               channels
@@ -193,7 +196,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                         (string-truncate description max-description-chars)
                         (markup (:a :href comments-link "comments!"))
                         (js-lazy-element (format nil "/channels/~A/comments-count" id)
-                                       (markup (:img :src (format nil "/loading-small.gif")))))))))
+                                       loading-gif-img-tag))))))
 
 (define-regexp-route subscriptions-handler ("^/subscriptions/?$")
     "list user's subscription channels"
@@ -257,7 +260,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                       (markup
                        (:a :href (format nil "/videos/~A/comments" id) "comments"))
                       (js-lazy-element (format nil "/videos/~A/comments-count" id)
-                                       (markup (:img :src (format nil "/loading-small.gif"))))))))
+                                       loading-gif-img-tag)))))
 
 (define-regexp-route playlist-videos-handler ("^/playlists/([^/]+)/videos/?$" playlist-id)
     "list user's playlist videos"
@@ -349,7 +352,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                       text
                       (js-lazy-element
                        (format nil "/comment/~A/delete" id)
-                       (markup (:img :src (format nil "/loading-small.gif")))
+                       loading-gif-img-tag
                        :as-button "delete!"
                        :verb :delete)))))
 
@@ -520,12 +523,12 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (define-regexp-route lazy-test ("^/lazy$")
     "list user's liked videos"
   (js-lazy-element "/lazy-call"
-                   (markup (:img :src (format nil "/loading-small.gif")))
+                   loading-gif-img-tag
                    :verb :delete))
 
 (define-regexp-route lazy-button-test ("^/lazy-butt$")
     "list user's liked videos"
   (js-lazy-element "/lazy-call"
-                   (markup (:img :src (format nil "/loading-small.gif")))
+                   loading-gif-img-tag
                    :as-button "click me!"
                    :verb :delete))
