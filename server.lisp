@@ -360,25 +360,26 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                        :as-button "delete!"
                        :verb :delete)))))
 
+(defun make-comment-from-json-alist (comment-thread-alist)
+  (with-json-paths comment-thread-alist
+      ((comment-author "snippet.topLevelComment.snippet.authorDisplayName")
+       (comment-id "id")
+       (comment-video-id "snippet.videoId")
+       (comment-channel-id "snippet.channelId")
+       (comment-reply-count "snippet.totalReplyCount")
+       (comment-text "snippet.topLevelComment.snippet.textOriginal")
+       )
+    (make-comment
+     :author comment-author
+     :id comment-id
+     :video-id comment-video-id
+     :channel-id comment-channel-id
+     :reply-count comment-reply-count
+     :text comment-text)))
+
 (defun list-comment-threads-handler (comment-threads)
-  (list-comments-handler
-   (loop for comment-thread in comment-threads
-     collect
-       (with-json-paths comment-thread
-           ((comment-author "snippet.topLevelComment.snippet.authorDisplayName")
-            (comment-id "id")
-            (comment-video-id "snippet.videoId")
-            (comment-channel-id "snippet.channelId")
-            (comment-reply-count "snippet.totalReplyCount")
-            (comment-text "snippet.topLevelComment.snippet.textOriginal")
-            )
-         (make-comment
-          :author comment-author
-          :id comment-id
-          :video-id comment-video-id
-          :channel-id comment-channel-id
-          :reply-count comment-reply-count
-          :text comment-text)))))
+  (list-comments-handler (mapcar 'make-comment-from-json-alist
+                                 comment-threads)))
 
 (defun channel-comment-threads (channel-id)
   "channel comments for the current user"
