@@ -148,7 +148,6 @@
 
 (defun delete-comment (api-login comment-id)
   "DELETE https://www.googleapis.com/youtube/v3/comments"
-  (format t "delete token: ~A~%" (api-login-access-token api-login))
   (api-req api-login "comments"
            `(("id" . ,comment-id))
            :method :delete
