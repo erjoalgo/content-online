@@ -7,15 +7,15 @@
     (format t "uninterned ~D shadowing symbols ~%"
             (length syms))))
 
-(swank:set-package "YT-COMMENTS/SERVER")
-(swank-repl::in-package "YT-COMMENTS/SERVER")
-(progn (when *service*
-         (stop *service*))
-       (let ((secrets-file-path (loop for path in (uiop:directory-files ".")
-                                   thereis (and (equal "json" (pathname-type path)) path))))
-         (start (make-config :port 4244
-                             :oauth-client-secret-json-path
-                             secrets-file-path))))
-
-
-'(setf (hunchentoot::session-db (service-acceptor *service*)) nil)
+(progn
+  (load "yt-comments.asd")
+  (ql:quickload "yt-comments")
+  (in-package "YT-COMMENTS/SERVER")
+  (funcall (find-symbol
+            "START" "YT-COMMENTS/SERVER")
+           (funcall (find-symbol
+                     "MAKE-CONFIG" "YT-COMMENTS/SERVER")
+                    :port 4242
+                    :oauth-client-secret-json-path
+                    (loop for path in (uiop:directory-files ".")
+                       thereis (and (equal "json" (pathname-type path)) path)))))
