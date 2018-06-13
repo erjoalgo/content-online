@@ -49,7 +49,6 @@
   )
 
 (defun start (config)
-  (when *service* (stop *service*))
   (setf *service*
         (make-service
          :acceptor (make-instance 'hunchentoot:easy-acceptor
