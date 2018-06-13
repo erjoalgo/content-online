@@ -86,7 +86,6 @@
         (class-package (symbol-package type))
         )
     `(progn
-       (format t "json ~A~%" ,json-alist)
        (loop
           with ,instance = (make-instance ',type)
           for (,k . ,v) in ,json-alist
