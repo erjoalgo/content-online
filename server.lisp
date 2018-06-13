@@ -506,3 +506,22 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                        :title (get-nested-macro video-alist "snippet.channelTitle"))
             do (push chan chans)))
     (uniquify chans chan (channel-id chan))))
+
+(define-regexp-route lazy-test-handler ("^/lazy-call$")
+    "list user's liked videos"
+  (let ((secs (+ 2 (random 2))))
+    (sleep secs)
+    (format nil "slept for ~A, verb was ~A" secs (hunchentoot:request-method*))))
+
+(define-regexp-route lazy-test ("^/lazy$")
+    "list user's liked videos"
+  (js-lazy-element "/lazy-call"
+                   (markup (:img :src (format nil "/loading-small.gif")))
+                   :verb :delete))
+
+(define-regexp-route lazy-button-test ("^/lazy-butt$")
+    "list user's liked videos"
+  (js-lazy-element "/lazy-call"
+                   (markup (:img :src (format nil "/loading-small.gif")))
+                   :as-button "click me!"
+                   :verb :delete))
