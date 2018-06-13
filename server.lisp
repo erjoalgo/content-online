@@ -448,8 +448,11 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
              :method "post"
              (:ol
               (:li "navigate to " (:a :href feed-url feed-url))
-              (:li "scroll down to reach the last comment")
-              (:li "open browser console, type \"document.body.innerHTML\"")
+              (:li "scroll down until the last comment has been reached")
+              (:ul
+               (:li "possibly use a script to scroll down automatically. e.g.")
+               (:li "while true; do xdotool key End; sleep 1; done"))
+              (:li "open the browser console, type \"document.body.innerHTML\"")
               (:li (concatenate 'string
                                 "copy the result (containing all video ids) "
                                 "and paste it in the form below, then submit")))
