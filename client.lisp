@@ -137,4 +137,5 @@
   (format t "delete token: ~A~%" (api-login-access-token api-login))
   (api-req api-login "comments"
            `(("id" . ,comment-id))
-           :method :delete))
+           :method :delete
+           :depaginate-p nil))
