@@ -407,9 +407,10 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     ("/comment/([^/]+)/delete" comment-id)
     "delete a given comment"
   (format t "deleting comment ~A~%" comment-id)
-  (let ((resp (delete-comment (session-value 'api-login) comment-id)))
-    (format t "response: ~A~%" resp)
-    (format nil "~A" resp)))
+  (multiple-value-bind (resp-alist http-code)
+      (delete-comment (session-value 'api-login) comment-id)
+    (markup (:font :color (if (= 204 http-code) "green" "red")
+                   (:b (write-to-string http-code))))))
 
 (defmacro uniquify (list elt-sym elt-key-form &key (test ''equal))
   (let ((table-sym (gensym "table")))
