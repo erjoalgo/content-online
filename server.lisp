@@ -337,9 +337,13 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   reply-count
   text)
 
-(defun list-comments-handler (comments)
+(defun list-comments-handler (comments &key no-author-filter)
   (make-table '("#" "id" "author" "video or channel id" "reply count" "text")
-              comments
+              (if no-author-filter
+                  comments
+                  (loop for comment in comments when (equal (session-channel-title)
+                                                             (comment-author comment))
+                     collect comment))
               comment-idx comment
               (with-slots (id author video-id channel-id reply-count text)
                   comment
