@@ -90,6 +90,7 @@ https://accounts.google.com/o/oauth2/v2/auth?
                  "include_granted_scopes" "false"
                  "redirect_uri" redirect-uri
                  "response_type" "code"
+                 "prompt" "consent"
                  "client_id" client-id)
                 (drakma::alist-to-url-encoded-string :utf-8 'drakma:url-encode)))))
 
