@@ -447,7 +447,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
               (:li "navigate to " (:a :href feed-url feed-url))
               (:li "scroll down to reach the last comment")
               (:li "open browser console, type \"document.body.innerHTML\"")
-              (:li "copy the result and paste it in the form below, then submit"))
+              (:li (concatenate 'string
+                                "copy the result (containing all video ids) "
+                                "and paste it in the form below, then submit")))
              (:textarea
               :id inner-html-form-id
               :name inner-html-form-id
