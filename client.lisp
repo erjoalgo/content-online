@@ -64,9 +64,10 @@
                                           :additional-headers additional-headers))
                  (if (and auto-refresh-p (= 403 http-code) (not already-refreshed-p))
                      (req t)
-                     (-> body
-                         (babel:octets-to-string :encoding :utf-8)
-                         (jonathan:parse :as as))))))
+                     (values (-> body
+                                 (babel:octets-to-string :encoding :utf-8)
+                                 (jonathan:parse :as as))
+                             http-code)))))
       (if (not depaginate-p)
           (req)
           (loop
