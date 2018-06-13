@@ -85,14 +85,18 @@
              with total-pages = -1
              for page-idx from 1
 
-             as page = (-> (req) (make-from-json-alist resp-page))
-             as error = (resp-page-error page)
-
+             as page = nil
+             as error = nil
+             as err-status-code = nil
+             do (multiple-value-bind (body http-code) (req)
+                    (setf err-status-code (unless (eq 200 http-code) http-code)
+                          ;; this may fail?
+                          page (-> body (make-from-json-alist resp-page))
+                          error (resp-page-error page)))
              do (format t "page: ~A/~A params: ~A~%" page-idx
                         (ceiling total-pages)
                         params)
-
-             when (null error) do
+             when (and (null error) (null err-status-code)) do
                (progn
                  (setf (cdr page-token-param)
                        (resp-page-next-page-token page))
@@ -111,7 +115,7 @@
 
              finally (progn
                        (format t "fetched ~A items~%" (length items))
-                       (return (values items error))))))))
+                       (return (values items err-status-code error))))))))
 
 (defmacro def-api-endpoint (resource-as-sym &key defaults (as :alist)
                                               fun-sym)
