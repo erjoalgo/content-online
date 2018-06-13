@@ -460,6 +460,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
              (:br)
              (:input :type "radio" :name "aggregation" :value "videos" "videos")
              (:input :type "radio" :name "aggregation" :value "channels" "channels")
+             (:input :type "radio" :name "aggregation" :value "comments" "comments")
+             (:br)
              (:input :type "submit"
                      :name "submit")))))
 
@@ -481,6 +483,10 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                              :id video-id))))
       ((equal "channels" aggregation)
        (channels-handler (video-ids-to-unique-channel-ids video-ids)))
+      ((equal "comments" aggregation)
+       (list-comment-threads-handler
+        (loop for channel in (video-ids-to-unique-channel-ids video-ids)
+           nconc (channel-comment-threads (channel-id channel)))))
       (t (error "unknown aggregation")))))
 
 (define-regexp-route liked-videos-handler ("^/liked-videos/?$")
