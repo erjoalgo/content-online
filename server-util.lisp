@@ -2,6 +2,8 @@
   (:use :cl :cl-markup)
   (:export #:js-lazy-element))
 
+(in-package #:yt-comments/server-util)
+
 (defparameter js-lazy-load-self-replace-fmt-def
   "function XHR_self_replace (id, url, verb) {
     var xmlhttp = new XMLHttpRequest();
