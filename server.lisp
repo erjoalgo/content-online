@@ -108,8 +108,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
              (progn (hunchentoot:start-session)
                     "/")
              (progn
-               (assert (session-value 'original-url))
-                    (session-value 'original-url))))
+               ;; (assert (session-value 'original-url))
+                    (or (session-value 'original-url) "/"))))
         (resp-token (exchange-code-for-token code (service-oauth-client *service*))))
     (if (resp-token-access-token resp-token)
         (progn
