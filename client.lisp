@@ -105,8 +105,8 @@
                    (with-json-paths (resp-page-page-info page)
                        ((per-page "resultsPerPage")
                         (total "totalResults"))
-                   (setf total-pages (ceiling (/ total per-page))
-                         params (cons page-token-param params)))))
+                     (setf total-pages (ceiling total (if (zerop per-page) -1 1))
+                           params (cons page-token-param params)))))
 
 
              append (resp-page-items page) into items
