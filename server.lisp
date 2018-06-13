@@ -347,7 +347,11 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                                   (or video-id channel-id)))
                       (write-to-string reply-count)
                       text
-                      (markup (:a :href (format nil "/comment/~A/delete" id) "delete!"))))))
+                      (js-lazy-element
+                       (format nil "/comment/~A/delete" id)
+                       (markup (:img :src (format nil "/loading-small.gif")))
+                       :as-button "delete!"
+                       :verb :delete)))))
 
 (defun list-comment-threads-handler (comment-threads)
   (list-comments-handler
