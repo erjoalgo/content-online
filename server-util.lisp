@@ -20,7 +20,9 @@
 (defparameter js-lazy-load-self-replace-fmt-funcall
   "XHR_self_replace('~A', '~A', '~A');")
 
-(defun js-lazy-element (url tmp-content &key as-button (verb :get))
+(defun js-lazy-element (url tmp-content &key as-button
+                                          (verb :get)
+                                          skip-self-replace-fun)
   "Return a 'lazy' element which makes an XHR request to the
 specified url, then overwrites itself with the reponse contents.
 An optinal tmp-contents are shown while XHR is being executed
@@ -40,7 +42,10 @@ as-button should be a string to be used as the button's value
                   js-funcall)))
 
     (markup (:div :id id
-                  (:script :type "text/javascript" (raw js-lazy-load-self-replace-fmt-def))
+                  (raw
+                   (unless skip-self-replace-fun
+                    (markup (:script :type "text/javascript"
+                                     (raw js-lazy-load-self-replace-fmt-def)))))
                   (:div :style "display:none" :visibility "hidden"
                         :id tmp-content-id (raw tmp-content))
                   (raw
