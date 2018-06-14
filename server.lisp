@@ -330,7 +330,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
        "commentThreads"
        `(("part" . "id")
          ("searchTerms" . ,(session-channel-title))
-         ("allThreadsRelatedToChannelId" ,channel-id)
+         ("allThreadsRelatedToChannelId" . ,channel-id)
          ("maxResults" . "50"))
        :depaginate-p nil)))
 
