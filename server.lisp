@@ -300,12 +300,12 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                  :description description
                  )))))
 
-(defun results-count-handler (api-req-values)
-  (->
-   api-req-values
-   ensure-ok
-   (get-nested-macro "pageInfo.totalResults")
-   write-to-string))
+(defmacro results-count-handler (api-req-values)
+  `(->
+    ,api-req-values
+    ensure-ok
+    (get-nested-macro "pageInfo.totalResults")
+    write-to-string))
 
 (define-regexp-route list-video-comment-counts-handler
     ("^/videos/([^/]*)/comments-count$" video-id)
