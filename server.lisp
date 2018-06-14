@@ -198,13 +198,29 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                         (js-lazy-element (format nil "/channels/~A/comments-count" id)
                                        loading-gif-img-tag))))))
 
+(defmacro ensure-ok (api-req-values &key (ok-code 200))
+  (let ((body-sym (gensym "body"))
+        (http-code-sym (gensym "http-code"))
+        (resp-string-sym (gensym "resp-string")))
+    `(multiple-value-bind (,body-sym ,http-code-sym ,resp-string-sym)
+         ,api-req-values
+       (if (not (eq ,ok-code ,http-code-sym))
+           (progn
+             (format t "unexpected error code: ~A ~A~%" ,http-code-sym ,resp-string-sym)
+             (hunchentoot:abort-request-handler
+              (format nil "~A ~A" ,http-code-sym ,resp-string-sym)))
+           ,body-sym))))
+
+
 (define-regexp-route subscriptions-handler ("^/subscriptions/?$")
     "list user's subscription channels"
   (channels-handler
-   (loop for sub in (subscriptions (session-value 'api-login)
-                                   ;; :channel-id channel-id
-                                   :mine "true"
-                                   :part "snippet")
+   (loop for sub in (ensure-ok
+                     (subscriptions (session-value 'api-login)
+                                    ;; :channel-id channel-id
+                                    :mine "true"
+                                    :part "snippet"))
+
       collect (with-json-paths sub
                   ((chan-id "snippet.resourceId.channelId")
                    (title "snippet.title")
@@ -217,9 +233,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (define-regexp-route playlists-handler ("^/playlists/?$")
     "list user's playlists"
   (make-table '("#" "id" "title" "published" "commments")
-              (playlists (session-value 'api-login)
+              (ensure-ok (playlists (session-value 'api-login)
                          :mine "true"
-                         :part "snippet")
+                         :part "snippet"))
               idx playlist
               (with-json-paths playlist
                   ((id "id")
@@ -265,10 +281,11 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (define-regexp-route playlist-videos-handler ("^/playlists/([^/]+)/videos/?$" playlist-id)
     "list user's playlist videos"
   (videos-handler
-   (loop for video-alist in (playlist-items (session-value 'api-login)
+   (loop for video-alist in (ensure-ok
+                             (playlist-items (session-value 'api-login)
                                             :playlist-id playlist-id
                                             :mine "true"
-                                            :part "snippet")
+                                            :part "snippet"))
       collect (with-json-paths video-alist
                   ((id "snippet.resourceId.videoId")
                    (title "snippet.title")
@@ -286,6 +303,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defun results-count-handler (api-req-values)
   (->
    api-req-values
+   ensure-ok
    (get-nested-macro "pageInfo.totalResults")
    write-to-string))
 
@@ -529,10 +547,11 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   ;; TODO parallelize
   (let (chans)
     (loop-do-chunked video-ids-chunk video-ids n
-         (loop for video-alist in (yt-comments/client::videos
+         (loop for video-alist in (ensure-ok
+                                   (yt-comments/client::videos
                                    (session-value 'api-login)
                                    :part "snippet"
-                                   :id (format nil "~{~A~^,~}" video-ids-chunk))
+                                   :id (format nil "~{~A~^,~}" video-ids-chunk)))
             as chan = (make-channel
                        :id (get-nested-macro video-alist "snippet.channelId")
                        :title (get-nested-macro video-alist "snippet.channelTitle"))
