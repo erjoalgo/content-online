@@ -110,7 +110,7 @@
                         params)
              when (and (null error)
                         ;2xx
-                       (eq 200 status-code))
+                       (eq 2 (floor status-code 100)))
              do
                (progn
                  (setf (cdr page-token-param)
