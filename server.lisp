@@ -116,8 +116,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
           (setf (session-value 'api-login)
                 (make-api-login
                  :key nil
-                 :access-token (resp-token-access-token resp-token)
-                 :refresh-token (resp-token-refresh-token resp-token)))
+                 :token resp-token))
           (redirect original-url))
         (progn (setf (hunchentoot:return-code*)
                      hunchentoot:+http-authorization-required+)

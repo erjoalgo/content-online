@@ -102,6 +102,11 @@ https://accounts.google.com/o/oauth2/v2/auth?
   error-description
   )
 
+(defun oauth-token-auth-header (resp-token)
+  (cons :authorization
+        (format nil "~A ~A"
+                (resp-token-token-type resp-token)
+                (resp-token-access-token resp-token))))
 
 (defun exchange-code-for-token (code oauth-client)
   "code	The authorization code returned from the initial request.

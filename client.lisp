@@ -7,6 +7,8 @@
                 #:lisp-alist-to-json-map
                 #:retry-times
                 #:with-json-paths)
+  (:import-from #:yt-comments/oauth
+                #:oauth-token-auth-header)
   (:export #:make-api-login
            #:default-base-url))
 
@@ -28,8 +30,7 @@
 
 (defstruct api-login
   key
-  access-token
-  refresh-token
+  token
   )
 
 (defmacro log-values (form)
@@ -54,13 +55,12 @@
          additional-headers)
 
     (assert (= 1 (+
-                  (if (api-login-access-token login) 1 0)
+                  (if (api-login-token login) 1 0)
                   (if (api-login-key login) 1 0))))
 
     (if (api-login-key login)
         (push (cons :key (api-login-key login)) params)
-        (push (cons :authorization
-                    (format nil "Bearer ~A" (api-login-access-token login)))
+        (push (oauth-token-auth-header (api-login-token login))
               additional-headers))
 
     (labels ((req (&optional already-refreshed-p)

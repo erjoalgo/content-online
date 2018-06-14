@@ -13,8 +13,8 @@
                :stefil
                )
   :components ((:file "util")
+               (:file "oauth")
                (:file "client")
                (:file "repr")
-               (:file "oauth")
                (:file "server-util")
                (:file "server")))
