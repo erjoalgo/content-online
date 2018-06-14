@@ -63,6 +63,10 @@
         (push (oauth-token-auth-header (api-login-token login))
               additional-headers))
 
+    (format t "auth: ~A~%" (if (api-login-key login)
+                                 (api-login-key login)
+                                 (oauth-token-auth-header (api-login-token login))))
+
     (labels ((req (&optional already-refreshed-p)
                (multiple-value-bind (octets http-code)
                    (retry-times retry-count retry-delay
