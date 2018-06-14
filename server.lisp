@@ -205,7 +205,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
          ,api-req-values
        (if (not (eq ,ok-code ,http-code-sym))
            (progn
-             (format t "unexpected error code: ~A ~A~%" ,http-code-sym ,resp-string-sym)
+             (format t "unexpected error code: ~A ~A ~A~%"
+                     ,body-sym ,http-code-sym ,resp-string-sym)
              (hunchentoot:abort-request-handler
               (format nil "~A ~A" ,http-code-sym ,resp-string-sym)))
            ,body-sym))))
