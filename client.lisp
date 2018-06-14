@@ -32,6 +32,13 @@
   refresh-token
   )
 
+(defmacro log-values (form)
+  (let ((vals-sym (gensym "vals")))
+    `(let ((,vals-sym (multiple-value-call #'list
+                        ,form)))
+       (format t "values: ~A~%" ,vals-sym)
+       (values-list ,vals-sym))))
+
 (defun api-req (login resource params-alist
                 &key (method :get)
                   (depaginate-p t)
