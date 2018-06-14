@@ -283,36 +283,39 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                  :description description
                  )))))
 
+(defun results-count-handler (api-req-values)
+  (->
+   api-req-values
+   (get-nested-macro "pageInfo.totalResults")
+   write-to-string))
+
 (define-regexp-route list-video-comment-counts-handler
     ("^/videos/([^/]*)/comments-count$" video-id)
     "list number of matching comments for the current user on the given video"
   (assert (session-channel-title))
-  (let* ((resp (yt-comments/client::api-req
-                (session-value 'api-login)
-                "commentThreads"
-                `(("part" . "id")
-                  ("searchTerms" . ,(session-channel-title))
-                  ("videoId" . ,video-id)
-                  ("maxResults" . "50")
-                  )
-                :depaginate-p nil))
-         (total-results (get-nested-macro resp "pageInfo.totalResults")))
-    (write-to-string total-results)))
+  (results-count-handler
+   (yt-comments/client::api-req
+    (session-value 'api-login)
+    "commentThreads"
+    `(("part" . "id")
+      ("searchTerms" . ,(session-channel-title))
+      ("videoId" . ,video-id)
+      ("maxResults" . "50"))
+    :depaginate-p nil)))
 
-;; TODO consolidate
 (define-regexp-route list-channel-comment-counts-handler
     ("^/channels/([^/]*)/comments-count$" channel-id)
     "list number of matching comments for the current user on the given video"
   (assert (session-channel-title))
-  (let* ((resp (yt-comments/client::api-req
-                (session-value 'api-login)
-                "commentThreads"
-                `(("part" . "id")
-                  ("searchTerms" . ,(session-channel-title))
-                  ("allThreadsRelatedToChannelId" . ,channel-id))
-                :depaginate-p nil))
-         (total-results (get-nested-macro resp "pageInfo.totalResults")))
-    (write-to-string total-results)))
+  (results-count-handler
+   (yt-comments/client::api-req
+       (session-value 'api-login)
+       "commentThreads"
+       `(("part" . "id")
+         ("searchTerms" . ,(session-channel-title))
+         ("allThreadsRelatedToChannelId" ,channel-id)
+         ("maxResults" . "50"))
+       :depaginate-p nil)))
 
 (defun session-channel-title ()
   (or
