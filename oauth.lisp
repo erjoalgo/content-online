@@ -135,23 +135,19 @@ grant_type=authorization_code"
 
 "
 
-  (format t "code is ~A~%" code)
-(let ((resp-json
-       (with-slots (scopes client-id client-secret token-uri redirect-uris) oauth-client
-         (->
-          (drakma:http-request
-           token-uri
-           ;; "http://localhost:1234"
-           :method :post
-           :parameters (flat-to-alist-macro
-                        "code" code
-                        "grant_type" "authorization_code"
-                        "client_secret" client-secret
-                        "redirect_uri" (car redirect-uris)
-                        "client_id" client-id))
-          (babel:octets-to-string :encoding :utf-8)
-          ))))
-      (format t "token resp ~A~%" resp-json)
-      (format t "token resp ~A~%" (-> resp-json (jonathan:parse :as :alist)))
-      (make-from-json-alist (-> resp-json (jonathan:parse :as :alist)) resp-token)
-      ))
+(with-slots (scopes client-id client-secret token-uri redirect-uris) oauth-client
+  (->
+   (drakma:http-request
+    token-uri
+    ;; "http://localhost:1234"
+    :method :post
+    :parameters (flat-to-alist-macro
+                 "code" code
+                 "grant_type" "authorization_code"
+                 "client_secret" client-secret
+                 "redirect_uri" (car redirect-uris)
+                 "client_id" client-id))
+   (babel:octets-to-string :encoding :utf-8)
+   (jonathan:parse :as :alist)
+   (make-from-json-alist resp-token)
+   )))
