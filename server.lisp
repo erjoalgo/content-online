@@ -232,7 +232,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (define-regexp-route playlists-handler ("^/playlists/?$")
     "list user's playlists"
-  (make-table '("#" "id" "title" "published" "commments")
+  (make-table '("#" "id" "title" "published" "date-published" "videos")
               (ensure-ok (playlists (session-value 'api-login)
                          :mine "true"
                          :part "snippet"))
