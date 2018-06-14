@@ -39,6 +39,7 @@
                   (retry-delay 2)
                   (auto-refresh-p t)
                   )
+  "retuns values: json-as-alist http-resp-code resp-string"
   (let* ((as :alist)
          (api-base-url default-api-base-url)
          (url (concatenate 'string api-base-url resource))
@@ -56,7 +57,7 @@
               additional-headers))
 
     (labels ((req (&optional already-refreshed-p)
-               (multiple-value-bind (body http-code)
+               (multiple-value-bind (octets http-code)
                    (retry-times retry-count retry-delay
                      (loop
                           named annoying-NS-TRY-AGAIN-CONDITION-retry
@@ -74,10 +75,9 @@
                               (sleep 1)))))
                  (if (and auto-refresh-p (= 403 http-code) (not already-refreshed-p))
                      (req t)
-                     (values (-> body
-                                 (babel:octets-to-string :encoding :utf-8)
-                                 (jonathan:parse :as as))
-                             http-code)))))
+                     (let* ((string (babel:octets-to-string octets :encoding :utf-8))
+                            (json (jonathan:parse string :as as)))
+                       (values json http-code string))))))
       (if (not depaginate-p)
           (req)
           (loop
@@ -85,18 +85,26 @@
              with total-pages = -1
              for page-idx from 1
 
+             as resp-string = nil
              as page = nil
              as error = nil
-             as err-status-code = nil
-             do (multiple-value-bind (body http-code) (req)
-                    (setf err-status-code (unless (eq 200 http-code) http-code)
-                          ;; this may fail?
-                          page (-> body (make-from-json-alist resp-page))
-                          error (resp-page-error page)))
+             as status-code = nil
+
+             do (multiple-value-bind (body http-code string) (req)
+                  (format nil "body is ~A ~A" http-code body)
+                  (setf resp-string string
+                        status-code http-code
+                        ;; this may fail?
+                        page (-> body (make-from-json-alist resp-page))
+                        error (resp-page-error page)))
+             do (format t "body is ~A ~A~%" resp-string status-code)
              do (format t "page: ~A/~A params: ~A~%" page-idx
                         (ceiling total-pages)
                         params)
-             when (and (null error) (null err-status-code)) do
+             when (and (null error)
+                        ;2xx
+                       (eq 200 status-code))
+             do
                (progn
                  (setf (cdr page-token-param)
                        (resp-page-next-page-token page))
@@ -115,7 +123,7 @@
 
              finally (progn
                        (format t "fetched ~A items~%" (length items))
-                       (return (values items err-status-code error))))))))
+                       (return (values items status-code resp-string error))))))))
 
 (defmacro def-api-endpoint (resource-as-sym &key defaults (as :alist)
                                               fun-sym)
