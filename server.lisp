@@ -39,7 +39,6 @@
 (defstruct config
   port
   oauth-client-secret-json-path
-  api-login
   )
 
 (defstruct service
