@@ -61,7 +61,7 @@
   (hunchentoot:start (service-acceptor *service*))
   *service*)
 
-(defun stop (service)
+(defun stop (&optional service)
   (setf service (or service *service*))
   (when service
     (let* ((acceptor (slot-value service 'acceptor)))
