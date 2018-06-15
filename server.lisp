@@ -79,6 +79,8 @@
 
 (defun oauth-redirect-maybe ()
   "do an oauth redirect if session's api-login is nil"
+  (unless hunchentoot:*session*
+    (hunchentoot:start-session))
   (unless (session-value 'api-login)
     (setf (session-value 'original-url) (hunchentoot:request-uri*))
     (let* ((local-auth-url (oauth-authorize-uri))
@@ -143,22 +145,6 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                    for cell in ,row-cols-list
                    collect (markup (:td (raw cell))))))))))
 
-(define-regexp-route root-handler ("^/$")
-    "initiate session and fetch token"
-  (unless hunchentoot:*session*
-    (format t "starting session...~%" )
-    (hunchentoot:start-session))
-  ;; TODO ask for username?
-  (let* ((token (session-value 'api-login))
-         (remote-redirect-url (format nil "~A~A"
-                                      (hunchentoot:host)
-                                      oauth-authorize-uri-path))
-         (oauth-client (service-oauth-client *service*)))
-    (if token
-        (home-handler)
-        (hunchentoot:redirect
-         (auth-server-redirect-url oauth-client remote-redirect-url)))))
-
 (defparameter home-urls
   '("/subscriptions"
     "/playlists"
@@ -166,9 +152,10 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "/liked-videos"
     ))
 
-(defun home-handler ()
-  (markup (:ul (loop for url in home-urls
-                  collect (markup (:li (:a :href url url)))))))
+(define-regexp-route root-handler ("^/$")
+    "root handler"
+    (markup (:ul (loop for url in home-urls
+                    collect (markup (:li (:a :href url url)))))))
 
 
 (defstruct channel
