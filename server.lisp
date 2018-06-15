@@ -99,6 +99,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
        (ppcre:register-groups-bind ,capture-names
            (,url-regexp (hunchentoot:script-name*))
          (oauth-redirect-maybe)
+         (assert (session-value 'api-login))
          (progn ,@body)))
      (push (hunchentoot:create-regex-dispatcher ,url-regexp ',name)
            hunchentoot:*dispatch-table*)))
