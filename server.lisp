@@ -246,7 +246,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   channel-id
   channel-title
   published
-  description)
+  description
+  rating
+  )
 
 (defun videos-handler (videos &key (max-description-chars 100))
   "videos is a video struct"
@@ -518,9 +520,10 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
         (loop for video-alist in (yt-comments/client::videos
                                   (session-value 'api-login)
                                   :my-rating rating
-                                  :part "id")
-           collect (make-video
-                    :id (get-nested-macro video-alist "id"))))))
+                                  :part "snippet")
+           as video = (make-video-from-alist video-alist)
+           do (setf (video-rating video) rating)
+           collect video))))
 
 (defmacro loop-do-chunked (chunk-sym list n &body body)
   (let ((elt-sym (gensym "elt"))
