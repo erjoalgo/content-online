@@ -150,7 +150,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   '("/subscriptions"
     "/playlists"
     "/feed-history/form"
-    "/liked-videos"
+    "/rated-videos"
     ))
 
 (define-regexp-route root-handler ("^/$")
@@ -514,7 +514,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
            nconc (channel-comment-threads (channel-id channel)))))
       (t (error "unknown aggregation")))))
 
-(define-regexp-route liked-videos-handler ("^/liked-videos/?$")
+(define-regexp-route liked-videos-handler ("^/rated-videos/?$")
     "list user's liked videos"
   (videos-handler
    (loop for rating in '("like" "dislike") append
