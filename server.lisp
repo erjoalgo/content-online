@@ -244,6 +244,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   id
   title
   channel-id
+  channel-title
   published
   description)
 
