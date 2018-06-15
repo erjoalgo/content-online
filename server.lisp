@@ -251,20 +251,22 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   )
 
 (defun videos-handler (videos &key (max-description-chars 100))
-  "videos is a video struct"
-  (make-table '("#" "id" "title" "channel" "published" "description" "commments" "count")
+  "videos is a video struct list"
+  (declare (ignore max-description-chars))
+  (make-table '("#" "title" "channel" "published" "description" "rating" "commments" "count")
               videos
               idx video
-              (with-slots (id title channel-id published description)
+              (with-slots (id title channel-id channel-title published description rating)
                   video
                 (list (write-to-string idx)
                       (markup
-                       (:a :href (video-url id) id))
-                      title
-                      channel-id
+                       (:a :href (video-url id) title))
+                      (markup
+                       (:a :href (channel-url channel-id) channel-title))
                       published
                       (when description
                         (string-truncate description max-description-chars))
+                      rating
                       (markup
                        (:a :href (format nil "/videos/~A/comments" id) "comments"))
                       (when id
