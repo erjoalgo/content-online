@@ -154,5 +154,4 @@ grant_type=authorization_code"
                  "client_id" client-id))
    (babel:octets-to-string :encoding :utf-8)
    (jonathan:parse :as :alist)
-   (make-from-json-alist resp-token)
-   )))
+   (make-from-json-alist resp-token))))
