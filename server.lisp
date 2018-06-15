@@ -264,30 +264,39 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                         (string-truncate description max-description-chars))
                       (markup
                        (:a :href (format nil "/videos/~A/comments" id) "comments"))
-                      (js-lazy-element (format nil "/videos/~A/comments-count" id)
-                                       loading-gif-img-tag)))))
+                      (when id
+                        (js-lazy-element (format nil "/videos/~A/comments-count" id)
+                                       loading-gif-img-tag))))))
+
+(defun make-video-from-alist (video-alist)
+  (with-json-paths video-alist
+      ((id "id")
+       (title "snippet.title")
+       (channel-id "snippet.channelId")
+       (channel-title "snippet.channelTitle")
+       (published "snippet.publishedAt")
+       (description "snippet.description"))
+    (make-video
+     :id id
+     :title title
+     :channel-id channel-id
+     :channel-title channel-title
+     :published published
+     :description description
+     )))
 
 (define-regexp-route playlist-videos-handler ("^/playlists/([^/]+)/videos/?$" playlist-id)
     "list user's playlist videos"
   (videos-handler
    (loop for video-alist in (ensure-ok
                              (playlist-items (session-value 'api-login)
-                                            :playlist-id playlist-id
-                                            :mine "true"
-                                            :part "snippet"))
-      collect (with-json-paths video-alist
-                  ((id "snippet.resourceId.videoId")
-                   (title "snippet.title")
-                   (channel-id "snippet.channelId")
-                   (published "snippet.publishedAt")
-                   (description "snippet.description"))
-                (make-video
-                 :id id
-                 :title title
-                 :channel-id channel-id
-                 :published published
-                 :description description
-                 )))))
+                                             :playlist-id playlist-id
+                                             :mine "true"
+                                             :part "snippet"))
+      as video = (make-video-from-alist video-alist)
+      do (setf (video-id video)
+               (get-nested-macro video-alist "snippet.resourceId.videoId"))
+      collect video)))
 
 (defmacro results-count-handler (api-req-values)
   `(->
