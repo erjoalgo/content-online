@@ -63,10 +63,6 @@
         (push (oauth-token-auth-header (api-login-token login))
               additional-headers))
 
-    (format t "auth: ~A~%" (if (api-login-key login)
-                                 (api-login-key login)
-                                 (oauth-token-auth-header (api-login-token login))))
-
     (labels ((req (&optional already-refreshed-p)
                (multiple-value-bind (octets http-code)
                    (retry-times retry-count retry-delay
@@ -103,13 +99,11 @@
              as status-code = nil
 
              do (multiple-value-bind (body http-code string) (req)
-                  (format nil "body is ~A ~A" http-code body)
                   (setf resp-string string
                         status-code http-code
                         ;; this may fail?
                         page (-> body (make-from-json-alist resp-page))
                         error (resp-page-error page)))
-             do (format t "body is ~A ~A~%" resp-string status-code)
              do (format t "page: ~A/~A params: ~A~%" page-idx
                         (ceiling total-pages)
                         params)
