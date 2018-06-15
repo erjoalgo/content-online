@@ -453,9 +453,6 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "(?<=/watch[?]v=)([^\"&\]*)" text)
    string string))
 
-(defun fetch-videos-by-ids (video-ids)
-  (declare (ignore video-ids)))
-
 (defvar inner-html-form-id "inner-html")
 
 (define-regexp-route feed-history-form-handler
@@ -540,21 +537,31 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
         finally (when ,chunk-sym
                   (progn ,@body)))))
 
-
-(defun video-ids-to-unique-channel-ids (video-ids &key (n 25))
-  ;; TODO parallelize
-  (let (chans)
-    (loop-do-chunked video-ids-chunk video-ids n
+(defun fetch-videos-by-ids (video-ids
+                            &key (videos-per-request 50)
+                              (part "snippet"))
+  "does not preserve order"
+  ;; TODO parallelize?
+  (let (videos)
+    (loop-do-chunked video-ids-chunk
+       video-ids
+       videos-per-request
          (loop for video-alist in (ensure-ok
                                    (yt-comments/client::videos
-                                   (session-value 'api-login)
-                                   :part "snippet"
-                                   :id (format nil "~{~A~^,~}" video-ids-chunk)))
-            as chan = (make-channel
-                       :id (get-nested-macro video-alist "snippet.channelId")
-                       :title (get-nested-macro video-alist "snippet.channelTitle"))
-            do (push chan chans)))
-    (uniquify chans chan (channel-id chan))))
+                                    (session-value 'api-login)
+                                    :part part
+                                    :id (format nil "~{~A~^,~}" video-ids-chunk)))
+            collect (make-video-from-alist video-alist)
+            into videos))
+    videos))
+
+(defun video-ids-to-unique-channel-ids (video-ids)
+  (->
+   (loop for video in (fetch-videos-by-ids video-ids)
+      collect (make-channel
+               :id (video-channel-id video)
+               :title (video-channel-title video)))
+   (uniquify chan (channel-id chan))))
 
 (define-regexp-route lazy-test-handler ("^/lazy-call$")
     "list user's liked videos"
