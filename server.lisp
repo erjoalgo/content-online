@@ -77,12 +77,14 @@
           ;; (hunchentoot:server-protocol*)
           (hunchentoot:host) oauth-authorize-uri-path))
 
-(defun oauth-redirect (original-url)
-  (setf (session-value 'original-url) original-url)
-  (let* ((local-auth-url (oauth-authorize-uri))
-         (oauth-client (service-oauth-client *service*))
-         (remote-auth-url (auth-server-redirect-url oauth-client local-auth-url)))
-    (redirect remote-auth-url)))
+(defun oauth-redirect-maybe ()
+  "do an oauth redirect if session's api-login is nil"
+  (unless (session-value 'api-login)
+    (setf (session-value 'original-url) (hunchentoot:request-uri*))
+    (let* ((local-auth-url (oauth-authorize-uri))
+           (oauth-client (service-oauth-client *service*))
+           (remote-auth-url (auth-server-redirect-url oauth-client local-auth-url)))
+      (redirect remote-auth-url))))
 
 (defmacro define-regexp-route (name (url-regexp &rest capture-names) docstring &body body)
   "a macro to define a handler `name' matching requests for `url-regexp'.
@@ -94,9 +96,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
        ,docstring
        (ppcre:register-groups-bind ,capture-names
            (,url-regexp (hunchentoot:script-name*))
-         (if (not (session-value 'api-login))
-             (oauth-redirect (hunchentoot:request-uri*))
-             (progn ,@body))))
+         (oauth-redirect-maybe)
+         (progn ,@body)))
      (push (hunchentoot:create-regex-dispatcher ,url-regexp ',name)
            hunchentoot:*dispatch-table*)))
 
