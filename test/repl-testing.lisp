@@ -16,9 +16,4 @@
   (in-package "YT-COMMENTS/SERVER")
   (funcall (find-symbol
             "START" "YT-COMMENTS/SERVER")
-           (funcall (find-symbol
-                     "MAKE-CONFIG" "YT-COMMENTS/SERVER")
-                    :port 4242
-                    :oauth-client-secret-json-path
-                    (loop for path in (uiop:directory-files ".")
-                       thereis (and (equal "json" (pathname-type path)) path)))))
+           :port 4244))
