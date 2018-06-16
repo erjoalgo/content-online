@@ -36,11 +36,35 @@
 
 (defvar *service* nil "the current service")
 
+(defun first-file-with-extension (directory ext)
+  ;; with directory-wild = (merge-pathnames (make-pathname :name :WILD) directory)
+  (loop for path in (uiop:directory-files directory)
+     thereis (and (equal ext (pathname-type path)) path)))
+
+(defparameter secrets-directory
+  #P"./secrets/")
+
+'(defmacro ensure-non-nil (form)
+  (let ((val-sym (gensym "val")))
+    `(let ((,val-sym (progn ,@form)))
+       (assert ,val-sym)
+       ,val-sym)))
+
+(defun ensure-non-nil (form)
+  (let ((val form))
+    (assert val)
+    val))
+
 (defstruct config
-  port
-  oauth-client-secret-json-path
-  ssl-cert ;; a cons cell: (SSL-CERTIFICATE-FILE . SSL-PRIVATEKEY-FILE)
-  )
+  (port 4244)
+  (oauth-client-secret-json-path
+   (ensure-non-nil
+    (first-file-with-extension secrets-directory "json")))
+
+  ;; a cons cell: (SSL-CERTIFICATE-FILE . SSL-PRIVATEKEY-FILE)
+  (ssl-cert (cons
+             (ensure-non-nil (first-file-with-extension secrets-directory "cert"))
+             (ensure-non-nil (first-file-with-extension secrets-directory "key")))))
 
 (defstruct service
   acceptor
