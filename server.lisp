@@ -238,7 +238,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (define-regexp-route playlists-handler ("^/playlists/?$")
     "list user's playlists"
-  (make-table '("#" "id" "title" "published" "date-published" "videos")
+  (make-table '("#" "title"  "date published" "videos")
               (ensure-ok (playlists (session-value 'api-login)
                          :mine "true"
                          :part "snippet"))
@@ -249,9 +249,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                    (published "snippet.publishedAt"))
                 (list (write-to-string idx)
                       (markup
-                       (:a :href (playlist-url id) id))
-                      (playlist-url id)
-                      title
+                       (:a :href (playlist-url id) title))
                       published
                       (markup
                        (:a :href (format nil "/playlists/~A/videos"
