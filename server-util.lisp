@@ -34,20 +34,23 @@ as-button should be a string to be used as the button's value
          (tmp-content-id (write-to-string (random (ash 1 31))))
          (js-funcall (format nil js-lazy-load-self-replace-fmt-funcall
                              id url verb))
+         (initially-hidden-p as-button)
          (js-unhide-tmp-and-funcall
-          (format nil
-                  "document.getElementById('~A').style = 'display:show';
-~A;"
-                  tmp-content-id
-                  js-funcall)))
+          (concatenate 'string
+                       (if initially-hidden-p
+                           (format nil "document.getElementById('~A').style = 'display:show';"
+                                   tmp-content-id)
+                           "")
+                       js-funcall)))
 
     (markup (:div :id id
                   (raw
                    (unless skip-self-replace-fun
                     (markup (:script :type "text/javascript"
                                      (raw js-lazy-load-self-replace-fmt-def)))))
-                  (:div :style "display:none" :visibility "hidden"
-                        :id tmp-content-id (raw tmp-content))
+                  (raw (markup* `(:div ,@(if (not initially-hidden-p) nil
+                                       '(:style "display:none" :visibility "hidden"))
+                                 :id ,tmp-content-id (raw ,tmp-content))))
                   (raw
                    (if (null as-button)
                        (markup* `(:script :type "text/javascript"
