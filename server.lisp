@@ -79,28 +79,31 @@
 (defun start-with-config (config)
   (when *service* (stop *service*))
   (with-slots (port oauth-client-secret-json-path ssl-cert) config
-    (setf *service*
-          (let ((acceptor-args (list :port port
-                                     :document-root (truename "./www")))
-                (acceptor-class 'hunchentoot:easy-acceptor)
-                (protocol "http")
-                acceptor)
-            (when ssl-cert
-              (setf acceptor-class 'hunchentoot:easy-ssl-acceptor
-                    acceptor-args (append acceptor-args
-                                 (list :SSL-CERTIFICATE-FILE (car ssl-cert)
-                                       :SSL-PRIVATEKEY-FILE (cdr ssl-cert)))
-                    protocol "https"))
-            (format t "making service  ~A on port ~A~%" acceptor-class port)
-            (setf acceptor
-                  (apply 'make-instance acceptor-class acceptor-args))
+    (let ((acceptor-args (list :port port
+                               :document-root (truename "./www")))
+          acceptor-class
+          protocol)
+
+      (if ssl-cert
+          (setf acceptor-class 'hunchentoot:easy-ssl-acceptor
+                protocol "https"
+                acceptor-args (append acceptor-args
+                                      (destructuring-bind (cert . key) ssl-cert
+                                        (list :SSL-CERTIFICATE-FILE cert
+                                              :SSL-PRIVATEKEY-FILE key))))
+          (setf acceptor-class 'hunchentoot:easy-acceptor
+                protocol "http"))
+
+      (format t "making service  ~A on port ~A~%" acceptor-class port)
+
+      (setf *service*
             (make-service
-             :acceptor acceptor
+             :acceptor (apply 'make-instance acceptor-class acceptor-args)
              :protocol protocol
              :config config
              :oauth-client (make-oauth-client-from-file
-                            (config-oauth-client-secret-json-path config))
-             )))
+                            (config-oauth-client-secret-json-path config)))))
+
     (hunchentoot:start (service-acceptor *service*))
     *service*))
 
