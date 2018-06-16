@@ -73,7 +73,10 @@
   protocol
   )
 
-(defun start (config)
+(defun start (&rest make-config-args)
+  (start-with-config (apply 'make-config make-config-args)))
+
+(defun start-with-config (config)
   (when *service* (stop *service*))
   (with-slots (port oauth-client-secret-json-path ssl-cert) config
     (setf *service*
