@@ -2,3 +2,5 @@
 TODO.org
 *json
 secret/
+*.cert
+*.key
