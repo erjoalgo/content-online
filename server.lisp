@@ -46,6 +46,7 @@
   acceptor
   config
   oauth-client
+  scheme
   )
 
 (defun start (config)
@@ -55,18 +56,20 @@
           (let ((acceptor-args (list :port port
                                      :document-root (truename "./www")))
                 (acceptor-class 'hunchentoot:easy-acceptor)
+                (scheme "http")
                 acceptor)
             (when ssl-cert
               (setf acceptor-class 'hunchentoot:easy-ssl-acceptor
                     acceptor-args (append acceptor-args
                                  (list :SSL-CERTIFICATE-FILE (car ssl-cert)
                                        :SSL-PRIVATEKEY-FILE (cdr ssl-cert)))
-                    )
+                    scheme "https"))
             (format t "making service  ~A on port ~A~%" acceptor-class port)
             (setf acceptor
                   (apply 'make-instance acceptor-class acceptor-args))
             (make-service
              :acceptor acceptor
+             :scheme scheme
              :config config
              :oauth-client (make-oauth-client-from-file
                             (config-oauth-client-secret-json-path config))
@@ -84,10 +87,11 @@
 (defvar oauth-authorize-uri-path "/oauth/authorize")
 
 (defun oauth-authorize-uri ()
-  (format nil "http://~A~A"
+  (format nil "~A://~A~A"
           ;; TODO get request protocol
           ;; https://stackoverflow.com/questions/40693291/
           ;; (hunchentoot:server-protocol*)
+          (service-scheme *service*)
           (hunchentoot:host) oauth-authorize-uri-path))
 
 (defun oauth-redirect-maybe ()
