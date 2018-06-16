@@ -218,20 +218,31 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defvar loading-gif-img-tag
   (markup (:img :src (format nil "/loading-small.gif"))))
 
+(defvar js-lazy-load-self-replace-fmt-def-element
+  (markup (:script :type "text/javascript"
+                   (raw yt-comments/server-util::js-lazy-load-self-replace-fmt-def))))
+
+(defmacro markup-with-lazy-elements (form)
+  `(markup (:div
+           (raw js-lazy-load-self-replace-fmt-def-element)
+           (raw ,form))))
+
 (defun channels-handler (channels &key (max-description-chars 100))
-  (make-table '("#" "channel id" "title" "description" "commments" "count")
-              channels
-              chan-idx chan
-              (with-slots (id title description) chan
-                (let* ((url (channel-url id))
-                       (comments-link (format nil "/channels/~A/comments" id)))
-                  (list (write-to-string chan-idx)
-                        (markup (:a :href url id))
-                        title
-                        (string-truncate description max-description-chars)
-                        (markup (:a :href comments-link "comments!"))
-                        (js-lazy-element (format nil "/channels/~A/comments-count" id)
-                                       loading-gif-img-tag))))))
+  (markup-with-lazy-elements
+   (make-table '("#" "channel id" "title" "description" "commments" "count")
+               channels
+               chan-idx chan
+               (with-slots (id title description) chan
+                 (let* ((url (channel-url id))
+                        (comments-link (format nil "/channels/~A/comments" id)))
+                   (list (write-to-string chan-idx)
+                         (markup (:a :href url id))
+                         title
+                         (string-truncate description max-description-chars)
+                         (markup (:a :href comments-link "comments!"))
+                         (js-lazy-element (format nil "/channels/~A/comments-count" id)
+                                          loading-gif-img-tag
+                                          :skip-self-replace-fun t)))))))
 
 (defmacro ensure-ok (api-req-values &key (ok-code 200))
   (let ((body-sym (gensym "body"))
@@ -268,7 +279,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (define-regexp-route playlists-handler ("^/playlists/?$")
     "list user's playlists"
-  (make-table '("#" "title"  "date published" "videos")
+  (markup-with-lazy-elements
+   (make-table '("#" "title"  "date published" "videos")
               (ensure-ok (playlists (session-value 'api-login)
                          :mine "true"
                          :part "snippet"))
@@ -283,7 +295,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                       published
                       (markup
                        (:a :href (format nil "/playlists/~A/videos"
-                                         id) "videos"))))))
+                                         id) "videos")))))))
+
 
 (defstruct video
   id
@@ -297,7 +310,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (defun videos-handler (videos &key (max-description-chars 100))
   "videos is a video struct list"
-  (make-table '("#" "title" "channel" "published" "description" "rating" "commments" "count")
+  (markup-with-lazy-elements
+        (make-table '("#" "title" "channel" "published" "description" "rating" "commments" "count")
               videos
               idx video
               (with-slots (id title channel-id channel-title published description rating)
@@ -315,7 +329,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                        (:a :href (format nil "/videos/~A/comments" id) "comments"))
                       (when id
                         (js-lazy-element (format nil "/videos/~A/comments-count" id)
-                                       loading-gif-img-tag))))))
+                                         loading-gif-img-tag
+                                         :skip-self-replace-fun t)))))))
 
 (defun make-video-from-alist (video-alist)
   (with-json-paths video-alist
@@ -406,7 +421,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   text)
 
 (defun list-comments-handler (comments &key no-author-filter)
-  (make-table '("#" "id" "author" "video or channel id" "reply count" "text")
+  (markup-with-lazy-elements
+   (make-table '("#" "id" "author" "video or channel id" "reply count" "text" "delete")
               (if no-author-filter
                   comments
                   (loop for comment in comments when (equal (session-channel-title)
@@ -426,7 +442,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                        (format nil "/comment/~A/delete" id)
                        loading-gif-img-tag
                        :as-button "delete!"
-                       :verb :delete)))))
+                       :verb :delete
+                       :skip-self-replace-fun t))))))
 
 (defun make-comment-from-json-alist (comment-thread-alist)
   (with-json-paths comment-thread-alist
