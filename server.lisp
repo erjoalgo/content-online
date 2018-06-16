@@ -39,6 +39,7 @@
 (defstruct config
   port
   oauth-client-secret-json-path
+  ssl-cert ;; a cons cell: (SSL-CERTIFICATE-FILE . SSL-PRIVATEKEY-FILE)
   )
 
 (defstruct service
@@ -49,17 +50,29 @@
 
 (defun start (config)
   (when *service* (stop *service*))
-  (setf *service*
-        (make-service
-         :acceptor (make-instance 'hunchentoot:easy-acceptor
-                                  :port (config-port config)
-                                  :document-root (truename "./www"))
-         :config config
-         :oauth-client (make-oauth-client-from-file
-                        (config-oauth-client-secret-json-path config))
-         ))
-  (hunchentoot:start (service-acceptor *service*))
-  *service*)
+  (with-slots (port oauth-client-secret-json-path ssl-cert) config
+    (setf *service*
+          (let ((acceptor-args (list :port port
+                                     :document-root (truename "./www")))
+                (acceptor-class 'hunchentoot:easy-acceptor)
+                acceptor)
+            (when ssl-cert
+              (setf acceptor-class 'hunchentoot:easy-ssl-acceptor
+                    acceptor-args (append acceptor-args
+                                 (list :SSL-CERTIFICATE-FILE (car ssl-cert)
+                                       :SSL-PRIVATEKEY-FILE (cdr ssl-cert)))
+                    )
+            (format t "making service  ~A on port ~A~%" acceptor-class port)
+            (setf acceptor
+                  (apply 'make-instance acceptor-class acceptor-args))
+            (make-service
+             :acceptor acceptor
+             :config config
+             :oauth-client (make-oauth-client-from-file
+                            (config-oauth-client-secret-json-path config))
+             )))
+    (hunchentoot:start (service-acceptor *service*))
+    *service*))
 
 (defun stop (&optional service)
   (setf service (or service *service*))
