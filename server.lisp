@@ -160,7 +160,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                     "/")
              (progn
                ;; (assert (session-value 'original-url))
-                    (or (session-value 'original-url) "/"))))
+               (or (session-value 'original-url) "/"))))
         (resp-token (exchange-code-for-token code (service-oauth-client *service*))))
     (if (resp-token-access-token resp-token)
         (progn
@@ -202,8 +202,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (define-regexp-route root-handler ("^/$")
     "root handler"
-    (markup (:ul (loop for url in home-urls
-                    collect (markup (:li (:a :href url url)))))))
+  (markup (:ul (loop for url in home-urls
+                  collect (markup (:li (:a :href url url)))))))
 
 
 (defstruct channel
@@ -224,8 +224,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (defmacro markup-with-lazy-elements (form)
   `(markup (:div
-           (raw js-lazy-load-self-replace-fmt-def-element)
-           (raw ,form))))
+            (raw js-lazy-load-self-replace-fmt-def-element)
+            (raw ,form))))
 
 (defun channels-handler (channels &key (max-description-chars 100))
   (markup-with-lazy-elements
@@ -281,21 +281,21 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "list user's playlists"
   (markup-with-lazy-elements
    (make-table '("#" "title"  "date published" "videos")
-              (ensure-ok (playlists (session-value 'api-login)
-                         :mine "true"
-                         :part "snippet"))
-              idx playlist
-              (with-json-paths playlist
-                  ((id "id")
-                   (title "snippet.title")
-                   (published "snippet.publishedAt"))
-                (list (write-to-string idx)
-                      (markup
-                       (:a :href (playlist-url id) title))
-                      published
-                      (markup
-                       (:a :href (format nil "/playlists/~A/videos"
-                                         id) "videos")))))))
+               (ensure-ok (playlists (session-value 'api-login)
+                                     :mine "true"
+                                     :part "snippet"))
+               idx playlist
+               (with-json-paths playlist
+                   ((id "id")
+                    (title "snippet.title")
+                    (published "snippet.publishedAt"))
+                 (list (write-to-string idx)
+                       (markup
+                        (:a :href (playlist-url id) title))
+                       published
+                       (markup
+                        (:a :href (format nil "/playlists/~A/videos"
+                                          id) "videos")))))))
 
 
 (defstruct video
@@ -311,26 +311,26 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defun videos-handler (videos &key (max-description-chars 100))
   "videos is a video struct list"
   (markup-with-lazy-elements
-        (make-table '("#" "title" "channel" "published" "description" "rating" "commments" "count")
-              videos
-              idx video
-              (with-slots (id title channel-id channel-title published description rating)
-                  video
-                (list (write-to-string idx)
-                      (markup
-                       (:a :href (video-url id) title))
-                      (markup
-                       (:a :href (channel-url channel-id) channel-title))
-                      published
-                      (when description
-                        (string-truncate description max-description-chars))
-                      rating
-                      (markup
-                       (:a :href (format nil "/videos/~A/comments" id) "comments"))
-                      (when id
-                        (js-lazy-element (format nil "/videos/~A/comments-count" id)
-                                         loading-gif-img-tag
-                                         :skip-self-replace-fun t)))))))
+   (make-table '("#" "title" "channel" "published" "description" "rating" "commments" "count")
+               videos
+               idx video
+               (with-slots (id title channel-id channel-title published description rating)
+                   video
+                 (list (write-to-string idx)
+                       (markup
+                        (:a :href (video-url id) title))
+                       (markup
+                        (:a :href (channel-url channel-id) channel-title))
+                       published
+                       (when description
+                         (string-truncate description max-description-chars))
+                       rating
+                       (markup
+                        (:a :href (format nil "/videos/~A/comments" id) "comments"))
+                       (when id
+                         (js-lazy-element (format nil "/videos/~A/comments-count" id)
+                                          loading-gif-img-tag
+                                          :skip-self-replace-fun t)))))))
 
 (defun make-video-from-alist (video-alist)
   (with-json-paths video-alist
@@ -389,13 +389,13 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   (assert (session-channel-title))
   (results-count-handler
    (yt-comments/client::api-req
-       (session-value 'api-login)
-       "commentThreads"
-       `(("part" . "id")
-         ("searchTerms" . ,(session-channel-title))
-         ("allThreadsRelatedToChannelId" . ,channel-id)
-         ("maxResults" . "50"))
-       :depaginate-p nil)))
+    (session-value 'api-login)
+    "commentThreads"
+    `(("part" . "id")
+      ("searchTerms" . ,(session-channel-title))
+      ("allThreadsRelatedToChannelId" . ,channel-id)
+      ("maxResults" . "50"))
+    :depaginate-p nil)))
 
 (defun session-channel-title ()
   (or
@@ -423,27 +423,27 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defun list-comments-handler (comments &key no-author-filter)
   (markup-with-lazy-elements
    (make-table '("#" "id" "author" "video or channel id" "reply count" "text" "delete")
-              (if no-author-filter
-                  comments
-                  (loop for comment in comments when (equal (session-channel-title)
+               (if no-author-filter
+                   comments
+                   (loop for comment in comments when (equal (session-channel-title)
                                                              (comment-author comment))
-                     collect comment))
-              comment-idx comment
-              (with-slots (id author video-id channel-id reply-count text)
-                  comment
-                (list (write-to-string comment-idx)
-                      id
-                      author
-                      (markup (:a :href (if video-id (video-url video-id) (channel-url channel-id))
-                                  (or video-id channel-id)))
-                      (write-to-string reply-count)
-                      text
-                      (js-lazy-element
-                       (format nil "/comment/~A/delete" id)
-                       loading-gif-img-tag
-                       :as-button "delete!"
-                       :verb :delete
-                       :skip-self-replace-fun t))))))
+                      collect comment))
+               comment-idx comment
+               (with-slots (id author video-id channel-id reply-count text)
+                   comment
+                 (list (write-to-string comment-idx)
+                       id
+                       author
+                       (markup (:a :href (if video-id (video-url video-id) (channel-url channel-id))
+                                   (or video-id channel-id)))
+                       (write-to-string reply-count)
+                       text
+                       (js-lazy-element
+                        (format nil "/comment/~A/delete" id)
+                        loading-gif-img-tag
+                        :as-button "delete!"
+                        :verb :delete
+                        :skip-self-replace-fun t))))))
 
 (defun make-comment-from-json-alist (comment-thread-alist)
   (with-json-paths comment-thread-alist
@@ -536,8 +536,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                (:li "while true; do xdotool key End; sleep 1; done"))
               (:li "open the browser's developer console, possibly via cltr+shift+c")
               (:li (concatenate 'string
-                    "type \"document.body.innerHTML\", "
-                    "copy and paste into the form below")))
+                                "type \"document.body.innerHTML\", "
+                                "copy and paste into the form below")))
              (:textarea
               :id inner-html-form-id
               :name inner-html-form-id
@@ -572,20 +572,20 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     (redirect (format nil "/feed-history/results/~A" unique-id))))
 
 (defun feed-aggregation-handler (aggregation video-ids)
-    (cond
-      ((not (and aggregation video-ids))
-       (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+)
-       (format nil "aggregation and ~A parameters are required" inner-html-form-id))
-      ((equal "videos" aggregation)
-       (videos-handler (loop for video-id in video-ids collect
-                            (make-video
-                             :id video-id))))
-      ((equal "channels" aggregation)
-       (channels-handler (video-ids-to-unique-channel-ids video-ids)))
-      ((equal "comments" aggregation)
-       (list-comment-threads-handler
-        (loop for channel in (video-ids-to-unique-channel-ids video-ids)
-           nconc (channel-comment-threads (channel-id channel)))))
+  (cond
+    ((not (and aggregation video-ids))
+     (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+)
+     (format nil "aggregation and ~A parameters are required" inner-html-form-id))
+    ((equal "videos" aggregation)
+     (videos-handler (loop for video-id in video-ids collect
+                          (make-video
+                           :id video-id))))
+    ((equal "channels" aggregation)
+     (channels-handler (video-ids-to-unique-channel-ids video-ids)))
+    ((equal "comments" aggregation)
+     (list-comment-threads-handler
+      (loop for channel in (video-ids-to-unique-channel-ids video-ids)
+         nconc (channel-comment-threads (channel-id channel)))))
     (t (error "unknown aggregation"))))
 (define-regexp-route feed-history-get-results-handler
     ("/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
