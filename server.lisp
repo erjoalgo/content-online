@@ -633,13 +633,21 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     (loop-do-chunked video-ids-chunk
        video-ids
        videos-per-request
-         (loop for video-alist in (ensure-ok
-                                   (yt-comments/client::videos
-                                    (session-value 'api-login)
-                                    :part part
-                                    :id (format nil "~{~A~^,~}" video-ids-chunk)))
-            collect (make-video-from-alist video-alist)
-            into videos))
+         (let ((video-ids-commas (format nil "~{~A~^,~}" video-ids-chunk)))
+           (multiple-value-bind (items http-code string)
+               (yt-comments/client::videos
+                (session-value 'api-login)
+                :part part
+                :id video-ids-commas)
+
+             (unless (= 200 http-code)
+               (format t "bad http code ~A while fetching these videos:
+~A.
+response: ~A~%" http-code video-ids-commas string))
+
+             (when items
+               (loop for video-alist in items do
+                    (push (make-video-from-alist video-alist) videos))))))
     videos))
 
 (defun video-ids-to-unique-channel-ids (video-ids)
