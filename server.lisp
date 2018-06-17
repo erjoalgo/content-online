@@ -552,14 +552,26 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
              (:input :type "submit"
                      :name "submit")))))
 
-(define-regexp-route feed-history-dom-html-handler
+(defun gen-unique-id ()
+  (random (ash 1 30)))
+
+(define-regexp-route feed-history-input-video-ids-handler
     ("/feed-history/dom-html")
     "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
   (let ((video-ids (-> (hunchentoot:post-parameters*)
                        (assoq inner-html-form-id)
                        (parse-unique-video-ids)))
         (aggregation (-> (hunchentoot:post-parameters*)
-                         (assoq "aggregation"))))
+                         (assoq "aggregation")))
+        (unique-id (gen-unique-id)))
+    (unless (null (session-value 'feed-req-ids))
+      (setf (session-value 'feed-req-ids) nil))
+    (push (cons unique-id
+                (cons aggregation video-ids))
+          (session-value 'feed-req-ids))
+    (redirect (format nil "/feed-history/results/~A" unique-id))))
+
+(defun feed-aggregation-handler (aggregation video-ids)
     (cond
       ((not (and aggregation video-ids))
        (setf (hunchentoot:return-code*) hunchentoot:+http-bad-request+)
@@ -574,7 +586,15 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
        (list-comment-threads-handler
         (loop for channel in (video-ids-to-unique-channel-ids video-ids)
            nconc (channel-comment-threads (channel-id channel)))))
-      (t (error "unknown aggregation")))))
+    (t (error "unknown aggregation"))))
+(define-regexp-route feed-history-get-results-handler
+    ("/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
+    "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
+  (let ((req (assoq (session-value 'feed-req-ids) unique-id)))
+    (if (not req)
+        (format nil "request id ~A not found" unique-id)
+        (destructuring-bind (aggregation . video-ids) req
+          (feed-aggregation-handler aggregation video-ids)))))
 
 (define-regexp-route liked-videos-handler ("^/rated-videos/?$")
     "list user's liked videos"
