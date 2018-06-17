@@ -585,8 +585,14 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
       ((equal "comments" aggregation)
        (list-comment-threads-handler
         (loop for channel in (video-ids-to-unique-channel-ids video-ids)
-           nconc (channel-comment-threads (channel-id channel)))))
+         for i from 0
+         as loc = (channel-comment-threads (channel-id channel))
+         do (format t "~A comments for channel ~A~%" (length loc) channel)
+         nconc loc into comms
+         finally (progn (format t "got ~D comments~%" i)
+                        (return comms)))))
     (t (error "unknown aggregation"))))
+
 (define-regexp-route feed-history-get-results-handler
     ("/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
     "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
