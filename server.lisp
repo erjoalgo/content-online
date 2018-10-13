@@ -109,6 +109,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   `(progn
      (defun ,name ()
        ,docstring
+       (format t "protocol is ~A~%" (hunchentoot:server-protocol*))
        (ppcre:register-groups-bind ,capture-names
            (,url-regexp (hunchentoot:script-name*))
          (oauth-redirect-maybe)
