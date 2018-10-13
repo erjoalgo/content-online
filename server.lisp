@@ -526,7 +526,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
   (let ((req (assoq (session-value 'feed-req-ids) unique-id)))
     (if (not req)
-        (format nil "request id ~A not found" unique-id)
+        (progn (format t "req ~A~%" req)
+               (format nil "request id ~A not found" unique-id))
         (destructuring-bind (aggregation . video-ids) req
           (feed-aggregation-handler aggregation video-ids)))))
 
