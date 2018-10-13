@@ -15,7 +15,6 @@ function scheduleVideoIdUpdate (  ) {
 }
 
 function videoIdUpdate (  ) {
-    console.log( "updating..." );
     var text = document.getElementById(textAreaId).value;
     var videoIds = parseVideoIds(text);
     var lines = videoIds.join("\n");
