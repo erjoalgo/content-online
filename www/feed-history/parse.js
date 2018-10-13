@@ -7,7 +7,7 @@ var videoIdsTextAreaDisplayId = "video-ids-display";
 var parsedIsCountLabel = "parse-count";
 
 function scheduleVideoIdUpdate (  ) {
-    if (videoIdUpdateTimer != null) {
+    if (videoIdUpdateTimer) {
         clearTimeout(videoIdUpdateTimer);
         videoIdUpdateTimer = null;
     }
