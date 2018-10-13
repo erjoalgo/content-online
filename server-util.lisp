@@ -1,7 +1,3 @@
-(defpackage #:yt-comments/server-util
-  (:use :cl :cl-markup)
-  (:export #:js-lazy-element))
-
 (in-package #:yt-comments/server-util)
 
 (defparameter js-lazy-load-self-replace-fmt-def

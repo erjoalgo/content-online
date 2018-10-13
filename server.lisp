@@ -1,37 +1,3 @@
-(defpackage #:yt-comments/server
-  (:use :cl :cl-markup)
-  (:import-from #:yt-comments/util
-                #:with-json-paths
-                #:->
-                #:get-nested-macro
-                #:assoq
-                )
-  (:import-from #:yt-comments/server-util
-                #:js-lazy-element)
-  (:import-from #:yt-comments/client
-                #:make-api-login
-                #:subscriptions
-                #:comment-threads
-                #:channel-url
-                #:video-url
-                #:playlist-url
-                #:delete-comment
-                #:playlists
-                #:playlist-items
-                )
-  (:import-from #:yt-comments/oauth
-                #:make-oauth-client-from-file
-                #:auth-server-redirect-url
-                #:exchange-code-for-token
-                #:resp-token-access-token
-                #:resp-token-refresh-token
-                )
-  (:import-from #:hunchentoot
-                #:session-value
-                #:redirect
-                ))
-
-
 (in-package #:yt-comments/server)
 
 (defvar *service* nil "the current service")

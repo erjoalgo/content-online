@@ -12,7 +12,8 @@
                :cl-markup
                :stefil
                )
-  :components ((:file "util")
+  :components ((:file "packages")
+               (:file "util")
                (:file "oauth")
                (:file "client")
                (:file "repr")

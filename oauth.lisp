@@ -1,14 +1,3 @@
-(defpackage #:yt-comments/oauth
-  (:use :cl)
-  (:import-from #:yt-comments/util
-                #:flat-to-alist-macro
-                #:read-file
-                #:make-from-json-alist
-                #:->
-                #:assoq
-                )
-  (:export #:make-oauth-client-from-file))
-
 (in-package #:yt-comments/oauth)
 
 (defstruct oauth-client

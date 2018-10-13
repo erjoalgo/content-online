@@ -1,17 +1,3 @@
-(defpackage #:yt-comments/client
-  (:use :cl)
-  (:import-from #:yt-comments/util
-                #:to-camel-case
-                #:->
-                #:make-from-json-alist
-                #:lisp-alist-to-json-map
-                #:retry-times
-                #:with-json-paths)
-  (:import-from #:yt-comments/oauth
-                #:oauth-token-auth-header)
-  (:export #:make-api-login
-           #:default-base-url))
-
 (in-package #:yt-comments/client)
 
 (defvar default-api-base-url

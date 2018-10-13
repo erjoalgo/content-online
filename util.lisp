@@ -1,7 +1,3 @@
-(defpackage #:yt-comments/util
-  (:use :cl)
-  )
-
 (in-package #:yt-comments/util)
 
 (defun to-camel-case (string)
