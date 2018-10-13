@@ -175,8 +175,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defstruct channel
   id
   title
-  description
-  )
+  description)
 
 (defun string-truncate (string n)
   (subseq string 0 (min (length string) n)))
