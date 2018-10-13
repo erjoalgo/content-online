@@ -4,7 +4,8 @@
 
 '(setf (hunchentoot::session-db (service-acceptor *service*)) nil); delete all sessions
 
-(defun unintern-shadowing-symbols (package)
+(defun unintern-shadowing-symbols (&optional package)
+  (setf package (or package *package*))
   (let ((syms (package-shadowing-symbols package)))
     (dolist (sym syms) (unintern sym package))
     (format t "uninterned ~D shadowing symbols ~%"
