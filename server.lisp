@@ -484,7 +484,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "(?<=/watch[?]v=)([^\"&\]*)" text)
    string string))
 
-(defvar inner-html-form-id "video-ids")
+(defparameter inner-html-form-id "video-ids")
 
 (defun gen-unique-id ()
   (random (ash 1 30)))
