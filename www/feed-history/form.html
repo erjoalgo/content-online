@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+  <body>
+
+      <ol>
+        <li>nnavigate to <a href="https://www.youtube.com/feed/history/comment_history">https://www.youtube.com/feed/history/comment_history</a>
+        </li>
+        <li>scroll down to the very last comment</li>
+      <ul>
+        <li>possibly use a script to scroll down automatically. e.g.</li>
+        <li>'while true; do xdotool key End; sleep 1; done'</li>
+      </ul>
+      <li>open the browser's developer console, possibly via cltr+shift+c</li>
+      <li>type "document.body.innerHTML", copy and paste into the form below</li>
+      </ol>
+
+      <textarea id="inner-html" name="inner-html" rows="20" cols="50" onkeyup="scheduleVideoIdUpdate()">
+        enter text containing video ids here...
+      </textarea>
+      <textarea id="video-ids-display" name="video-ids" rows="20" cols="50" readonly="true"
+                disabled="true"
+                >
+        parsed video id list will appear here
+      </textarea>
+
+      <div id="parse-count"></div>
+
+      <form action="/feed-history/dom-html" method="post" style="display:inline">
+
+      <input type="text" name="video-ids" value="" hiden="true"></input>
+
+      <br>
+
+      <input type="radio" name="aggregation" value="videos">videos
+      <input type="radio" name="aggregation" value="channels">channels
+      <input type="radio" name="aggregation" value="comments">comments
+
+      <br>
+
+      <input type="submit" name="submit">
+      </form>
+
+    <script type="text/javascript" src="parse.js"></script>
+  </body>
+</html>

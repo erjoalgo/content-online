@@ -196,7 +196,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (defparameter home-urls
   '("/subscriptions"
     "/playlists"
-    "/feed-history/form"
+    "/feed-history/form.html"
     "/rated-videos"
     ))
 
@@ -519,38 +519,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "(?<=/watch[?]v=)([^\"&\]*)" text)
    string string))
 
-(defvar inner-html-form-id "inner-html")
-
-(define-regexp-route feed-history-form-handler
-    ("/feed-history/form")
-    "form to input video ids from the youtube feed history page inner html"
-  (let ((feed-url "https://www.youtube.com/feed/history/comment_history"))
-    (markup (:form
-             :action "/feed-history/dom-html"
-             :method "post"
-             (:ol
-              (:li "navigate to " (:a :href feed-url feed-url))
-              (:li "scroll down until the last comment has been reached")
-              (:ul
-               (:li "possibly use a script to scroll down automatically. e.g.")
-               (:li "while true; do xdotool key End; sleep 1; done"))
-              (:li "open the browser's developer console, possibly via cltr+shift+c")
-              (:li (concatenate 'string
-                                "type \"document.body.innerHTML\", "
-                                "copy and paste into the form below")))
-             (:textarea
-              :id inner-html-form-id
-              :name inner-html-form-id
-              :rows "20"
-              :cols "80"
-              nil)
-             (:br)
-             (:input :type "radio" :name "aggregation" :value "videos" "videos")
-             (:input :type "radio" :name "aggregation" :value "channels" "channels")
-             (:input :type "radio" :name "aggregation" :value "comments" "comments")
-             (:br)
-             (:input :type "submit"
-                     :name "submit")))))
+(defvar inner-html-form-id "video-ids")
 
 (defun gen-unique-id ()
   (random (ash 1 30)))
