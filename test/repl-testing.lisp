@@ -11,7 +11,7 @@
     (format t "uninterned ~D shadowing symbols ~%"
             (length syms))))
 
-(progn
+'(progn
   (load "yt-comments.asd")
   (ql:quickload "yt-comments")
   (in-package "YT-COMMENTS/SERVER")
