@@ -111,8 +111,9 @@
                        (format t "fetched ~A items~%" (length items))
                        (return (values items status-code resp-string error))))))))
 
-(defmacro def-api-endpoint (resource-as-sym &key defaults fun-sym)
-  `(defun ,(or fun-sym resource-as-sym) (login &rest params-flat)
+(defmacro def-api-endpoint (resource-as-sym &key defaults
+                                              (fun-sym resource-as-sym))
+  `(defun ,fun-sym (login &rest params-flat)
      (let ((params-alist
            (loop for (k v) on params-flat by #'cddr
               collect (cons k v))))
