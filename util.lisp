@@ -66,8 +66,7 @@
        (loop
           with ,instance = (make-instance ',type)
           for (,k . ,v) in ,json-alist
-          as ,slot-sym = (intern (json-key-to-lisp ,k) ,class-package)
-          ;; do (format t "sym is ~A~%" ,slot-sym)
+          as ,slot-sym = (intern (symbol-name ,k) ,class-package)
           when (member ,slot-sym ',slots)
           do (setf (slot-value ,instance ,slot-sym) ,v)
           finally (return ,instance)))))
