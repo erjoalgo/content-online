@@ -1,27 +1,19 @@
 (in-package #:yt-comments/util)
 
-(defun to-camel-case (string)
-  (cl-ppcre:regex-replace-all
-   "([a-z])[_-]([a-z])"
-   (string-downcase string)
-   (lambda (TARGET-STRING START END MATCH-START MATCH-END REG-STARTS REG-ENDS)
-     (declare (ignore START END REG-STARTS REG-ENDS))
-     (format nil "~C~C" (aref target-string match-start)
-             (char-upcase (aref target-string (1- match-end)))))))
+(defun json-key-to-lisp (key)
+  ;; TODO first apply CAMEL-CASE-TO-LISP in case keys are camel case
+  (string-upcase (cl-ppcre:regex-replace-all
+                  "--"
+                  (cl-json:camel-case-to-lisp key)
+                  "-")))
 
-(defun from-camel-case (string &key (sep #\-))
-  (cl-ppcre:regex-replace-all
-   "([a-z])([A-Z])"
-   string
-   (lambda (TARGET-STRING START END MATCH-START MATCH-END REG-STARTS REG-ENDS)
-     (declare (ignore START END REG-STARTS REG-ENDS))
-     (format nil "~C~C~C"
-             (aref target-string match-start)
-             sep
-             (char-downcase (aref target-string (1- match-end)))))))
+;; (defalias json-key-to-lisp cl-json:lisp-to-camel-case)
+;; (setf (fdefinition 'lisp-to-json-key) #'cl-json:lisp-to-camel-case)
+(defun lisp-to-json-key (lisp-identifier)
+  (cl-json:lisp-to-camel-case (symbol-name lisp-identifier)))
 
-(defun underscore-to-dash (string)
-  (cl-ppcre:regex-replace-all "_" string "-"))
+(setf cl-json:*json-identifier-name-to-lisp*
+      'json-key-to-lisp)
 
 (defmacro -> (&rest forms)
   (if (cadr forms)
@@ -31,17 +23,6 @@
                                              second)
 	  `(-> ,(apply 'list a first a-rest) ,@rest)))
       (car forms)))
-
-(defun json-key-to-lisp (json-key)
-  (-> json-key
-      from-camel-case
-      underscore-to-dash
-      string-upcase))
-
-(defun to-api-param-key (key)
-  (if (stringp key) key
-      (to-camel-case (symbol-name key))))
-
 
 (defmacro with-unique-names ((&rest bindings) &body body)
   `(let ,(mapcar #'(lambda (binding)
