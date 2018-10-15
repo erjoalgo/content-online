@@ -73,7 +73,7 @@ https://accounts.google.com/o/oauth2/v2/auth?
     (format nil "~A?~A"
             auth-uri
             ;; "http://localhost:1234/"
-            (-> (flat-to-alist-macro
+            (-> (params
                  "scope" (format nil "~{~A~^ ~}"
                                  youtube-scopes)
                  "access_type" "online"
