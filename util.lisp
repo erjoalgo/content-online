@@ -65,7 +65,7 @@
 
 (defmacro with-json-paths (obj var-paths &body body)
   `(let ,(loop for (var path) in var-paths collect
-              `(,var (get-nested ,obj ,path)))
+              `(,var (json-get-nested ,obj ,path)))
      ,@body))
 
 (defun drakma-json-content-type-hack (&optional remove)
