@@ -10,7 +10,7 @@
                :command-line-arguments
                :cl-ppcre
                :cl-markup
-               :stefil
+               :fiasco
                )
   :components ((:file "packages")
                (:file "util")
