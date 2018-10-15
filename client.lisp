@@ -29,8 +29,7 @@
                   (retry-delay 2)
                   (auto-refresh-p t))
   "retuns values: json-as-alist http-resp-code resp-string"
-  (let* ((as :alist)
-         (api-base-url default-api-base-url)
+  (let* ((api-base-url default-api-base-url)
          (url (concatenate 'string api-base-url resource))
          (params (lisp-alist-to-json-map params-alist))
          additional-headers)
@@ -65,7 +64,7 @@
                      (progn (format t "got 403. trying to refresh..." )
                             (req t))
                      (let* ((string (babel:octets-to-string octets :encoding :utf-8))
-                            (json (jonathan:parse string :as as)))
+                            (json (cl-json:decode-json-from-string string)))
                        (values json http-code string))))))
       (if (not depaginate-p)
           (req)
@@ -112,9 +111,7 @@
                        (format t "fetched ~A items~%" (length items))
                        (return (values items status-code resp-string error))))))))
 
-(defmacro def-api-endpoint (resource-as-sym &key defaults (as :alist)
-                                              fun-sym)
-  (declare (ignore as))
+(defmacro def-api-endpoint (resource-as-sym &key defaults fun-sym)
   `(defun ,(or fun-sym resource-as-sym) (login &rest params-flat)
      (let ((params-alist
            (loop for (k v) on params-flat by #'cddr

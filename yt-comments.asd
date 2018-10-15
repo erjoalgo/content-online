@@ -4,7 +4,6 @@
   :license "GPLv3"
   :author "Ernesto Alfonso <erjoalgo@gmail.com>"
   :depends-on (:drakma
-               :jonathan
                :hunchentoot
                :vom
                :command-line-arguments
