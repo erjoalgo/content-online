@@ -140,7 +140,7 @@ grant_type=authorization_code"
                  "grant_type" "authorization_code"
                  "client_secret" client-secret
                  "redirect_uri" (car redirect-uris)
-                 "client_id" client-id))
-   (babel:octets-to-string :encoding :utf-8)
-   (jonathan:parse :as :alist)
+                 "client_id" client-id)
+    :want-stream t)
+   cl-json:decode-json-from-source
    (make-from-json-alist resp-token))))
