@@ -8,6 +8,7 @@
                :vom
                :command-line-arguments
                :cl-ppcre
+               :cl-json
                :cl-markup
                :fiasco)
   :components ((:file "packages")
