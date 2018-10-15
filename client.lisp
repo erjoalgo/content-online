@@ -22,6 +22,13 @@
        (format t "values: ~A~%" ,vals-sym)
        (values-list ,vals-sym))))
 
+(defun lisp-alist-to-json-map (params)
+  (loop for (k . v) in params
+     as k-string = (lisp-to-json-key k)
+     unless (assoc k-string params :test #' equal)
+     collect (cons k-string v) into params
+     finally (return params)))
+
 (defun api-req (login resource params-alist
                 &key (method :get)
                   (depaginate-p t)
