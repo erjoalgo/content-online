@@ -15,6 +15,8 @@
          (client-json
           (json-get-nested-macro top-json "web"))
          (client (make-from-json-alist client-json oauth-client)))
+    (assert top-json)
+    (assert client-json)
     (assert (with-slots (client-id client-secret) client
               (and client-id client-secret)))
     client))
