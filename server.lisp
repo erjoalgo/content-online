@@ -31,8 +31,7 @@
   acceptor
   config
   oauth-client
-  protocol
-  )
+  protocol)
 
 (defun start (&rest make-config-args)
   (start-with-config (apply 'make-config make-config-args)))
