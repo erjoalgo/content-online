@@ -13,7 +13,7 @@
   (let* ((top-json
           (cl-json:decode-json-from-source filename))
          (client-json
-          (json-get-nested-macro top-json "installed"))
+          (json-get-nested-macro top-json "web"))
          (client (make-from-json-alist client-json oauth-client)))
     (assert (with-slots (client-id client-secret) client
               (and client-id client-secret)))
