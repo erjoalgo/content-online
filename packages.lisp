@@ -18,7 +18,14 @@
            #:TO-CAMEL-CASE
            #:with-json-paths
            #:LISP-ALIST-TO-JSON-MAP
-           #:get-nested-macro))
+           #:get-nested-macro
+
+           #:lisp-to-json-key
+           #:json-key-to-lisp
+           #:params
+           #:json-path-split
+           #:json-get-nested
+           #:json-get-nested-macro))
 
 (defpackage #:yt-comments/oauth
   (:use :cl)
@@ -28,6 +35,7 @@
                 #:make-from-json-alist
                 #:->
                 #:assoq
+                #:json-get-nested-macro
                 )
   (:export #:make-oauth-client-from-file
            #:OAUTH-TOKEN-AUTH-HEADER
