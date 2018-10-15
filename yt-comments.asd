@@ -9,8 +9,7 @@
                :command-line-arguments
                :cl-ppcre
                :cl-markup
-               :fiasco
-               )
+               :fiasco)
   :components ((:file "packages")
                (:file "util")
                (:file "oauth")
