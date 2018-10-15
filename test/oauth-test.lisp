@@ -56,4 +56,10 @@
         (is (equal "the-secret" yt-comments/oauth::client-secret))
         (is (equal "REMOVED.apps.googleusercontent.com" yt-comments/oauth::client-id))))))
 
+'(deftest test-exchange-code-for-token ()
+  (flet ((drakma:http-request (&rest args)
+           'caca))
+    (is (eq (drakma:http-request) 'caca))
+    '(exchange-code-for-token 1 2)))
+
 (run-package-tests :interactive t)
