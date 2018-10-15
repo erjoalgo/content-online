@@ -67,8 +67,9 @@
           with ,instance = (make-instance ',type)
           for (,k . ,v) in ,json-alist
           as ,slot-sym = (intern (symbol-name ,k) ,class-package)
-          when (member ,slot-sym ',slots)
-          do (setf (slot-value ,instance ,slot-sym) ,v)
+          do (if (member ,slot-sym ',slots)
+                 (setf (slot-value ,instance ,slot-sym) ,v)
+                 (warn "missing slot ~A in type ~A" ,slot-sym ',type))
           finally (return ,instance)))))
 
 ;; `(with-alist-values ,json-alist ,slots from-camel-case
