@@ -36,7 +36,7 @@
                 #:->
                 #:assoq
                 #:json-get-nested-macro
-                )
+                #:PARAMS)
   (:export #:make-oauth-client-from-file
            #:OAUTH-TOKEN-AUTH-HEADER
            #:AUTH-SERVER-REDIRECT-URL
@@ -52,7 +52,8 @@
                 #:make-from-json-alist
                 #:lisp-alist-to-json-map
                 #:retry-times
-                #:with-json-paths)
+                #:with-json-paths
+                #:lisp-to-json-key)
   (:import-from #:yt-comments/oauth
                 #:oauth-token-auth-header)
   (:export #:make-api-login
@@ -77,7 +78,7 @@
   (:import-from #:yt-comments/util
                 #:with-json-paths
                 #:->
-                #:get-nested-macro
+                #:json-get-nested-macro
                 #:assoq
                 )
   (:import-from #:yt-comments/server-util
