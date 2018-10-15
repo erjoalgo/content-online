@@ -78,14 +78,35 @@
 ;;                           `((slot-value ,instance ',slot) ,slot)))
 ;;              ,instance))
 
-(defun get-nested (alist path)
+(defun json-path-split (path)
+  (mapcar (lambda (attr)
+            (if (DIGIT-CHAR-P (aref attr 0))
+                (parse-integer attr)
+                (intern (string-upcase attr) :keyword)))
+          (cl-ppcre:split "][.]|[][.]" path)))
+
+'(let ((x :a))
+  (typecase x
+    (float "a float")
+    (number "an int?")
+    (null "a symbol, boolean false, or the empty list")
+    (keyword "a kw")
+    (symbol "a symbol")
+    (list "a list")
+    (t (format nil "a(n) ~(~A~)" (type-of x)))))
+
+(defun json-get-nested (alist path)
   (when (stringp path)
-    (setf path (cl-ppcre:split "[.]" path)))
-  (reduce (lambda (alist attr) (cdr (assoc attr alist :test #'equal)))
+    (setf path (json-path-split path)))
+  (reduce (lambda (alist attr)
+            (typecase attr
+              (number (nth attr alist))
+              (keyword (cdr (assoc attr alist)))
+              (t (error "invalid type for path component"))))
           path :initial-value alist))
 
-(defmacro get-nested-macro (alist path)
-  `(get-nested ,alist ',(cl-ppcre:split "[.]" path)))
+(defmacro json-get-nested-macro (alist path)
+  `(json-get-nested ,alist ',(json-path-split path)))
 
 (defmacro with-json-paths (obj var-paths &body body)
   `(let ,(loop for (var path) in var-paths collect
