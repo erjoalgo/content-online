@@ -11,12 +11,6 @@
 (defparameter secrets-directory
   #P"./secrets/")
 
-'(defmacro ensure-non-nil (form)
-  (let ((val-sym (gensym "val")))
-    `(let ((,val-sym (progn ,@form)))
-       (assert ,val-sym)
-       ,val-sym)))
-
 (defun ensure-non-nil (form)
   (let ((val form))
     (assert val)
