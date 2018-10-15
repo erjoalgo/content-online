@@ -7,8 +7,6 @@
                   (cl-json:camel-case-to-lisp key)
                   "-")))
 
-;; (defalias json-key-to-lisp cl-json:lisp-to-camel-case)
-;; (setf (fdefinition 'lisp-to-json-key) #'cl-json:lisp-to-camel-case)
 (defun lisp-to-json-key (lisp-identifier)
   (cl-json:lisp-to-camel-case (symbol-name lisp-identifier)))
 
@@ -23,35 +21,6 @@
                                              second)
 	  `(-> ,(apply 'list a first a-rest) ,@rest)))
       (car forms)))
-
-(defmacro with-unique-names ((&rest bindings) &body body)
-  `(let ,(mapcar #'(lambda (binding)
-                     (destructuring-bind (var prefix)
-                         (if (consp binding) binding (list binding binding))
-                       `(,var (gensym ,(string prefix)))))
-                 bindings)
-     ,@body))
-
-
-(defmacro ->> (&rest forms)
-  (if (cadr forms)
-      (destructuring-bind (a b . rest) forms
-          `(->> ,(append
-                  (if (atom b) (cons b nil) b)
-                  (list a))
-                ,@rest))
-      (car forms)))
-
-'(defmacro with-alist-values (alist syms key-transform-fun &body body)
-  `(let
-       ,(loop for sym in syms
-           as sym-name = (symbol-name sym)
-           collect
-             `(,sym
-               (cdr (or ,@(loop for k in sym-name)
-                        collect `(assoc (intern (,key-transform-fun ,k))
-                                        ,alist :test 'equal)))))
-     ,@body))
 
 (defmacro make-from-json-alist (json-alist type)
   (let ((slots (loop for slot in (sb-mop:class-direct-slots (find-class type))
@@ -72,28 +41,12 @@
                  (warn "missing slot ~A in type ~A" ,slot-sym ',type))
           finally (return ,instance)))))
 
-;; `(with-alist-values ,json-alist ,slots from-camel-case
-;;            (let ((,instance (make-instance ',type)))
-;;              (setf ,@(loop for slot in slots append
-;;                           `((slot-value ,instance ',slot) ,slot)))
-;;              ,instance))
-
 (defun json-path-split (path)
   (mapcar (lambda (attr)
             (if (DIGIT-CHAR-P (aref attr 0))
                 (parse-integer attr)
                 (intern (string-upcase attr) :keyword)))
           (cl-ppcre:split "][.]|[][.]" path)))
-
-'(let ((x :a))
-  (typecase x
-    (float "a float")
-    (number "an int?")
-    (null "a symbol, boolean false, or the empty list")
-    (keyword "a kw")
-    (symbol "a symbol")
-    (list "a list")
-    (t (format nil "a(n) ~(~A~)" (type-of x)))))
 
 (defun json-get-nested (alist path)
   (when (stringp path)
@@ -120,17 +73,6 @@
     (unless remove (push json drakma:*text-content-types*))
     drakma:*text-content-types*))
 
-'(drakma-json-content-type-hack t)
-
-(defun lisp-alist-to-json-map (params)
-  (loop for (k . v) in params
-     ;; by #'cddr
-     as k-string = (to-api-param-key k)
-     do (format t "~A ~A~%" k-string v)
-     unless (assoc k-string params :test #' equal)
-     collect (cons k-string v) into params
-     finally (return params)))
-
 (defun read-file (filename)
   (with-output-to-string (out)
     (with-open-file (in filename)
@@ -138,11 +80,6 @@
               (loop as line = (read-line in nil)
                  while line
                  collect line)))))
-
-;; https://stackoverflow.com/questions/9743056/common-lisp-exporting-symbols-from-packages
-'(let ((pack (find-package 'yt-comments/util)))
-  (do-all-symbols (sym pack)
-    (when (eql (symbol-package sym) pack) (export sym))))
 
 (defmacro retry-times (n timeout-secs &body body)
   (let ((i-sym (gensym "i"))
