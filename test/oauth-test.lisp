@@ -22,7 +22,7 @@
 
 (defparameter client-json
   "{
-  \"installed\": {
+  \"web\": {
     \"client_id\": \"REMOVED.apps.googleusercontent.com\",
     \"project_id\": \"the-id\",
     \"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\",
