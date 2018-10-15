@@ -1,5 +1,6 @@
 (in-package #:yt-comments/server)
 
+;; (setf hunchentoot:*dispatch-table* nil)
 (defvar *service* nil "the current service")
 
 (defun first-file-with-extension (directory ext)
