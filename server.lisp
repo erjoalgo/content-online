@@ -112,9 +112,12 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
      (push (hunchentoot:create-regex-dispatcher ,url-regexp ',name)
            hunchentoot:*dispatch-table*)))
 
-(hunchentoot:define-easy-handler (oauth-authorize-handler :uri oauth-authorize-uri-path)
-    (code)
-  ;; (assert (session-value 'original-url))
+(define-regexp-route oauth-authorize-handler (oauth-authorize-uri-path)
+    "/oauth/authorize callback from authorization server"
+
+    (let ((code (-> (hunchentoot:post-parameters*)
+                    (assoq "code"))))
+      (assert code)
   (let ((original-url
          (if (not hunchentoot:*session*)
              (progn (hunchentoot:start-session)
@@ -132,7 +135,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
           (redirect original-url))
         (progn (setf (hunchentoot:return-code*)
                      hunchentoot:+http-authorization-required+)
-               (format nil "token request rejected: ~A~%" resp-token)))))
+                   (format nil "token request rejected: ~A~%" resp-token))))))
+
 
 (defvar db);;debugging
 
