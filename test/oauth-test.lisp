@@ -1,5 +1,4 @@
 
-(stefil:defsuite* run-tests)
 
 (stefil:deftest test-json-parsing ()
   (let ((json
