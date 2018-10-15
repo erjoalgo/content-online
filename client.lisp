@@ -3,21 +3,17 @@
 (defvar default-api-base-url
   "https://www.googleapis.com/youtube/v3/")
 
-;; (setf api-base-url "http://localhost:1234/")
-
 (defstruct resp-page
   items
   page-info
   next-page-token
   etag
   kind
-  error
-  )
+  error)
 
 (defstruct api-login
   key
-  token
-  )
+  token)
 
 (defmacro log-values (form)
   (let ((vals-sym (gensym "vals")))
@@ -31,8 +27,7 @@
                   (depaginate-p t)
                   (retry-count 500)
                   (retry-delay 2)
-                  (auto-refresh-p t)
-                  )
+                  (auto-refresh-p t))
   "retuns values: json-as-alist http-resp-code resp-string"
   (let* ((as :alist)
          (api-base-url default-api-base-url)

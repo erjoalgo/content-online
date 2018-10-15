@@ -29,8 +29,7 @@
         (k (gensym "k"))
         (v (gensym "v"))
         (slot-sym (gensym "slot-sym"))
-        (class-package (symbol-package type))
-        )
+        (class-package (symbol-package type)))
     `(progn
        (loop
           with ,instance = (make-instance ',type)
