@@ -131,12 +131,6 @@
      collect (cons k-string v) into params
      finally (return params)))
 
-(defun flat-to-alist (&rest flat)
-  (loop for (k v) on flat by #'cddr collect (cons k v)))
-
-(defmacro flat-to-alist-macro (&rest flat)
-  `(flat-to-alist ,@flat))
-
 (defun read-file (filename)
   (with-output-to-string (out)
     (with-open-file (in filename)
@@ -177,3 +171,10 @@
 
 (defmacro assoq (alist item)
   `(cdr (assoc ,item ,alist :test 'equal)))
+
+(defun params (&rest flat)
+  "Convert a flat list of key-value pairs into an alist."
+  (loop for (k v) on flat by #'cddr collect (cons k v)))
+
+(defmacro -params (&rest flat)
+  (params flat))
