@@ -117,7 +117,7 @@
      (let ((params-alist
            (loop for (k v) on params-flat by #'cddr
               collect (cons k v))))
-       (api-req login ,(to-camel-case resource-as-sym)
+       (api-req login ,(lisp-to-json-key resource-as-sym)
                 (append params-alist ,defaults)))))
 
 (def-api-endpoint comment-threads :defaults '((:part . "snippet")
