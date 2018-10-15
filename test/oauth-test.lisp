@@ -1,4 +1,3 @@
-(in-package #:yt-comments/test)
 
 (stefil:defsuite* run-tests)
 
