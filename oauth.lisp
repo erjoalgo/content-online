@@ -89,8 +89,7 @@ https://accounts.google.com/o/oauth2/v2/auth?
   expires-in
   token-type
   error
-  error-description
-  )
+  error-description)
 
 (defun oauth-token-auth-header (resp-token)
   (cons :authorization
