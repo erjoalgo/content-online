@@ -323,14 +323,14 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                                              :part "snippet"))
       as video = (make-video-from-alist video-alist)
       do (setf (video-id video)
-               (get-nested-macro video-alist "snippet.resourceId.videoId"))
+               (json-get-nested-macro video-alist "snippet.resourceId.videoId"))
       collect video)))
 
 (defmacro results-count-handler (api-req-values)
   `(->
     ,api-req-values
     ensure-ok
-    (get-nested-macro "pageInfo.totalResults")
+    (json-get-nested-macro "pageInfo.totalResults")
     write-to-string))
 
 (define-regexp-route list-video-comment-counts-handler
@@ -370,7 +370,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                   :part "snippet"
                   :mine "true")
                  car
-                 (get-nested-macro "snippet.title"))))
+                 (json-get-nested-macro "snippet.title"))))
      (assert title)
      (setf
       (session-value 'channel-title) title))))
