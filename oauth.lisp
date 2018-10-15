@@ -24,7 +24,7 @@
 (defun fetch-token (oauth-client redirect-uri)
   (with-slots (client-id client-secret token-uri) oauth-client
       (-> (drakma:http-request token-uri :parameters
-                           (flat-to-alist-macro
+                           (params
                             "client_id" client-id
                             "client_secret" client-secret
                             "redirect_uri" redirect-uri
