@@ -29,10 +29,10 @@
                             "client_secret" client-secret
                             "redirect_uri" redirect-uri
                             "grant_type" "authorization_code"
-                            ))
-          (babel:octets-to-string :encoding :utf-8)
-          (jonathan:parse :as :alist))
-    ))
+                            )
+                           :WANT-STREAM t
+                           )
+          (cl-json:decode-json-from-source))))
 
 (defvar resp)
 
