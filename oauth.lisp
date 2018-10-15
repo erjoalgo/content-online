@@ -10,12 +10,11 @@
   )
 
 (defun make-oauth-client-from-file (filename)
-  (let ((client (->
-                 (read-file filename)
-                 (jonathan:parse :as :alist)
-                 ;; (assoq "installed")
-                 cdar
-                 (make-from-json-alist oauth-client))))
+  (let* ((top-json
+          (cl-json:decode-json-from-source filename))
+         (client-json
+          (json-get-nested-macro top-json "installed"))
+         (client (make-from-json-alist client-json oauth-client)))
     (assert (with-slots (client-id client-secret) client
               (and client-id client-secret)))
     client))
