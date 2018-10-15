@@ -135,7 +135,7 @@ grant_type=authorization_code"
     token-uri
     ;; "http://localhost:1234"
     :method :post
-    :parameters (flat-to-alist-macro
+    :parameters (params
                  "code" code
                  "grant_type" "authorization_code"
                  "client_secret" client-secret
