@@ -472,9 +472,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
         finally (return (loop for ,elt-sym being the hash-values of ,table-sym
                            collect ,elt-sym)))))
 
-(stefil:deftest test-uniquify nil
-  (stefil:is (eq 3 (length (uniquify '((1 . 1) (1 . 2) (2 . 3)) elt (car elt)))))
-  (stefil:is (eq 3 (length (uniquify '((1 . 1) (1 . 2) (2 . 3)) elt (cdr elt))))))
+(fiasco:deftest test-uniquify nil
+  (fiasco:is (eq 3 (length (uniquify '((1 . 1) (1 . 2) (2 . 3)) elt (car elt)))))
+  (fiasco:is (eq 3 (length (uniquify '((1 . 1) (1 . 2) (2 . 3)) elt (cdr elt))))))
 
 
 (defun parse-unique-video-ids (text)
