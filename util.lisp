@@ -58,7 +58,10 @@
           path :initial-value alist))
 
 (defmacro json-get-nested-macro (alist path)
-  `(json-get-nested ,alist ',(json-path-split path)))
+  `(json-get-nested ,alist
+                    ,(if (stringp path)
+                         `',(json-path-split path)
+                         `(json-path-split ,path))))
 
 (defmacro with-json-paths (obj var-paths &body body)
   `(let ,(loop for (var path) in var-paths collect
