@@ -50,6 +50,8 @@
 (defun json-get-nested (alist path)
   (when (stringp path)
     (setf path (json-path-split path)))
+  (when (atom path)
+    (setf path (list path)))
   (reduce (lambda (alist attr)
             (typecase attr
               (number (nth attr alist))
