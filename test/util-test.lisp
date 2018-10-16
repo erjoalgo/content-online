@@ -4,7 +4,7 @@
 
 (in-package #:yt-comments/util-test)
 
-(fiasco-clear-tests)
+;; (fiasco-clear-tests)
 
 (deftest test-to-camel-case nil
   (is (equal "commentThreads" (lisp-to-json-key :comment-threads)))
