@@ -112,6 +112,9 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
      (push (hunchentoot:create-regex-dispatcher ,url-regexp ',name)
            hunchentoot:*dispatch-table*)))
 
+;; don't use define-regexp-route because:
+;;  - need to exempt from define-regexp-route's authorize redirect to prevent 301 loop
+;;  - need to capture query param, which is easier in hunchentoot:define-easy-handler
 (hunchentoot:define-easy-handler (oauth-authorize-handler :uri oauth-authorize-uri-path)
     (code)
   ;; (assert (session-value 'original-url))
