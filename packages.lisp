@@ -25,7 +25,9 @@
            #:params
            #:json-path-split
            #:json-get-nested
-           #:json-get-nested-macro))
+           #:json-get-nested-macro
+           #:with-json-paths
+           #:make-from-json-alist))
 
 (defpackage #:yt-comments/oauth
   (:use :cl)
