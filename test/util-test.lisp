@@ -80,4 +80,10 @@
       (is (eq (json-get-nested json "a.b") 1))
       (is (eq (json-get-nested-macro json "a.c") 2))))
 
+(deftest test-with-json-paths ()
+  (with-json-paths '((:TOTAL-RESULTS . 98) (:RESULTS-PER-PAGE . 50))
+      ((per-page :RESULTS-PER-PAGE)
+       (total :TOTAL-RESULTS))
+    (is (eq per-page 50))
+    (is (eq total 98))))
 (run-package-tests :interactive t)
