@@ -1,8 +1,8 @@
 (fiasco:define-test-package
-    #:yt-comments/util-test
-  (:use #:yt-comments/util))
+    #:erjoalgo-webutil/test
+  (:use #:erjoalgo-webutil))
 
-(in-package #:yt-comments/util-test)
+(in-package #:erjoalgo-webutil/test)
 
 ;; (fiasco-clear-tests)
 
@@ -78,7 +78,7 @@
       (is (eq (json-get-nested '((:a . ((:b . 1)))) "a.b") 1))
       (is (equal json '((:a . ((:b . 1) (:c . 2))))))
       (is (eq (json-get-nested json "a.b") 1))
-      (is (eq (json-get-nested-macro json "a.c") 2))))
+      (is (eq (-json-get-nested json "a.c") 2))))
 
 (deftest test-with-json-paths ()
   (with-json-paths '((:TOTAL-RESULTS . 98) (:RESULTS-PER-PAGE . 50))

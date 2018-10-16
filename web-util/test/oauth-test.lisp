@@ -1,15 +1,13 @@
-
-
 (fiasco:define-test-package
-    #:yt-comments/oauth-test
-  (:use #:yt-comments/oauth
-        #:yt-comments/util))
+    #:erjoalgo-webutil/test
+  (:use #:erjoalgo-webutil/google
+        #:erjoalgo-webutil))
 
-(in-package #:yt-comments/oauth-test)
+(in-package #:erjoalgo-webutil/test)
 
 ;; delete previously defined, renamed tests
 
-(fiasco-clear-tests)
+;; (fiasco-cle"ar-tests)
 
 (defvar json-foo_bar
   "{\"foo_bar\": 1}")
@@ -49,12 +47,12 @@
     (let ((oauth-client (make-oauth-client-from-file
                          tmp-filename)))
       (format t "recovered client ~A~%" oauth-client)
-      (with-slots (yt-comments/oauth::client-secret
-                   yt-comments/oauth::client-id
-                   yt-comments/oauth::auth-uri)
+      (with-slots (client-secret
+                   client-id
+                   auth-uri)
           oauth-client
-        (is (equal "the-secret" yt-comments/oauth::client-secret))
-        (is (equal "REMOVED.apps.googleusercontent.com" yt-comments/oauth::client-id))))))
+        (is (equal "the-secret" client-secret))
+        (is (equal "REMOVED.apps.googleusercontent.com" client-id))))))
 
 '(deftest test-exchange-code-for-token ()
   (flet ((drakma:http-request (&rest args)
