@@ -4,35 +4,22 @@
 
 (defpackage #:yt-comments/util
   (:use :cl)
-  (:export #:flat-to-alist
-           #:flat-to-alist-macro
-           #:read-file
+  (:export #:read-file
            #:retry-times
            #:assoq
            #:make-from-json-alist
-           #:flat-to-alist-macro
-           #:read-file
-           #:make-from-json-alist
            #:->
-           #:assoq
-           #:TO-CAMEL-CASE
            #:with-json-paths
-           #:LISP-ALIST-TO-JSON-MAP
-           #:get-nested-macro
-
            #:lisp-to-json-key
            #:json-key-to-lisp
            #:params
            #:json-path-split
            #:json-get-nested
-           #:json-get-nested-macro
-           #:with-json-paths
-           #:make-from-json-alist))
+           #:json-get-nested-macro))
 
 (defpackage #:yt-comments/oauth
   (:use :cl)
   (:import-from #:yt-comments/util
-                #:flat-to-alist-macro
                 #:read-file
                 #:make-from-json-alist
                 #:->
@@ -49,10 +36,7 @@
 (defpackage #:yt-comments/client
   (:use :cl)
   (:import-from #:yt-comments/util
-                #:to-camel-case
-                #:->
                 #:make-from-json-alist
-                #:lisp-alist-to-json-map
                 #:retry-times
                 #:with-json-paths
                 #:lisp-to-json-key)
@@ -72,8 +56,7 @@
            #:channel-url
            #:video-url
            #:playlist-url
-           #:delete-comment
-           ))
+           #:delete-comment))
 
 (defpackage #:yt-comments/server
   (:use :cl :cl-markup)
@@ -81,8 +64,7 @@
                 #:with-json-paths
                 #:->
                 #:json-get-nested-macro
-                #:assoq
-                )
+                #:assoq)
   (:import-from #:yt-comments/server-util
                 #:js-lazy-element)
   (:import-from #:yt-comments/client
@@ -94,15 +76,13 @@
                 #:playlist-url
                 #:delete-comment
                 #:playlists
-                #:playlist-items
-                )
+                #:playlist-items)
   (:import-from #:yt-comments/oauth
                 #:make-oauth-client-from-file
                 #:auth-server-redirect-url
                 #:exchange-code-for-token
                 #:resp-token-access-token
-                #:resp-token-refresh-token
-                )
+                #:resp-token-refresh-token)
   (:import-from #:hunchentoot
                 #:session-value
                 #:redirect)
