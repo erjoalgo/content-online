@@ -40,7 +40,8 @@
                  (warn "missing slot ~A in type ~A" ,slot-sym ',type))
           finally (return ,instance)))))
 
-(defun json-path-split (path)
+(defun json-path-split (path &key camel-case-to-lisp)
+  (declare (ignore camel-case-to-lisp))
   (mapcar (lambda (attr)
             (if (DIGIT-CHAR-P (aref attr 0))
                 (parse-integer attr)
