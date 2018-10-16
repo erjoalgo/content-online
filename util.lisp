@@ -44,7 +44,7 @@
   (mapcar (lambda (attr)
             (if (DIGIT-CHAR-P (aref attr 0))
                 (parse-integer attr)
-                (intern (string-upcase attr) :keyword)))
+                (intern (json-key-to-lisp attr) :keyword)))
           (cl-ppcre:split "][.]|[][.]" path)))
 
 (defun json-get-nested (alist path)
