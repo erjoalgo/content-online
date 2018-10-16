@@ -86,4 +86,8 @@
        (total :TOTAL-RESULTS))
     (is (eq per-page 50))
     (is (eq total 98))))
+
+;; (deftest test-json-path-split ()
+;;   json-path-split)
+
 (run-package-tests :interactive t)
