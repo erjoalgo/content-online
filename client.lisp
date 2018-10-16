@@ -92,7 +92,7 @@
                   (setf resp-string string
                         status-code http-code
                         ;; this may fail?
-                        page (-> body (make-from-json-alist resp-page))
+                        page (make-from-json-alist body resp-page)
                         error (resp-page-error page)))
              do (format t "page: ~A/~A params: ~A~%" page-idx
                         (ceiling total-pages)
