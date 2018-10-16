@@ -56,7 +56,7 @@
             (typecase attr
               (number (nth attr alist))
               (keyword (cdr (assoc attr alist)))
-              (t (error "invalid type for path component"))))
+              (t (error "invalid type for path component: ~A" attr))))
           path :initial-value alist))
 
 (defmacro json-get-nested-macro (alist path)
