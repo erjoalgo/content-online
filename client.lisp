@@ -22,7 +22,7 @@
        (format t "values: ~A~%" ,vals-sym)
        (values-list ,vals-sym))))
 
-(defun lisp-alist-to-json-map (params)
+(defun alist-to-http-params (params)
   (loop for (k . v) in params
      as k-string = (typecase k
                      (string k)
@@ -41,7 +41,7 @@
   "retuns values: json-as-alist http-resp-code resp-string"
   (let* ((api-base-url default-api-base-url)
          (url (concatenate 'string api-base-url resource))
-         (params (lisp-alist-to-json-map params-alist))
+         (params (alist-to-http-params params-alist))
          additional-headers)
 
     (assert (= 1 (+
