@@ -6,8 +6,7 @@
   token-uri
   scopes
   auth-uri
-  redirect-uris
-  )
+  redirect-uris)
 
 (defun make-oauth-client-from-file (filename)
   (let* ((top-json
@@ -30,8 +29,7 @@
                             "redirect_uri" redirect-uri
                             "grant_type" "authorization_code"
                             )
-                           :WANT-STREAM t
-                           )
+                           :WANT-STREAM t)
           (cl-json:decode-json-from-source))))
 
 (defvar resp)
@@ -50,7 +48,6 @@ client_secret=your_client_secret&
 redirect_uri=https://oauth2.example.com/code&
 grant_type=authorization_code
 "
-
 
 (defvar auth-server-redirect-base-url
   "https://accounts.google.com/o/oauth2/v2/auth")
