@@ -24,7 +24,10 @@
 
 (defun lisp-alist-to-json-map (params)
   (loop for (k . v) in params
-     as k-string = (lisp-to-json-key k)
+     as k-string = (typecase k
+                     (string k)
+                     (symbol (lisp-to-json-key k))
+                     (t (error "invalid alist key type: ~A" k)))
      unless (assoc k-string params :test #' equal)
      collect (cons k-string v) into params
      finally (return params)))
