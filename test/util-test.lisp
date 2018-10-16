@@ -17,11 +17,12 @@
 
   (is (equal (json-key-to-lisp "commentThreads") "COMMENT-THREADS")))
 
-(deftest test-unmarshall-1 ()
-  (is (eq (intern (json-key-to-lisp "keyOne") :keyword) :key-one))
-  (defstruct my-unmarshal-test
+(defstruct my-unmarshal-test
     key-one
     key-two)
+
+(deftest test-unmarshall-1 ()
+  (is (eq (intern (json-key-to-lisp "keyOne") :keyword) :key-one))
   (let* ((json "{ \"keyOne\" : 1,\"key_two\": 2, \"non-existent\": 3}")
          (json-alist (cl-json:decode-json-from-string json))
          (obj (make-from-json-alist json-alist my-unmarshal-test)))
@@ -34,12 +35,15 @@
   (is (equal (params "a" 1 "b" 2)
              `(("a" . 1) ("b" . 2)))))
 
+
+
+;; There is no class named YT-COMMENTS/UTIL-TEST::MY-UNMARSHAL-TEST-2.
+(defstruct my-unmarshal-test-2
+  access-token
+  error
+  error-description)
+
 (deftest test-unmarshall-2 ()
-    (defstruct my-unmarshal-test-2
-      access-token
-      error
-      error-description
-      )
   (let* ((json "{
   \"error\" : \"invalid_grant\",
   \"error_description\" : \"Code was already redeemed.\"
