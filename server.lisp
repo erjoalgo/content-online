@@ -54,7 +54,7 @@
           (setf acceptor-class 'hunchentoot:easy-acceptor
                 protocol "http"))
 
-      (format t "making ~A service  ~A on port ~A~%" protocol acceptor-class port)
+      (vom:info "making ~A service  ~A on port ~A~%" protocol acceptor-class port)
 
       (setf *service*
             (make-service
@@ -70,7 +70,7 @@
 (defun stop (&optional service)
   (setf service (or service *service*))
   (when service
-    (format t "stopping...")
+    (vom:info "stopping...")
     (let* ((acceptor (slot-value service 'acceptor)))
       (when (and acceptor (hunchentoot:started-p acceptor))
         (hunchentoot:stop acceptor)))))
@@ -104,7 +104,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
   `(progn
      (defun ,name ()
        ,docstring
-       (format t "protocol is ~A~%" (hunchentoot:server-protocol*))
+       (vom:debug "protocol is ~A~%" (hunchentoot:server-protocol*))
        (ppcre:register-groups-bind ,capture-names
            (,url-regexp (hunchentoot:script-name*))
          (oauth-redirect-maybe)
@@ -203,7 +203,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
          ,api-req-values
        (if (not (eq ,ok-code ,http-code-sym))
            (progn
-             (format t "unexpected error code: ~A ~A ~A~%"
+             (vom:warn "unexpected error code: ~A ~A ~A~%"
                      ,body-sym ,http-code-sym ,resp-string-sym)
              (hunchentoot:abort-request-handler
               (format nil "~A ~A" ,http-code-sym ,resp-string-sym)))
@@ -438,7 +438,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 (define-regexp-route delete-comments-handler
     ("/comment/([^/]+)/delete" comment-id)
     "delete a given comment"
-  (format t "deleting comment ~A~%" comment-id)
+  (vom:debug "deleting comment ~A~%" comment-id)
   (multiple-value-bind (resp-alist http-code)
       (delete-comment (session-value 'api-login) comment-id)
     (unless (= 204 http-code)
@@ -507,7 +507,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
   (let ((req (assoq (session-value 'feed-req-ids) unique-id)))
     (if (not req)
-        (progn (format t "req ~A~%" req)
+        (progn (vom:warn "req ~A~%" req)
                (format nil "request id ~A not found" unique-id))
         (destructuring-bind (aggregation . video-ids) req
           (feed-aggregation-handler aggregation video-ids)))))
@@ -557,7 +557,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                 :id video-ids-commas)
 
              (unless (= 200 http-code)
-               (format t "bad http code ~A while fetching these videos:
+               (vom:warn "bad http code ~A while fetching these videos:
 ~A.
 response: ~A~%" http-code video-ids-commas string))
 
