@@ -1,4 +1,4 @@
-(asdf:defsystem :yt-comments
+(asdf:defsystem :youtube-comments
   :serial t
   :description "tool to retrieve and delete youtube comments"
   :license "GPLv3"
