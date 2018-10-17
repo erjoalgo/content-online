@@ -5,16 +5,16 @@
 
 (defapi youtube-api-base-url
     :get-depaginate
-  ((comment-threads :default-params '((:part . "snippet")
+  ((comment-threads-get "commentThreads" :default-params '((:part . "snippet")
                                       (:max-results . "100")))
-   (subscriptions :default-params '((:part . "snippet")
+   (subscriptions-get "subscriptions" :default-params '((:part . "snippet")
                                     (:max-results . "50")))
-   (playlists :default-params '((:max-results . "50")))
-   (playlist-items :default-params '((:max-results . "50")))
-   (channels :default-params '((:max-results . "50")))
-   (videos :default-params '((:max-results . "50")))
-   (yt-search :resource-path "search")
-   (activities :default-params '((:max-results . "50"))))
+   (playlists-get "playlists" :default-params '((:max-results . "50")))
+   (playlist-items-get "items" :default-params '((:max-results . "50")))
+   (channels-get "channels" :default-params '((:max-results . "50")))
+   (videos-get "videos" :default-params '((:max-results . "50")))
+   (search-get "search")
+   (activities-get "activities" :default-params '((:max-results . "50"))))
 
   :delete
   ())
