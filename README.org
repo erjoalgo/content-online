@@ -1,7 +1,9 @@
-* obtain [[http://www.sbcl.org/][sbcl]]
-* run via repl
-  #+BEGIN_SRC lisp
-  (load "youtube-comments.asd")
-  (ql:quickload "youtube-comments")
-  (youtube-comments:start :port 4244)
+- obtain [[http://www.sbcl.org/][sbcl]]
+- run
+ #+BEGIN_SRC lisp
+    (load "web-util/erjoalgo-webutil.asd")
+    (ql:quickload 'erjoalgo-webutil)
+    (load "youtube-comments.asd")
+    (ql:quickload 'youtube-comments)
+    (YOUTUBE-COMMENTS/SERVER:start :port 4244)
   #+END_SRC
