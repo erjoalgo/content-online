@@ -1,0 +1,20 @@
+* commands
+  - ~$ tmux attach~ attach to existing session
+  - ~$ tmux~ start new tmux session
+
+* key syntax
+  - C-b means "Control+b"
+  - M-v means "Alt+v"
+  - C-b d means "Control+b, then d"
+
+| *key*     | *action*        |
+| C-b       | prefix key      |
+| C-b d     | detach          |
+| C-b c     | new window      |
+| C-b p     | previous window |
+| C-b n     | next window     |
+| C-b &     | kill window     |
+| C-b [     | copy mode       |
+| C-b [ M-v | scroll up       |
+| C-b [ C-v | scroll down     |
+| q         | exit copy mode  |
