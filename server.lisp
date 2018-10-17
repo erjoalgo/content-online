@@ -54,7 +54,7 @@
           (setf acceptor-class 'hunchentoot:easy-acceptor
                 protocol "http"))
 
-      (format t "making service  ~A on port ~A~%" acceptor-class port)
+      (format t "making ~A service  ~A on port ~A~%" protocol acceptor-class port)
 
       (setf *service*
             (make-service
