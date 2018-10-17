@@ -97,10 +97,10 @@
       (redirect remote-auth-url))))
 
 (defmacro define-regexp-route (name (url-regexp &rest capture-names) docstring &body body)
-  "a macro to define a handler `name' matching requests for `url-regexp'.
-An optional list `capture-names' can be provided to capture path variables.
-The capturing behavior is based on wrapping `ppcre:register-groups-bind'
-"
+  "Define a hunchentoot handler `name' for paths matching `uri-regexp'.
+   An optional list `capture-names' may be provided to capture path variables.
+   The capturing behavior is based on wrapping `ppcre:register-groups-bind'"
+
   `(progn
      (defun ,name ()
        ,docstring
