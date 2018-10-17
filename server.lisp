@@ -184,7 +184,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (defvar js-lazy-load-self-replace-fmt-def-element
   (markup (:script :type "text/javascript"
-                   (raw yt-comments/server-util::js-lazy-load-self-replace-fmt-def))))
+                   (raw js-lazy-load-self-replace-fmt-def))))
 
 (defmacro markup-with-lazy-elements (form)
   `(markup (:div
