@@ -1,11 +1,11 @@
 (erjoalgo-webutil:->
- yt-comments/server::*service*
- yt-comments/server::service-acceptor
+ youtube-comments/server::*service*
+ youtube-comments/server::service-acceptor
  hunchentoot::session-db
  car
  cdr
  hunchentoot::session-data
- (erjoalgo-webutil:assoq 'YT-COMMENTS/SERVER::API-LOGIN))
+ (erjoalgo-webutil:assoq 'YOUTUBE-COMMENTS/SERVER::API-LOGIN))
 
 
 (defmacro log-values (form)

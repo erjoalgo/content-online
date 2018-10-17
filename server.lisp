@@ -1,4 +1,4 @@
-(in-package #:yt-comments/server)
+(in-package #:youtube-comments/server)
 
 ;; (setf hunchentoot:*dispatch-table* nil)
 (defvar *service* nil "the current service")

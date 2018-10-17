@@ -1,4 +1,4 @@
-(defpackage #:yt-comments/server
+(defpackage #:youtube-comments/server
   (:use :cl :cl-markup)
 
   (:import-from
@@ -26,4 +26,3 @@
    #:redirect)
 
   (:export #:start))
-

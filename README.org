@@ -1,7 +1,7 @@
 * obtain [[http://www.sbcl.org/][sbcl]]
 * run via repl
   #+BEGIN_SRC lisp
-  (load "yt-comments.asd")
-  (ql:quickload "yt-comments")
-  (yt-comments:start :port 4244)
+  (load "youtube-comments.asd")
+  (ql:quickload "youtube-comments")
+  (youtube-comments:start :port 4244)
   #+END_SRC

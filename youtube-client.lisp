@@ -1,4 +1,4 @@
-(in-package #:yt-comments/server)
+(in-package #:youtube-comments/server)
 
 (defvar youtube-api-base-url
   "https://www.googleapis.com/youtube/v3/")
