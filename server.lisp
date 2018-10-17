@@ -222,12 +222,11 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
               (format nil "~A ~A" ,http-code-sym ,resp-string-sym)))
            ,body-sym))))
 
-
 (define-regexp-route subscriptions-handler ("^/subscriptions/?$")
     "list user's subscription channels"
   (channels-handler
    (loop for sub in (ensure-ok
-                     (subscriptions (session-value 'api-login)
+                     (subscriptions-get (session-value 'api-login)
                                     ;; :channel-id channel-id
                                     :mine "true"
                                     :part "snippet"))
@@ -245,7 +244,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "list user's playlists"
   (markup-with-lazy-elements
    (make-table '("#" "title"  "date published" "videos")
-               (ensure-ok (playlists (session-value 'api-login)
+               (ensure-ok (playlists-get (session-value 'api-login)
                                      :mine "true"
                                      :part "snippet"))
                idx playlist
@@ -317,20 +316,20 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "list user's playlist videos"
   (videos-handler
    (loop for video-alist in (ensure-ok
-                             (playlist-items (session-value 'api-login)
+                             (playlist-items-get (session-value 'api-login)
                                              :playlist-id playlist-id
                                              :mine "true"
                                              :part "snippet"))
       as video = (make-video-from-alist video-alist)
       do (setf (video-id video)
-               (json-get-nested-macro video-alist "snippet.resourceId.videoId"))
+               (-json-get-nested video-alist "snippet.resourceId.videoId"))
       collect video)))
 
 (defmacro results-count-handler (api-req-values)
   `(->
     ,api-req-values
     ensure-ok
-    (json-get-nested-macro "pageInfo.totalResults")
+    (-json-get-nested "pageInfo.totalResults")
     write-to-string))
 
 (define-regexp-route list-video-comment-counts-handler
@@ -338,43 +337,40 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "list number of matching comments for the current user on the given video"
   (assert (session-channel-title))
   (results-count-handler
-   (yt-comments/client::api-req
+   (youtube-api-req
     (session-value 'api-login)
     "commentThreads"
     `(("part" . "id")
       ("searchTerms" . ,(session-channel-title))
       ("videoId" . ,video-id)
-      ("maxResults" . "50"))
-    :depaginate-p nil)))
+      ("maxResults" . "50")))))
 
 (define-regexp-route list-channel-comment-counts-handler
     ("^/channels/([^/]*)/comments-count$" channel-id)
     "list number of matching comments for the current user on the given video"
   (assert (session-channel-title))
   (results-count-handler
-   (yt-comments/client::api-req
+   (youtube-api-req
     (session-value 'api-login)
     "commentThreads"
     `(("part" . "id")
       ("searchTerms" . ,(session-channel-title))
       ("allThreadsRelatedToChannelId" . ,channel-id)
-      ("maxResults" . "50"))
-    :depaginate-p nil)))
+      ("maxResults" . "50")))))
 
 (defun session-channel-title ()
   (or
    (session-value 'channel-title)
    (let ((title (->
-                 (yt-comments/client::channels
+                 (channels-get
                   (session-value 'api-login)
                   :part "snippet"
                   :mine "true")
                  car
-                 (json-get-nested-macro "snippet.title"))))
+                 (-json-get-nested "snippet.title"))))
      (assert title)
      (setf
       (session-value 'channel-title) title))))
-
 
 (defstruct comment
   id
@@ -432,7 +428,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
 
 (defun channel-comment-threads (channel-id)
   "channel comments for the current user"
-  (comment-threads (session-value 'api-login)
+  (comment-threads-get (session-value 'api-login)
                    :part "snippet"
                    :search-terms (session-channel-title)
                    :all-threads-related-to-channel-id channel-id))
@@ -448,7 +444,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "list comments for the current user on the given video"
   (assert (session-channel-title))
   (list-comment-threads-handler
-   (comment-threads (session-value 'api-login)
+   (comment-threads-get (session-value 'api-login)
                     :part "snippet"
                     :search-terms (session-channel-title)
                     :video-id video-id)))
@@ -534,7 +530,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
     "list user's liked videos"
   (videos-handler
    (loop for rating in '("like" "dislike") append
-        (loop for video-alist in (yt-comments/client::videos
+        (loop for video-alist in (videos-get
                                   (session-value 'api-login)
                                   :my-rating rating
                                   :part "snippet")
@@ -569,7 +565,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
        videos-per-request
          (let ((video-ids-commas (format nil "~{~A~^,~}" video-ids-chunk)))
            (multiple-value-bind (items http-code string)
-               (yt-comments/client::videos
+               (videos-get
                 (session-value 'api-login)
                 :part part
                 :id video-ids-commas)
