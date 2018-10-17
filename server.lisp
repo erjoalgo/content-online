@@ -70,6 +70,7 @@
 (defun stop (&optional service)
   (setf service (or service *service*))
   (when service
+    (format t "stopping...")
     (let* ((acceptor (slot-value service 'acceptor)))
       (when (and acceptor (hunchentoot:started-p acceptor))
         (hunchentoot:stop acceptor)))))
