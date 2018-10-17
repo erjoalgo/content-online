@@ -158,19 +158,6 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                    for cell in ,row-cols-list
                    collect (markup (:td (raw cell))))))))))
 
-(defparameter home-urls
-  '("/subscriptions"
-    "/playlists"
-    "/feed-history/form.html"
-    "/rated-videos"
-    ))
-
-(define-regexp-route root-handler ("^/$")
-    "root handler"
-  (markup (:ul (loop for url in home-urls
-                  collect (markup (:li (:a :href url url)))))))
-
-
 (defstruct channel
   id
   title
