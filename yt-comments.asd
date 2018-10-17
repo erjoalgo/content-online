@@ -10,11 +10,9 @@
                :cl-ppcre
                :cl-json
                :cl-markup
-               :fiasco)
+               :fiasco
+               :erjoalgo-webutil)
   :components ((:file "packages")
-               (:file "util")
-               (:file "oauth")
-               (:file "client")
-               (:file "repr")
+               (:file "youtube-client")
                (:file "server-util")
                (:file "server")))
