@@ -1,4 +1,4 @@
-(in-package #:yt-comments/client)
+(in-package #:yt-comments/server)
 
 (defapi "https://www.googleapis.com/youtube/v3/"
 
