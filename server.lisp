@@ -412,8 +412,7 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
        (comment-video-id "snippet.videoId")
        (comment-channel-id "snippet.channelId")
        (comment-reply-count "snippet.totalReplyCount")
-       (comment-text "snippet.topLevelComment.snippet.textOriginal")
-       )
+       (comment-text "snippet.topLevelComment.snippet.textOriginal"))
     (make-comment
      :author comment-author
      :id comment-id
