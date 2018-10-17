@@ -1,7 +1,9 @@
 (in-package #:yt-comments/server)
 
-(defapi "https://www.googleapis.com/youtube/v3/"
+(defvar youtube-api-base-url
+  "https://www.googleapis.com/youtube/v3/")
 
+(defapi youtube-api-base-url
     :get-depaginate
   ((comment-threads :default-params '((:part . "snippet")
                                       (:max-results . "100")))
@@ -17,9 +19,13 @@
   :delete
   ())
 
+(defun youtube-api-req (&rest rest)
+  (let ((erjoalgo-webutil/google:*api-base-url*
+         youtube-api-base-url))
+    (apply 'api-req rest)))
+
 (defun delete-comment (api-login comment-id)
   "DELETE https://www.googleapis.com/youtube/v3/comments"
-  (api-req api-login "comments"
-           `(("id" . ,comment-id))
-           :method :delete
-           :depaginate-p nil))
+  (youtube-api-req api-login "comments"
+                   `(("id" . ,comment-id))
+                   :method :delete))
