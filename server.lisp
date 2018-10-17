@@ -96,7 +96,7 @@
            (remote-auth-url (auth-server-redirect-url oauth-client local-auth-url)))
       (redirect remote-auth-url))))
 
-(defmacro define-regexp-route (name (url-regexp &rest capture-names) docstring &body body)
+(defmacro define-regexp-route (name (uri-regexp &rest capture-names) docstring &body body)
   "Define a hunchentoot handler `name' for paths matching `uri-regexp'.
    An optional list `capture-names' may be provided to capture path variables.
    The capturing behavior is based on wrapping `ppcre:register-groups-bind'"
@@ -106,11 +106,11 @@
        ,docstring
        (vom:debug "protocol is ~A~%" (hunchentoot:server-protocol*))
        (ppcre:register-groups-bind ,capture-names
-           (,url-regexp (hunchentoot:script-name*))
+           (,uri-regexp (hunchentoot:script-name*))
          (oauth-redirect-maybe)
          (assert (session-value 'api-login))
          (progn ,@body)))
-     (push (hunchentoot:create-regex-dispatcher ,url-regexp ',name)
+     (push (hunchentoot:create-regex-dispatcher ,uri-regexp ',name)
            hunchentoot:*dispatch-table*)))
 
 ;; don't use define-regexp-route because:
