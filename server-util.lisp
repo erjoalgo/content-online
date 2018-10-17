@@ -57,5 +57,4 @@ as-button should be a string to be used as the button's value
                                                ;; hide this button
                                                "this.style = 'display:none';"
                                                js-unhide-tmp-and-funcall)
-                                       :value as-button))
-                       ))))))
+                                       :value as-button))))))))
