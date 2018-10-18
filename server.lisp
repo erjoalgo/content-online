@@ -36,6 +36,9 @@
 (defun start (&rest make-config-args)
   (start-with-config (apply 'make-config make-config-args)))
 
+(defparameter youtube-scopes
+  '("https://www.googleapis.com/auth/youtube.force-ssl"))
+
 (defun start-with-config (config)
   (when *service* (stop *service*))
   (with-slots (port oauth-client-secret-json-path ssl-cert) config
@@ -64,6 +67,10 @@
              :oauth-client (make-oauth-client-from-file
                             (config-oauth-client-secret-json-path config)))))
 
+    (push (erjoalgo-webutil/google:create-hunchentoot-oauth-redirect-dispatcher
+           (service-oauth-client *service*)
+           youtube-scopes)
+          hunchentoot:*dispatch-table*)
     (hunchentoot:start (service-acceptor *service*))
     *service*))
 
@@ -74,71 +81,6 @@
     (let* ((acceptor (slot-value service 'acceptor)))
       (when (and acceptor (hunchentoot:started-p acceptor))
         (hunchentoot:stop acceptor)))))
-
-(defvar oauth-authorize-uri-path "/oauth/authorize")
-
-(defun oauth-authorize-uri ()
-  (format nil "~A://~A~A"
-          ;; TODO get request protocol
-          ;; https://stackoverflow.com/questions/40693291/
-          ;; (hunchentoot:server-protocol*)
-          (service-protocol *service*)
-          (hunchentoot:host) oauth-authorize-uri-path))
-
-(defun oauth-redirect-maybe ()
-  "do an oauth redirect if session's api-login is nil"
-  (unless hunchentoot:*session*
-    (hunchentoot:start-session))
-  (unless (session-value 'api-login)
-    (setf (session-value 'original-url) (hunchentoot:request-uri*))
-    (let* ((local-auth-url (oauth-authorize-uri))
-           (oauth-client (service-oauth-client *service*))
-           (remote-auth-url (auth-server-redirect-url oauth-client local-auth-url)))
-      (redirect remote-auth-url))))
-
-(defmacro define-regexp-route (name (uri-regexp &rest capture-names) docstring &body body)
-  "Define a hunchentoot handler `name' for paths matching `uri-regexp'.
-   An optional list `capture-names' may be provided to capture path variables.
-   The capturing behavior is based on wrapping `ppcre:register-groups-bind'"
-
-  `(progn
-     (defun ,name ()
-       ,docstring
-       (vom:debug "protocol is ~A~%" (hunchentoot:server-protocol*))
-       (ppcre:register-groups-bind ,capture-names
-           (,uri-regexp (hunchentoot:script-name*))
-         (oauth-redirect-maybe)
-         (assert (session-value 'api-login))
-         (progn ,@body)))
-     (push (hunchentoot:create-regex-dispatcher ,uri-regexp ',name)
-           hunchentoot:*dispatch-table*)))
-
-;; don't use define-regexp-route because:
-;;  - need to exempt from define-regexp-route's authorize redirect to prevent 301 loop
-;;  - need to capture query param, which is easier in hunchentoot:define-easy-handler
-(hunchentoot:define-easy-handler (oauth-authorize-handler :uri oauth-authorize-uri-path)
-    (code)
-  ;; (assert (session-value 'original-url))
-  (let ((original-url
-         (if (not hunchentoot:*session*)
-             (progn (hunchentoot:start-session)
-                    "/")
-             (progn
-               ;; (assert (session-value 'original-url))
-               (or (session-value 'original-url) "/"))))
-        (resp-token (exchange-code-for-token code (service-oauth-client *service*))))
-    (if (resp-token-access-token resp-token)
-        (progn
-          (setf (session-value 'api-login)
-                (make-api-login
-                 :key nil
-                 :token resp-token))
-          (redirect original-url))
-        (progn (setf (hunchentoot:return-code*)
-                     hunchentoot:+http-authorization-required+)
-               (format nil "token request rejected: ~A~%" resp-token)))))
-
-(defvar db);;debugging
 
 (defmacro make-table (headers rows row-idx-sym row-sym row-cols-list)
   `(markup
@@ -213,7 +155,7 @@
     "list user's subscription channels"
   (channels-handler
    (loop for sub in (ensure-ok
-                     (subscriptions-get (session-value 'api-login)
+                     (subscriptions-get (session-value :login)
                                     ;; :channel-id channel-id
                                     :mine "true"
                                     :part "snippet"))
@@ -231,7 +173,7 @@
     "list user's playlists"
   (markup-with-lazy-elements
    (make-table '("#" "title"  "date published" "videos")
-               (ensure-ok (playlists-get (session-value 'api-login)
+               (ensure-ok (playlists-get (session-value :login)
                                      :mine "true"
                                      :part "snippet"))
                idx playlist
@@ -303,7 +245,7 @@
     "list user's playlist videos"
   (videos-handler
    (loop for video-alist in (ensure-ok
-                             (playlist-items-get (session-value 'api-login)
+                             (playlist-items-get (session-value :login)
                                              :playlist-id playlist-id
                                              :mine "true"
                                              :part "snippet"))
@@ -325,7 +267,7 @@
   (assert (session-channel-title))
   (results-count-handler
    (youtube-api-req
-    (session-value 'api-login)
+    (session-value :login)
     "commentThreads"
     `(("part" . "id")
       ("searchTerms" . ,(session-channel-title))
@@ -338,9 +280,10 @@
   (assert (session-channel-title))
   (results-count-handler
    (youtube-api-req
-    (session-value 'api-login)
+    (session-value :login)
     "commentThreads"
     `(("part" . "id")
+
       ("searchTerms" . ,(session-channel-title))
       ("allThreadsRelatedToChannelId" . ,channel-id)
       ("maxResults" . "50")))))
@@ -350,7 +293,7 @@
    (session-value 'channel-title)
    (let ((title (->
                  (channels-get
-                  (session-value 'api-login)
+                  (session-value :login)
                   :part "snippet"
                   :mine "true")
                  car
@@ -414,7 +357,7 @@
 
 (defun channel-comment-threads (channel-id)
   "channel comments for the current user"
-  (comment-threads-get (session-value 'api-login)
+  (comment-threads-get (session-value :login)
                    :part "snippet"
                    :search-terms (session-channel-title)
                    :all-threads-related-to-channel-id channel-id))
@@ -430,7 +373,7 @@
     "list comments for the current user on the given video"
   (assert (session-channel-title))
   (list-comment-threads-handler
-   (comment-threads-get (session-value 'api-login)
+   (comment-threads-get (session-value :login)
                     :part "snippet"
                     :search-terms (session-channel-title)
                     :video-id video-id)))
@@ -440,7 +383,7 @@
     "delete a given comment"
   (vom:debug "deleting comment ~A~%" comment-id)
   (multiple-value-bind (resp-alist http-code)
-      (delete-comment (session-value 'api-login) comment-id)
+      (delete-comment (session-value :login) comment-id)
     (unless (= 204 http-code)
       (format nil "non-204 delete resp: ~A~%" resp-alist))
     (markup (:font :color (if (= 204 http-code) "green" "red")
@@ -517,7 +460,7 @@
   (videos-handler
    (loop for rating in '("like" "dislike") append
         (loop for video-alist in (videos-get
-                                  (session-value 'api-login)
+                                  (session-value :login)
                                   :my-rating rating
                                   :part "snippet")
            as video = (make-video-from-alist video-alist)
@@ -552,7 +495,7 @@
          (let ((video-ids-commas (format nil "~{~A~^,~}" video-ids-chunk)))
            (multiple-value-bind (items http-code string)
                (videos-get
-                (session-value 'api-login)
+                (session-value :login)
                 :part part
                 :id video-ids-commas)
 
