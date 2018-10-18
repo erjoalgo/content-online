@@ -197,8 +197,7 @@
   channel-title
   published
   description
-  rating
-  )
+  rating)
 
 (defun videos-handler (videos &key (max-description-chars 100))
   "videos is a video struct list"
@@ -238,8 +237,7 @@
      :channel-id channel-id
      :channel-title channel-title
      :published published
-     :description description
-     )))
+     :description description)))
 
 (define-regexp-route playlist-videos-handler ("^/playlists/([^/]+)/videos/?$" playlist-id)
     "list user's playlist videos"
@@ -445,6 +443,7 @@
       (loop for channel in (video-ids-to-unique-channel-ids video-ids)
          nconc (channel-comment-threads (channel-id channel)))))
     (t (error "unknown aggregation"))))
+
 (define-regexp-route feed-history-get-results-handler
     ("/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
     "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
