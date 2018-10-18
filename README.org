@@ -1,3 +1,14 @@
+#+OPTIONS: ^:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: html-postamble:nil
+#+OPTIONS: num:nil
+#+TITLE: YOUTUBE-COMMENTS
+
+A web application to aggregate and manage a user account's youtube comments
+
+* Installation
+
+
 - obtain [[http://www.sbcl.org/][sbcl]]
 - run
  #+BEGIN_SRC lisp
