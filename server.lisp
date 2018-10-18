@@ -146,7 +146,7 @@
        (if (not (eq ,ok-code ,http-code-sym))
            (progn
              (vom:warn "unexpected error code: ~A ~A ~A~%"
-                     ,body-sym ,http-code-sym ,resp-string-sym)
+                       ,body-sym ,http-code-sym ,resp-string-sym)
              (hunchentoot:abort-request-handler
               (format nil "~A ~A" ,http-code-sym ,resp-string-sym)))
            ,body-sym))))
@@ -156,9 +156,9 @@
   (channels-handler
    (loop for sub in (ensure-ok
                      (subscriptions-get (session-value :login)
-                                    ;; :channel-id channel-id
-                                    :mine "true"
-                                    :part "snippet"))
+                                        ;; :channel-id channel-id
+                                        :mine "true"
+                                        :part "snippet"))
 
       collect (with-json-paths sub
                   ((chan-id "snippet.resourceId.channelId")
@@ -174,8 +174,8 @@
   (markup-with-lazy-elements
    (make-table '("#" "title"  "date published" "videos")
                (ensure-ok (playlists-get (session-value :login)
-                                     :mine "true"
-                                     :part "snippet"))
+                                         :mine "true"
+                                         :part "snippet"))
                idx playlist
                (with-json-paths playlist
                    ((id "id")
@@ -244,9 +244,9 @@
   (videos-handler
    (loop for video-alist in (ensure-ok
                              (playlist-items-get (session-value :login)
-                                             :playlist-id playlist-id
-                                             :mine "true"
-                                             :part "snippet"))
+                                                 :playlist-id playlist-id
+                                                 :mine "true"
+                                                 :part "snippet"))
       as video = (make-video-from-alist video-alist)
       do (setf (video-id video)
                (-json-get-nested video-alist "snippet.resourceId.videoId"))
@@ -356,9 +356,9 @@
 (defun channel-comment-threads (channel-id)
   "channel comments for the current user"
   (comment-threads-get (session-value :login)
-                   :part "snippet"
-                   :search-terms (session-channel-title)
-                   :all-threads-related-to-channel-id channel-id))
+                       :part "snippet"
+                       :search-terms (session-channel-title)
+                       :all-threads-related-to-channel-id channel-id))
 
 (define-regexp-route list-channel-comment-threads-handler
     ("^/channels/([^/]*)/comments$" sub-channel-id)
@@ -372,9 +372,9 @@
   (assert (session-channel-title))
   (list-comment-threads-handler
    (comment-threads-get (session-value :login)
-                    :part "snippet"
-                    :search-terms (session-channel-title)
-                    :video-id video-id)))
+                        :part "snippet"
+                        :search-terms (session-channel-title)
+                        :video-id video-id)))
 
 (define-regexp-route delete-comments-handler
     ("/comment/([^/]+)/delete" comment-id)

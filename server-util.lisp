@@ -42,11 +42,11 @@ as-button should be a string to be used as the button's value
     (markup (:div :id id
                   (raw
                    (unless skip-self-replace-fun
-                    (markup (:script :type "text/javascript"
-                                     (raw js-lazy-load-self-replace-fmt-def)))))
+                     (markup (:script :type "text/javascript"
+                                      (raw js-lazy-load-self-replace-fmt-def)))))
                   (raw (markup* `(:div ,@(if (not initially-hidden-p) nil
-                                       '(:style "display:none" :visibility "hidden"))
-                                 :id ,tmp-content-id (raw ,tmp-content))))
+                                             '(:style "display:none" :visibility "hidden"))
+                                       :id ,tmp-content-id (raw ,tmp-content))))
                   (raw
                    (if (null as-button)
                        (markup* `(:script :type "text/javascript"
