@@ -6,7 +6,8 @@
    #:with-json-paths
    #:->
    #:-json-get-nested
-   #:assoq)
+   #:assoq
+   #:DEFINE-REGEXP-ROUTE)
 
   (:import-from
    #:erjoalgo-webutil/google
@@ -18,8 +19,7 @@
    #:exchange-code-for-token
 
    #:resp-token-access-token
-   #:resp-token-refresh-token
-   #:DEFINE-REGEXP-ROUTE)
+   #:resp-token-refresh-token)
 
   (:import-from
    #:hunchentoot
