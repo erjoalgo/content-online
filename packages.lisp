@@ -18,7 +18,8 @@
    #:exchange-code-for-token
 
    #:resp-token-access-token
-   #:resp-token-refresh-token)
+   #:resp-token-refresh-token
+   #:DEFINE-REGEXP-ROUTE)
 
   (:import-from
    #:hunchentoot
