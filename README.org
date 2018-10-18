@@ -16,5 +16,5 @@ A web application to aggregate and manage a user account's youtube comments
     (ql:quickload 'erjoalgo-webutil)
     (load "youtube-comments.asd")
     (ql:quickload 'youtube-comments)
-    (YOUTUBE-COMMENTS/SERVER:start :port 4244)
+    (YOUTUBE-COMMENTS:start :port 4244)
   #+END_SRC

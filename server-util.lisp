@@ -1,4 +1,4 @@
-(in-package #:youtube-comments/server)
+(in-package #:youtube-comments)
 
 (defparameter js-lazy-load-self-replace-fmt-def
   "function XHR_self_replace (id, url, verb) {

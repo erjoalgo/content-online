@@ -1,6 +1,6 @@
 (fiasco:define-test-package
     #:youtube-comments/test
-  (:use #:youtube-comments/server))
+  (:use #:youtube-comments))
 
 (in-package #:youtube-comments/test)
 
@@ -18,7 +18,7 @@
 
 (deftest test-results-count-handler ()
   (let* ((json (cl-json:decode-json-from-string results-count-json-string))
-         (count (youtube-comments/server::results-count-handler json))
+         (count (youtube-comments::results-count-handler json))
 )
     (is (equal count "0"))))
 
