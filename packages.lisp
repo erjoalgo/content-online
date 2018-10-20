@@ -7,7 +7,9 @@
    #:->
    #:-json-get-nested
    #:assoq
-   #:DEFINE-REGEXP-ROUTE)
+   #:DEFINE-REGEXP-ROUTE
+   #:first-file-with-extension
+   #:check-nonnil)
 
   (:import-from
    #:erjoalgo-webutil/google
