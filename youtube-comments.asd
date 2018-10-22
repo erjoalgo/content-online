@@ -15,4 +15,5 @@
                 :components ((:file "packages")
                              (:file "youtube-client")
                              (:file "server-util")
-                             (:file "server")))
+                             (:file "server")
+                             (:file "handlers")))
