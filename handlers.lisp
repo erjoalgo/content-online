@@ -1,5 +1,24 @@
 (in-package #:youtube-comments)
 
+(define-regexp-route subscriptions-handler ("^/subscriptions/?$")
+    "list user's subscription channels"
+  *post-auth-dispatchers*
+  (channels-handler
+   (loop for sub in (ensure-ok
+                     (subscriptions-get (session-value :login)
+                                        ;; :channel-id channel-id
+                                        :mine "true"
+                                        :part "snippet"))
+
+      collect (with-json-paths sub
+                  ((chan-id "snippet.resourceId.channelId")
+                   (title "snippet.title")
+                   (description "snippet.description"))
+                (make-channel
+                 :id chan-id
+                 :title title
+                 :description description)))))
+
 (define-regexp-route playlists-handler ("^/playlists/?$")
     "list user's playlists"
   (markup-with-lazy-elements

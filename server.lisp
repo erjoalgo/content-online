@@ -141,20 +141,3 @@
               (format nil "~A ~A" ,http-code-sym ,resp-string-sym)))
            ,body-sym))))
 
-(define-regexp-route subscriptions-handler ("^/subscriptions/?$")
-    "list user's subscription channels"
-  (channels-handler
-   (loop for sub in (ensure-ok
-                     (subscriptions-get (session-value :login)
-                                        ;; :channel-id channel-id
-                                        :mine "true"
-                                        :part "snippet"))
-
-      collect (with-json-paths sub
-                  ((chan-id "snippet.resourceId.channelId")
-                   (title "snippet.title")
-                   (description "snippet.description"))
-                (make-channel
-                 :id chan-id
-                 :title title
-                 :description description)))))
