@@ -40,4 +40,5 @@
     (declare (ignore content))
     (is (eql 200 status))))
 
-(run-package-tests :interactive t)
+;; (run-package-tests :interactive t)
+(run-package-tests)
