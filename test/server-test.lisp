@@ -16,7 +16,7 @@
 }
 ")
 
-(deftest test-results-count-handler ()
+'(deftest test-results-count-handler ()
   (let* ((json (cl-json:decode-json-from-string results-count-json-string))
          (count (youtube-comments::results-count-handler json))
 )
