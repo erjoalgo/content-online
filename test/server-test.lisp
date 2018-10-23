@@ -22,4 +22,22 @@
 )
     (is (equal count "0"))))
 
+(defparameter *base-url*
+  (format nil "~A://localhost:~D"
+          (youtube-comments::service-protocol youtube-comments::*service*)
+          (youtube-comments::config-port
+           (youtube-comments::service-config youtube-comments::*service*))))
+
+(defun endpoint (path)
+  (concatenate 'string *base-url* path))
+
+(deftest test-noauth ()
+  (multiple-value-bind (content status)
+      (drakma:http-request
+       ;; (endpoint "/www/privacy.html")
+       (endpoint "/health")
+                           :redirect nil)
+    (declare (ignore content))
+    (is (eql 200 status))))
+
 (run-package-tests :interactive t)
