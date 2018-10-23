@@ -141,3 +141,6 @@
               (format nil "~A ~A" ,http-code-sym ,resp-string-sym)))
            ,body-sym))))
 
+(defmethod hunchentoot:maybe-invoke-debugger
+    ((condition SB-INT:CLOSED-STREAM-ERROR))
+  (format t "ignoring SB-INT:CLOSED-STREAM-ERROR~%"))
