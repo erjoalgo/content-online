@@ -9,7 +9,8 @@
    #:assoq
    #:DEFINE-REGEXP-ROUTE
    #:first-file-with-extension
-   #:check-nonnil)
+   #:check-nonnil
+   #:json-resp)
 
   (:import-from
    #:erjoalgo-webutil/google
