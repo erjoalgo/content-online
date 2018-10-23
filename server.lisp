@@ -135,7 +135,7 @@
          ,api-req-values
        (if (not (eq ,ok-code ,http-code-sym))
            (progn
-             (vom:warn "unexpected error code: ~A ~A ~A~%"
+             (vom:warn "unexpected code: ~A ~A ~A~%"
                        ,body-sym ,http-code-sym ,resp-string-sym)
              (hunchentoot:abort-request-handler
               (format nil "~A ~A" ,http-code-sym ,resp-string-sym)))
