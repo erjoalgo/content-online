@@ -1,5 +1,8 @@
 (in-package #:youtube-comments)
 
+(defvar *post-auth-dispatchers* nil
+  "dispatchrs that are available post-authentication")
+
 (define-regexp-route subscriptions-handler ("^/subscriptions/?$")
     "list user's subscription channels"
   *post-auth-dispatchers*
@@ -384,3 +387,8 @@ response: ~A~%" http-code video-ids-commas string))
                    loading-gif-img-tag
                    :as-button "click me!"
                    :verb :delete))
+
+(push (erjoalgo-webutil/google:create-hunchentoot-oauth-redirect-dispatcher
+       (service-oauth-client *service*)
+       youtube-scopes)
+      hunchentoot:*dispatch-table*)

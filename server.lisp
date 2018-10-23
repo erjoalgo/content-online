@@ -1,6 +1,5 @@
 (in-package #:youtube-comments)
 
-;; (setf hunchentoot:*dispatch-table* nil)
 (defvar *service* nil "the current service")
 
 (defparameter secrets-directory
@@ -17,6 +16,9 @@
              (check-nonnil (first-file-with-extension secrets-directory "cert"))
              (check-nonnil (first-file-with-extension secrets-directory "key")))))
 
+; TODO store appropriate dispatch table in an 'app' var like clojure
+
+
 (defstruct service
   acceptor
   config
@@ -28,6 +30,8 @@
 
 (defparameter youtube-scopes
   '("https://www.googleapis.com/auth/youtube.force-ssl"))
+
+(setf hunchentoot:*dispatch-table* nil)
 
 (defun start-with-config (config)
   (when *service* (stop *service*))
@@ -57,10 +61,7 @@
              :oauth-client (make-oauth-client-from-file
                             (config-oauth-client-secret-json-path config)))))
 
-    (push (erjoalgo-webutil/google:create-hunchentoot-oauth-redirect-dispatcher
-           (service-oauth-client *service*)
-           youtube-scopes)
-          hunchentoot:*dispatch-table*)
+
     (hunchentoot:start (service-acceptor *service*))
     *service*))
 
