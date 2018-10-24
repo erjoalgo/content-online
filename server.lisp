@@ -57,10 +57,21 @@
              :oauth-client (make-oauth-client-from-file
                             (config-oauth-client-secret-json-path config)))))
 
-    (push (erjoalgo-webutil/google:create-hunchentoot-oauth-redirect-dispatcher
-           (service-oauth-client *service*)
-           youtube-scopes)
-          hunchentoot:*dispatch-table*)
+    (setf hunchentoot:*dispatch-table*
+          (append
+
+           dispatchers-noauth
+
+           (list
+            www-dispatcher
+
+            (erjoalgo-webutil/google:create-hunchentoot-oauth-redirect-dispatcher
+             (service-oauth-client *service*)
+             youtube-scopes))
+           ;; anything below is authenticated
+
+           dispatchers-auth))
+
     (hunchentoot:start (service-acceptor *service*))
     *service*))
 
