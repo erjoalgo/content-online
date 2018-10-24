@@ -22,9 +22,10 @@
 )
     (is (equal count "0"))))
 
-(fiasco:deftest test-uniquify nil
-  (fiasco:is (eq 3 (length (uniquify '((1 . 1) (1 . 2) (2 . 3)) elt (car elt)))))
-  (fiasco:is (eq 3 (length (uniquify '((1 . 1) (1 . 2) (2 . 3)) elt (cdr elt))))))
+(deftest test-uniquify ()
+  (fiasco:is (eq 3 (length (youtube-comments::uniquify '((1 . 1) (1 . 2) (2 . 3)) elt (car elt)))))
+  (fiasco:is (eq 3 (length (youtube-comments::uniquify '((1 . 1) (1 . 2) (2 . 3))
+                                                       elt (cdr elt))))))
 
 (defparameter *base-url*
   (format nil "~A://localhost:~D"
