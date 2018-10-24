@@ -7,7 +7,7 @@
    #:->
    #:-json-get-nested
    #:assoq
-   #:DEFINE-REGEXP-ROUTE
+   #:defroutes
    #:first-file-with-extension
    #:check-nonnil
    #:json-resp)

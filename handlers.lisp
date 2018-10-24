@@ -217,8 +217,10 @@ response: ~A~%" http-code video-ids-commas string))
                :title (video-channel-title video)))
    (uniquify chan (channel-id chan))))
 
+(defroutes dispatchers-auth
 
-(define-regexp-route subscriptions-handler ("^/subscriptions/?$")
+(((:get) "^/subscriptions/?$")
+
     "list user's subscription channels"
   (channels-handler
    (loop for sub in (ensure-ok
@@ -236,7 +238,8 @@ response: ~A~%" http-code video-ids-commas string))
                  :title title
                  :description description)))))
 
-(define-regexp-route playlists-handler ("^/playlists/?$")
+(((:get) "^/playlists/?$")
+
     "list user's playlists"
   (markup-with-lazy-elements
    (make-table '("#" "title"  "date published" "videos")
@@ -256,7 +259,7 @@ response: ~A~%" http-code video-ids-commas string))
                         (:a :href (format nil "/playlists/~A/videos"
                                           id) "videos")))))))
 
-(define-regexp-route playlist-videos-handler ("^/playlists/([^/]+)/videos/?$" playlist-id)
+(((:get) "^/playlists/([^/]+)/videos/?$" playlist-id)
     "list user's playlist videos"
   (videos-handler
    (loop for video-alist in (ensure-ok
@@ -269,8 +272,8 @@ response: ~A~%" http-code video-ids-commas string))
                (-json-get-nested video-alist "snippet.resourceId.videoId"))
       collect video)))
 
-(define-regexp-route list-video-comment-counts-handler
-    ("^/videos/([^/]*)/comments-count$" video-id)
+(((:get) "^/videos/([^/]*)/comments-count$" video-id)
+
     "list number of matching comments for the current user on the given video"
   (assert (session-channel-title))
   (results-count-handler
@@ -282,8 +285,8 @@ response: ~A~%" http-code video-ids-commas string))
       ("videoId" . ,video-id)
       ("maxResults" . "50")))))
 
-(define-regexp-route list-channel-comment-counts-handler
-    ("^/channels/([^/]*)/comments-count$" channel-id)
+(((:get) "^/channels/([^/]*)/comments-count$" channel-id)
+
     "list number of matching comments for the current user on the given video"
   (assert (session-channel-title))
   (results-count-handler
@@ -296,14 +299,14 @@ response: ~A~%" http-code video-ids-commas string))
       ("allThreadsRelatedToChannelId" . ,channel-id)
       ("maxResults" . "50")))))
 
-(define-regexp-route list-channel-comment-threads-handler
-    ("^/channels/([^/]*)/comments$" sub-channel-id)
+(((:get) "^/channels/([^/]*)/comments$" sub-channel-id)
+
     "list comments for the current user on the given channel"
   (assert (session-channel-title))
   (list-comment-threads-handler (channel-comment-threads sub-channel-id)))
 
-(define-regexp-route list-video-comment-threads-handler
-    ("^/videos/([^/]*)/comments$" video-id)
+(((:get) "^/videos/([^/]*)/comments$" video-id)
+
     "list comments for the current user on the given video"
   (assert (session-channel-title))
   (list-comment-threads-handler
@@ -312,8 +315,8 @@ response: ~A~%" http-code video-ids-commas string))
                         :search-terms (session-channel-title)
                         :video-id video-id)))
 
-(define-regexp-route delete-comments-handler
-    ("/comment/([^/]+)/delete" comment-id)
+(((:delete) "/comment/([^/]+)/delete" comment-id)
+
     "delete a given comment"
   (vom:debug "deleting comment ~A~%" comment-id)
   (multiple-value-bind (resp-alist http-code)
@@ -323,8 +326,8 @@ response: ~A~%" http-code video-ids-commas string))
     (markup (:font :color (if (= 204 http-code) "green" "red")
                    (:b (write-to-string http-code))))))
 
-(define-regexp-route feed-history-input-video-ids-handler
-    ("/feed-history/dom-html")
+(((:post) "/feed-history/dom-html")
+
     "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
   (let ((video-ids (-> (hunchentoot:post-parameters*)
                        (assoq inner-html-form-id)
@@ -339,8 +342,8 @@ response: ~A~%" http-code video-ids-commas string))
           (session-value 'feed-req-ids))
     (redirect (format nil "/feed-history/results/~A" unique-id))))
 
-(define-regexp-route feed-history-get-results-handler
-    ("/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
+(((:get) "/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
+
     "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
   (let ((req (assoq (session-value 'feed-req-ids) unique-id)))
     (if (not req)
@@ -349,7 +352,8 @@ response: ~A~%" http-code video-ids-commas string))
         (destructuring-bind (aggregation . video-ids) req
           (feed-aggregation-handler aggregation video-ids)))))
 
-(define-regexp-route liked-videos-handler ("^/rated-videos/?$")
+(((:get) "^/rated-videos/?$")
+
     "list user's liked videos"
   (videos-handler
    (loop for rating in '("like" "dislike") append
@@ -361,21 +365,23 @@ response: ~A~%" http-code video-ids-commas string))
            do (setf (video-rating video) rating)
            collect video))))
 
-(define-regexp-route lazy-test-handler ("^/lazy-call$")
+(((:get) "^/lazy-call$")
+
     "list user's liked videos"
   (let ((secs (+ 2 (random 2))))
     (sleep secs)
     (format nil "slept for ~A, verb was ~A" secs (hunchentoot:request-method*))))
 
-(define-regexp-route lazy-test ("^/lazy$")
+(((:get) "^/lazy$")
+
     "list user's liked videos"
   (js-lazy-element "/lazy-call"
                    loading-gif-img-tag
                    :verb :delete))
 
-(define-regexp-route lazy-button-test ("^/lazy-butt$")
+(((:get) "^/lazy-butt$")
     "list user's liked videos"
   (js-lazy-element "/lazy-call"
                    loading-gif-img-tag
                    :as-button "click me!"
-                   :verb :delete))
+                   :verb :delete)))
