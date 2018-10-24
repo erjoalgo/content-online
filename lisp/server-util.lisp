@@ -1,5 +1,17 @@
 (in-package #:youtube-comments)
 
+(defvar loading-gif-img-tag
+  (markup (:img :src (format nil "/loading-small.gif"))))
+
+(defvar js-lazy-load-self-replace-fmt-def-element
+  (markup (:script :type "text/javascript"
+                   (raw js-lazy-load-self-replace-fmt-def))))
+
+(defmacro markup-with-lazy-elements (form)
+  `(markup (:div
+            (raw js-lazy-load-self-replace-fmt-def-element)
+            (raw ,form))))
+
 (defparameter js-lazy-load-self-replace-fmt-def
   "function XHR_self_replace (id, url, verb) {
     var xmlhttp = new XMLHttpRequest();

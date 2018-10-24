@@ -16,5 +16,7 @@
                              (:file "youtube-client")
                              (:file "server-util")
                              (:file "server")
+                             (:file "entity")
+                             (:file "handler-util")
                              (:file "handlers")
                              (:file "handlers-noauth")))

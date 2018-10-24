@@ -4,6 +4,6 @@
     (((:get) "^/health/?$")
      (json-resp '((:status . "OK")))))
 
-;; (defroutes dispatchers-auth
-;;     (((:get) "^/sick/?$")
-;;      (json-resp '((:status . "sick")))))
+(defroutes dispatchers-auth
+    (((:get) "^/sick/?$")
+     (json-resp '((:status . "sick")))))
