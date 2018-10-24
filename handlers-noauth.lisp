@@ -7,3 +7,7 @@
 (defparameter www-dispatcher
   (hunchentoot::create-folder-dispatcher-and-handler
  "/www/" #P"./www/"))
+
+;; (defroutes dispatchers-auth
+;;     (((:get) "^/sick/?$")
+;;      (json-resp '((:status . "sick")))))
