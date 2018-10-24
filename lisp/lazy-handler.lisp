@@ -3,10 +3,6 @@
 (defvar loading-gif-img-tag
   (markup (:img :src (format nil "/loading-small.gif"))))
 
-(defvar js-lazy-load-self-replace-fmt-def-element
-  (markup (:script :type "text/javascript"
-                   (raw js-lazy-load-self-replace-fmt-def))))
-
 (defmacro markup-with-lazy-elements (form)
   `(markup (:div
             (raw js-lazy-load-self-replace-fmt-def-element)
@@ -24,6 +20,10 @@
     xmlhttp.open(verb, url, true);
     xmlhttp.send();
   }")
+
+(defvar js-lazy-load-self-replace-fmt-def-element
+  (markup (:script :type "text/javascript"
+                   (raw js-lazy-load-self-replace-fmt-def))))
 
 (defparameter js-lazy-load-self-replace-fmt-funcall
   "XHR_self_replace('~A', '~A', '~A');")
