@@ -1,5 +1,26 @@
 (in-package #:youtube-comments)
 
+(defun string-truncate (string n)
+  (subseq string 0 (min (length string) n)))
+
+(defmacro make-table (headers rows row-idx-sym row-sym row-cols-list)
+  `(markup
+    (:table
+     :border 1
+     :cellpadding 4
+     (:tr :align "left"
+          (loop for header in ,headers collect
+               (markup (:td (:b header)))))
+     (loop
+        for ,row-sym in ,rows
+        for ,row-idx-sym from 1
+        collect
+          (markup
+           (:tr :align "left"
+                (loop
+                   for cell in ,row-cols-list
+                   collect (markup (:td (raw cell))))))))))
+
 (defmacro ensure-ok (api-req-values &key (ok-code 200))
   (let ((body-sym (gensym "body"))
         (http-code-sym (gensym "http-code"))
