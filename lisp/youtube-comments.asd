@@ -14,7 +14,7 @@
                              :erjoalgo-webutil)
                 :components ((:file "packages")
                              (:file "youtube-client")
-                             (:file "server-util")
+                             (:file "lazy-handler")
                              (:file "server")
                              (:file "entity")
                              (:file "handler-util")
