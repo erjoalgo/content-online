@@ -4,7 +4,7 @@
 (defvar *service* nil "the current service")
 
 (defparameter secrets-directory
-  #P"../secrets/")
+  #P"./secrets/")
 
 (defstruct config
   (port 4244)
@@ -33,7 +33,7 @@
   (when *service* (stop *service*))
   (with-slots (port oauth-client-secret-json-path ssl-cert) config
     (let ((acceptor-args (list :port port
-                               :document-root (truename "../www")))
+                               :document-root (truename "./www")))
           acceptor-class
           protocol)
 
@@ -63,7 +63,7 @@
              youtube-scopes))
            (www-dispatcher
             (hunchentoot::create-folder-dispatcher-and-handler
-             "/www/" #P"../www/"))
+             "/www/" #P"./www/"))
            (app (append
                  dispatchers-noauth
                  (list
