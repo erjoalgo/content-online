@@ -49,5 +49,8 @@
          (is (equal (cons path 200)
                     (cons path status))))))
 
+(youtube-comments::stop)
+(youtube-comments::start)
+
 ;; (run-package-tests :interactive t)
 (run-package-tests)
