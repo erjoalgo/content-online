@@ -37,13 +37,17 @@
   (concatenate 'string *base-url* path))
 
 (deftest test-noauth ()
-  (multiple-value-bind (content status)
-      (drakma:http-request
-       ;; (endpoint "/www/privacy.html")
-       (endpoint "/health")
-                           :redirect nil)
-    (declare (ignore content))
-    (is (eql 200 status))))
+  (loop for path in '("/health"
+                      "/www/privacy.html")
+     do
+       (multiple-value-bind (content status)
+           (drakma:http-request
+            ;; (endpoint )
+            (endpoint path)
+            :redirect nil)
+         (declare (ignore content))
+         (is (equal (cons path 200)
+                    (cons path status))))))
 
 ;; (run-package-tests :interactive t)
 (run-package-tests)
