@@ -279,7 +279,7 @@ response: ~A~%" http-code video-ids-commas string))
   (results-count-handler
    (youtube-api-req
     (session-value :login)
-    "commentThreads"
+    "/commentThreads"
     `(("part" . "id")
       ("searchTerms" . ,(session-channel-title))
       ("videoId" . ,video-id)
@@ -292,7 +292,7 @@ response: ~A~%" http-code video-ids-commas string))
   (results-count-handler
    (youtube-api-req
     (session-value :login)
-    "commentThreads"
+    "/commentThreads"
     `(("part" . "id")
 
       ("searchTerms" . ,(session-channel-title))
