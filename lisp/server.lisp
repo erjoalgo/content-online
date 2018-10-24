@@ -1,6 +1,5 @@
 (in-package #:youtube-comments)
 
-;; (setf hunchentoot:*dispatch-table* nil)
 (defvar *service* nil "the current service")
 
 (defparameter secrets-directory
