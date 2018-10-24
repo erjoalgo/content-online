@@ -2,6 +2,7 @@
 TODO.org
 *json
 secret/
+secrets/
 *.cert
 *.key
 README.html
