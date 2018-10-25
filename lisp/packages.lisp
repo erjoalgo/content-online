@@ -10,7 +10,8 @@
    #:defroutes
    #:first-file-with-extension
    #:check-nonnil
-   #:json-resp)
+   #:json-resp
+   #:json-req)
 
   (:import-from
    #:erjoalgo-webutil/google

@@ -109,21 +109,20 @@
     (markup (:font :color (if (= 204 http-code) "green" "red")
                    (:b (write-to-string http-code))))))
 
-(((:post) "/feed-history/dom-html")
-
-    "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
-  (let ((video-ids (-> (hunchentoot:post-parameters*)
-                       (assoq inner-html-form-id)
-                       (parse-unique-video-ids)))
-        (aggregation (-> (hunchentoot:post-parameters*)
-                         (assoq "aggregation")))
+(((:post) "/feed-history/video-ids")
+ "parse video ids from the inner html of https://www.youtube.com/feed/history/comment_history"
+ (let* ((json (json-req))
+        (video-ids (assoq json :video-ids))
+        (aggregation (assoq json :aggregation))
         (unique-id (gen-unique-id)))
     (unless (null (session-value 'feed-req-ids))
       (setf (session-value 'feed-req-ids) nil))
     (push (cons unique-id
                 (cons aggregation video-ids))
           (session-value 'feed-req-ids))
-    (redirect (format nil "/feed-history/results/~A" unique-id))))
+   (json-resp
+    `(("location" .
+                  ,(format nil "/feed-history/results/~A" unique-id))))))
 
 (((:get) "/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
 
