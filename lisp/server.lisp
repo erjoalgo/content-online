@@ -85,4 +85,4 @@
 
 (defmethod hunchentoot:maybe-invoke-debugger
     ((condition SB-INT:CLOSED-STREAM-ERROR))
-  (format t "ignoring SB-INT:CLOSED-STREAM-ERROR~%"))
+  (vom:debug "ignoring SB-INT:CLOSED-STREAM-ERROR~%"))
