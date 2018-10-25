@@ -17,7 +17,7 @@
    #:erjoalgo-webutil/google
    #:defapi
    #:api-req
-   #:make-oauth-client-from-file)
+   #:oauth-make-client-from-file)
 
   (:import-from
    #:hunchentoot

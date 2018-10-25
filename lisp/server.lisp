@@ -53,7 +53,7 @@
              :acceptor (apply 'make-instance acceptor-class acceptor-args)
              :protocol protocol
              :config config
-             :oauth-client (make-oauth-client-from-file
+             :oauth-client (oauth-make-client-from-file
                             (config-oauth-client-secret-json-path config)))))
 
     (let* ((oauth-dispatcher
