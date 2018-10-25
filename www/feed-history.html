@@ -21,21 +21,19 @@
 
       <div id="parse-count"></div>
 
-      <form action="/feed-history/dom-html" method="post" style="display:inline">
-
-      <input type="text" name="video-ids" value="" hiden="true"></input>
-
+      <label>Aggregate by:</label>
       <br>
 
-      <input type="radio" name="aggregation" value="videos">videos
-      <input type="radio" name="aggregation" value="channels">channels
-      <input type="radio" name="aggregation" value="comments">comments
+      <div id="aggregation">
+        <input type="radio" name="aggregation" value="videos">videos
+        <br>
+        <input type="radio" name="aggregation" value="channels">channels
+        <br>
+        <input type="radio" name="aggregation" value="comments">comments
+      </div>
 
       <br>
-
-      <input type="submit" name="submit">
-      </form>
-
-    <script type="text/javascript" src="js/feed-history-parse.js"></script>
+      <button type="button" onclick="postVideoIds()">Submit</button>
+    <script type="text/javascript" src="/js/feed-history-parse.js"></script>
   </body>
 </html>
