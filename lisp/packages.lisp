@@ -17,13 +17,7 @@
    #:erjoalgo-webutil/google
    #:defapi
    #:api-req
-   #:make-api-login
-   #:make-oauth-client-from-file
-   #:auth-server-redirect-url
-   #:exchange-code-for-token
-
-   #:resp-token-access-token
-   #:resp-token-refresh-token)
+   #:make-oauth-client-from-file)
 
   (:import-from
    #:hunchentoot
