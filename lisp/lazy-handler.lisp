@@ -1,7 +1,7 @@
 (in-package #:youtube-comments)
 
 (defvar loading-gif-img-tag
-  (markup (:img :src (format nil "/loading-small.gif"))))
+  (markup (:img :src (format nil "/img/loading-small.gif"))))
 
 (defmacro markup-with-lazy-elements (form)
   `(markup (:div
