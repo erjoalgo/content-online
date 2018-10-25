@@ -38,7 +38,7 @@
 
 (deftest test-noauth ()
   (loop for path in '("/health"
-                      "/www/privacy.html")
+                      "/www/html/privacy.html")
      do
        (multiple-value-bind (content status)
            (drakma:http-request
