@@ -51,5 +51,4 @@
 (youtube-comments::stop)
 (youtube-comments::start)
 
-;; (run-package-tests :interactive t)
-(run-package-tests)
+(run-package-tests :interactive t)
