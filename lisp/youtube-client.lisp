@@ -1,34 +1,52 @@
 (in-package #:youtube-comments)
 
-(defvar youtube-api-base-url
-  "https://www.googleapis.com/youtube/v3")
 
-(defapi youtube-api-base-url
-    :get-depaginate
-  ((comment-threads-get "/commentThreads" :default-params '((:part . "snippet")
-                                                            (:max-results . "100")))
-   (subscriptions-get "/subscriptions" :default-params '((:part . "snippet")
-                                                         (:max-results . "50")))
-   (playlists-get "/playlists" :default-params '((:max-results . "50")))
-   (playlist-items-get "/playlistItems" :default-params '((:max-results . "50")))
-   (channels-get "/channels" :default-params '((:max-results . "50")))
-   (videos-get "/videos" :default-params '((:max-results . "50")))
-   (search-get "/search")
-   (activities-get "/activities" :default-params '((:max-results . "50"))))
+(SB-CLTL2:COMPILER-LET
+    ((erjoalgo-webutil::authenticator 'erjoalgo-webutil::google-authenticator)
+     (erjoalgo-webutil::depaginator nil)
+     (erjoalgo-webutil::base-url "https://www.googleapis.com/youtube/v3")
+     (erjoalgo-webutil::api-req-extra-args-compile-time `(:retry-count 10)))
 
-  :delete
-  ())
+  ;; get queries.
+  ;; default req-update passes additional query params from caller
+  (SB-CLTL2:COMPILER-LET
+      ((erjoalgo-webutil::method :get)
+       (erjoalgo-webutil::qparams '((:part . "snippet") (:max-results . "100")))
+       (erjoalgo-webutil::req-update
+        '((&optional extra-qparams) http-req
+          (with-slots (qparams) http-req
+            (setf qparams (append qparams extra-qparams))))))
 
-(defun youtube-api-req (&rest rest)
-  (let ((erjoalgo-webutil/google:*api-base-url*
-         youtube-api-base-url))
-    (apply 'api-req rest)))
+    ;; non-depaginating here...
 
-(defun delete-comment (api-login comment-id)
-  "DELETE https://www.googleapis.com/youtube/v3/comments"
-  (youtube-api-req api-login "/comments"
-                   `(("id" . ,comment-id))
-                   :method :delete))
+    (SB-CLTL2:COMPILER-LET
+        ((erjoalgo-webutil::depaginator 'erjoalgo-webutil::google-depaginator))
+      ;; depaginating...
+
+      (defendpoint comment-threads-get :resource "/commentThreads")
+
+      (defendpoint subscriptions-get :resource "/subscriptions")
+
+      (defendpoint playlists-get :resource "/playlists")
+
+      (defendpoint playlist-items-get :resource "/playlistItems")
+
+      (defendpoint channels-get :resource "/channels")
+
+      (defendpoint videos-get :resource "/videos")
+
+      (defendpoint search-get :resource "/search")
+
+      (defendpoint activities-get :resource "/activities")))
+
+  (SB-CLTL2:COMPILER-LET
+      ((erjoalgo-webutil::method :delete))
+    (defendpoint comment-delete
+        :resource "/comments"
+        :req-update
+        ((comment-id) http-request
+         (with-slots (qparams) http-request
+           (push (cons "id" comment-id) qparams))))))
 
 (defvar youtube-base-url "https://www.youtube.com")
 

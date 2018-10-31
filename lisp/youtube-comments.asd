@@ -11,7 +11,8 @@
                              :cl-json
                              :cl-markup
                              :fiasco
-                             :erjoalgo-webutil)
+                             :erjoalgo-webutil
+                             :sb-cltl2)
                 :components ((:file "packages")
                              (:file "youtube-client")
                              (:file "lazy-handler")
