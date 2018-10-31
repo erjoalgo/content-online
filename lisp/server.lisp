@@ -54,7 +54,8 @@
              :protocol protocol
              :config config
              :oauth-client (oauth-make-client-from-file
-                            (config-oauth-client-secret-json-path config)))))
+                            (config-oauth-client-secret-json-path config)
+                            :json-path-to-client "web"))))
 
     (let* ((oauth-dispatcher
             (erjoalgo-webutil:create-hunchentoot-oauth-redirect-dispatcher
