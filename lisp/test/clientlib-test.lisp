@@ -16,13 +16,19 @@
          youtube-comments::videos-get
          youtube-comments::search-get
          youtube-comments::activities-get)
-     with fake-login = (erjoalgo-webutil/google:make-api-login
-                        ;; fake key
-                        :key "BQwjGtD1o8DWt1biIwfDxkM6cLX1HU4WAdAGWPd")
      do
-       (multiple-value-bind (json status raw)
-           (funcall fn fake-login)
-         (declare (ignore json raw))
-         (is (eql 400 status)))))
+       (let ((HUNCHENTOOT:*REQUEST* 1)
+             (HUNCHENTOOT:*SESSION*
+              (erjoalgo-webutil:hunchentoot-make-add-fake-session
+               `((:login .
+                  ,(erjoalgo-webutil:make-api-login
+                    ;; fake key
+                    :key "fakeGtD1o8DWt1biIwfDxkM6cLX1HU4WAdAGWPd")))
+               "user agent")))
+         (multiple-value-bind (body status err)
+             (funcall fn)
+           (vom:debug "body ~A~%" body)
+           (vom:debug "err ~A~%" err)
+           (is (eql 400 status))))))
 
 (run-package-tests :interactive t)
