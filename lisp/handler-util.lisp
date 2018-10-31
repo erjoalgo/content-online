@@ -25,6 +25,7 @@
   (with-gensyms (body-sym http-code-sym resp-string-sym)
     `(multiple-value-bind (,body-sym ,http-code-sym)
          ,api-req-values
+       (vom:debug ",body-sym: ~A~%" ,body-sym)
        (if (not (eq ,ok-code ,http-code-sym))
            (progn
              (vom:warn "unexpected code: ~A ~A ~A~%"
