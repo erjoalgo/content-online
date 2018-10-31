@@ -21,11 +21,9 @@
                    for cell in ,row-cols-list
                    collect (markup (:td (raw cell))))))))))
 
-(defmacro ensure-ok (api-req-values &key (ok-code 200))
-  (let ((body-sym (gensym "body"))
-        (http-code-sym (gensym "http-code"))
-        (resp-string-sym (gensym "resp-string")))
-    `(multiple-value-bind (,body-sym ,http-code-sym ,resp-string-sym)
+(defmacro check-http-ok (api-req-values &key (ok-code 200))
+  (with-gensyms (body-sym http-code-sym resp-string-sym)
+    `(multiple-value-bind (,body-sym ,http-code-sym)
          ,api-req-values
        (if (not (eq ,ok-code ,http-code-sym))
            (progn
