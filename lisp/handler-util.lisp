@@ -92,11 +92,12 @@
      :description description)))
 
 (defmacro results-count-handler (api-req-values)
-  `(->
-    ,api-req-values
-    ensure-ok
-    (-json-get-nested "pageInfo.totalResults")
-    write-to-string))
+  `(let ((count-resp (check-http-ok ,api-req-values)))
+     (vom:debug "count-resp ~A~%" count-resp)
+     (-> (or
+          (-json-get-nested count-resp "pageInfo.totalResults")
+          (-json-get-nested count-resp "totalResults"))
+         write-to-string)))
 
 (defun session-channel-title ()
   (or
