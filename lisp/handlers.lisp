@@ -6,7 +6,7 @@
 
     "list user's subscription channels"
   (channels-handler
-   (loop for sub in (ensure-ok
+   (loop for sub in (check-http-ok
                      (subscriptions-get (params
                                          :mine "true"
                                          :part "snippet")))
@@ -25,7 +25,7 @@
     "list user's playlists"
   (markup-with-lazy-elements
    (make-table '("#" "title"  "date published" "videos")
-               (ensure-ok (playlists-get (params
+               (check-http-ok (playlists-get (params
                                          :mine "true"
                                          :part "snippet")))
                idx playlist
@@ -44,7 +44,7 @@
 (((:get) "^/playlists/([^/]+)/videos/?$" playlist-id)
     "list user's playlist videos"
   (videos-handler
-   (loop for video-alist in (ensure-ok
+   (loop for video-alist in (check-http-ok
                              (playlist-items-get (params
                                                  :playlist-id playlist-id
                                                  :mine "true"
