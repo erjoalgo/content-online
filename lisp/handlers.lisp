@@ -7,10 +7,9 @@
     "list user's subscription channels"
   (channels-handler
    (loop for sub in (ensure-ok
-                     (subscriptions-get (session-value :login)
-                                        ;; :channel-id channel-id
-                                        :mine "true"
-                                        :part "snippet"))
+                     (subscriptions-get (params
+                                         :mine "true"
+                                         :part "snippet")))
 
       collect (with-json-paths sub
                   ((chan-id "snippet.resourceId.channelId")
@@ -26,9 +25,9 @@
     "list user's playlists"
   (markup-with-lazy-elements
    (make-table '("#" "title"  "date published" "videos")
-               (ensure-ok (playlists-get (session-value :login)
+               (ensure-ok (playlists-get (params
                                          :mine "true"
-                                         :part "snippet"))
+                                         :part "snippet")))
                idx playlist
                (with-json-paths playlist
                    ((id "id")
@@ -46,10 +45,10 @@
     "list user's playlist videos"
   (videos-handler
    (loop for video-alist in (ensure-ok
-                             (playlist-items-get (session-value :login)
+                             (playlist-items-get (params
                                                  :playlist-id playlist-id
                                                  :mine "true"
-                                                 :part "snippet"))
+                                                 :part "snippet")))
       as video = (make-video-from-alist video-alist)
       do (setf (video-id video)
                (-json-get-nested video-alist "snippet.resourceId.videoId"))
@@ -60,27 +59,24 @@
     "list number of matching comments for the current user on the given video"
   (assert (session-channel-title))
   (results-count-handler
-   (youtube-api-req
-    (session-value :login)
-    "/commentThreads"
+   (comment-threads-get
     `(("part" . "id")
       ("searchTerms" . ,(session-channel-title))
       ("videoId" . ,video-id)
-      ("maxResults" . "50")))))
+      ("maxResults" . "50"))
+    :depaginator nil)))
 
 (((:get) "^/channels/([^/]*)/comments-count$" channel-id)
 
     "list number of matching comments for the current user on the given video"
   (assert (session-channel-title))
-  (results-count-handler
-   (youtube-api-req
-    (session-value :login)
-    "/commentThreads"
+ (results-count-handler
+  (comment-threads-get
     `(("part" . "id")
-
       ("searchTerms" . ,(session-channel-title))
       ("allThreadsRelatedToChannelId" . ,channel-id)
-      ("maxResults" . "50")))))
+      ("maxResults" . "50"))
+    :depaginator nil)))
 
 (((:get) "^/channels/([^/]*)/comments$" sub-channel-id)
 
@@ -93,17 +89,17 @@
     "list comments for the current user on the given video"
   (assert (session-channel-title))
   (list-comment-threads-handler
-   (comment-threads-get (session-value :login)
+   (comment-threads-get (params
                         :part "snippet"
                         :search-terms (session-channel-title)
-                        :video-id video-id)))
+                        :video-id video-id))))
 
 (((:delete) "/comment/([^/]+)/delete" comment-id)
 
     "delete a given comment"
   (vom:debug "deleting comment ~A~%" comment-id)
   (multiple-value-bind (resp-alist http-code)
-      (delete-comment (session-value :login) comment-id)
+      (comment-delete comment-id)
     (unless (= 204 http-code)
       (format nil "non-204 delete resp: ~A~%" resp-alist))
     (markup (:font :color (if (= 204 http-code) "green" "red")
@@ -140,9 +136,9 @@
   (videos-handler
    (loop for rating in '("like" "dislike") append
         (loop for video-alist in (videos-get
-                                  (session-value :login)
+                                  (params
                                   :my-rating rating
-                                  :part "snippet")
+                                  :part "snippet"))
            as video = (make-video-from-alist video-alist)
            do (setf (video-rating video) rating)
            collect video))))

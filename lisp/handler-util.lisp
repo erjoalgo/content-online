@@ -104,9 +104,9 @@
    (session-value 'channel-title)
    (let ((title (->
                  (channels-get
-                  (session-value :login)
+                  (params
                   :part "snippet"
-                  :mine "true")
+                  :mine "true"))
                  car
                  (-json-get-nested "snippet.title"))))
      (assert title)
@@ -160,10 +160,10 @@
 
 (defun channel-comment-threads (channel-id)
   "channel comments for the current user"
-  (comment-threads-get (session-value :login)
+  (comment-threads-get (params
                        :part "snippet"
                        :search-terms (session-channel-title)
-                       :all-threads-related-to-channel-id channel-id))
+                       :all-threads-related-to-channel-id channel-id)))
 
 (defmacro uniquify (list elt-sym elt-key-form &key (test ''equal))
   (let ((table-sym (gensym "table")))
@@ -230,9 +230,8 @@
          (let ((video-ids-commas (format nil "~{~A~^,~}" video-ids-chunk)))
            (multiple-value-bind (items http-code string)
                (videos-get
-                (session-value :login)
-                :part part
-                :id video-ids-commas)
+                (params :part part
+                        :id video-ids-commas))
 
              (unless (= 200 http-code)
                (vom:warn "bad http code ~A while fetching these videos:
