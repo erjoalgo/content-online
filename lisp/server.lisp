@@ -57,7 +57,7 @@
                             (config-oauth-client-secret-json-path config)))))
 
     (let* ((oauth-dispatcher
-            (erjoalgo-webutil/google:create-hunchentoot-oauth-redirect-dispatcher
+            (erjoalgo-webutil:create-hunchentoot-oauth-redirect-dispatcher
              (service-oauth-client *service*)
              youtube-scopes))
            (www-dispatcher
