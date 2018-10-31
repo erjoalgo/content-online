@@ -17,14 +17,11 @@
          youtube-comments::search-get
          youtube-comments::activities-get)
      do
-       (let ((HUNCHENTOOT:*REQUEST* 1)
-             (HUNCHENTOOT:*SESSION*
-              (erjoalgo-webutil:hunchentoot-make-add-fake-session
-               `((:login .
-                  ,(erjoalgo-webutil:make-api-login
-                    ;; fake key
-                    :key "fakeGtD1o8DWt1biIwfDxkM6cLX1HU4WAdAGWPd")))
-               "user agent")))
+       (let ((erjoalgo-webutil:*google-login*
+              (erjoalgo-webutil:make-api-login
+               :client
+               (erjoalgo-webutil::make-oauth-client
+                :key "fakeGtD1o8DWt1biIwfDxkM6cLX1HU4WAdAGWPd"))))
          (multiple-value-bind (body status err)
              (funcall fn)
            (vom:debug "body ~A~%" body)
