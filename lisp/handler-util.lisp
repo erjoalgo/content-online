@@ -31,7 +31,7 @@
              (vom:warn "unexpected code: ~A ~A ~A~%"
                        ,body-sym ,http-code-sym ,resp-string-sym)
              (hunchentoot:abort-request-handler
-              (format nil "~A ~A" ,http-code-sym ,resp-string-sym)))
+              (format nil "~A ~A" ,http-code-sym ,body-sym)))
            ,body-sym))))
 
 (defun channels-handler (channels &key (max-description-chars 100))
