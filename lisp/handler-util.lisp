@@ -3,6 +3,23 @@
 (defparameter js-table-render-script-path
   "/www/js/renderTable.js")
 
+
+(defvar *json-false* (progn
+                       ;; https://stackoverflow.com/questions/27679494/
+                       (defclass json-false () ())
+                       (defmethod json:encode-json ((object json-false) &optional stream)
+                         (princ "false" stream)
+                         nil)
+                       (make-instance 'json-false)))
+
+(defvar *json-empty-list* (progn
+                            ;; https://stackoverflow.com/questions/27679494/
+                            (defclass json-empty-list () ())
+                            (defmethod json:encode-json ((object json-empty-list) &optional stream)
+                              (princ "[]" stream)
+                              nil)
+                            (make-instance 'json-empty-list)))
+
 (defun string-truncate (string n)
   (subseq string 0 (min (length string) n)))
 
