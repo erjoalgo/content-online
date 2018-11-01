@@ -175,20 +175,20 @@
                        :search-terms (session-channel-title)
                        :all-threads-related-to-channel-id channel-id)))
 
-(defmacro uniquify (list elt-sym elt-key-form &key (test ''equal))
-  (let ((table-sym (gensym "table")))
-    `(loop with ,table-sym = (make-hash-table :test ,test)
-        for ,elt-sym in ,list
-        do (setf (gethash ,elt-key-form ,table-sym) ,elt-sym)
-        finally (return (loop for ,elt-sym being the hash-values of ,table-sym
-                           collect ,elt-sym)))))
-
+(defun uniquify (list &key (test ''equal)
+                        (key-fn 'identity))
+  (loop with table = (make-hash-table :test test)
+     for elt in list
+       as key = (funcall key-fn elt)
+     do (setf (gethash elt table) elt)
+     finally
+       (return (loop for elt being the hash-values of table
+                  collect elt))))
 
 (defun parse-unique-video-ids (text)
   (uniquify
    (cl-ppcre:all-matches-as-strings
-    "(?<=/watch[?]v=)([^\"&\]*)" text)
-   string string))
+    "(?<=/watch[?]v=)([^\"&\]*)" text)))
 
 (defparameter inner-html-form-id "video-ids")
 
@@ -259,4 +259,4 @@ response: ~A~%" http-code video-ids-commas string))
       collect (make-channel
                :id (video-channel-id video)
                :title (video-channel-title video)))
-   (uniquify chan (channel-id chan))))
+   (uniquify :key-fn 'channel-id)))
