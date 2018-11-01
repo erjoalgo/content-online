@@ -31,6 +31,7 @@
        (if (not (eq ,ok-code ,http-code-sym))
            (progn
              (vom:warn "unexpected code: ~A ~A~%" ,body-sym ,http-code-sym)
+             (setf (hunchentoot:return-code*) ,http-code-sym)
              (hunchentoot:abort-request-handler
               (format nil "~A ~A" ,http-code-sym ,body-sym)))
            ,body-sym))))
