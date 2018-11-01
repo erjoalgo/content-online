@@ -1,5 +1,8 @@
 (in-package #:youtube-comments)
 
+(defparameter js-table-render-script-path
+  "/www/js/renderTable.js")
+
 (defun string-truncate (string n)
   (subseq string 0 (min (length string) n)))
 
