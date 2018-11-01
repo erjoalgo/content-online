@@ -47,7 +47,7 @@
      ("items" .
               ,(or (loop for chan in channels
                       collect
-               (with-slots (id title description) chan
+                        (with-slots (id title description) chan
                           (params
                            "channel-id" (dom-link (channel-url id) id)
                            "title" title
@@ -68,19 +68,19 @@
               ,(or
                 (loop for video in videos
                    collect
-               (with-slots (id title channel-id channel-title published description rating)
-                   video
+                     (with-slots (id title channel-id channel-title published description rating)
+                         video
                        (params
                         "title" (dom-link (video-url id) title)
                         "channel" (dom-link (channel-url channel-id) channel-title)
                         "published" published
                         "description" (when description
-                         (string-truncate description max-description-chars))
+                                        (string-truncate description max-description-chars))
                         "rating" rating
                         "comments" (dom-link (format nil "/videos/~A/comments.html" id)
                                              "comments")
                         "count"
-                       (when id
+                        (when id
                           (dom-lazy-elm (format nil "/videos/~A/comments-count" id))))))
                 *json-empty-list*)))
    cl-json:encode-json-alist-to-string))
@@ -115,8 +115,8 @@
    (let ((title (->
                  (channels-get
                   (params
-                  :part "snippet"
-                  :mine "true"))
+                   :part "snippet"
+                   :mine "true"))
                  car
                  (-json-get-nested "snippet.title"))))
      (assert title)
@@ -129,25 +129,25 @@
      ("items" .
               ,(or
                 (loop with comments =
-               (if no-author-filter
-                   comments
-                   (loop for comment in comments when (equal (session-channel-title)
-                                                             (comment-author comment))
-                      collect comment))
-                    for comment in comments
-                  collect
-               (with-slots (id author video-id channel-id reply-count text)
-                   comment
-                      (params
-                       "id" id
-                       "author" author
-                       "video or channel id"
-                       (dom-link (if video-id (video-url video-id) (channel-url channel-id))
-                                 (or video-id channel-id))
-                       "reply-count" reply-count
-                       "text" text
-                       "delete" (dom-delete-button
-                                 (format nil "/comment/~A/delete" id)))))
+                     (if no-author-filter
+                         comments
+                         (loop for comment in comments when (equal (session-channel-title)
+                                                                   (comment-author comment))
+                            collect comment))
+                   for comment in comments
+                   collect
+                     (with-slots (id author video-id channel-id reply-count text)
+                         comment
+                       (params
+                        "id" id
+                        "author" author
+                        "video or channel id"
+                        (dom-link (if video-id (video-url video-id) (channel-url channel-id))
+                                  (or video-id channel-id))
+                        "reply-count" reply-count
+                        "text" text
+                        "delete" (dom-delete-button
+                                  (format nil "/comment/~A/delete" id)))))
                 *json-empty-list*)))
    cl-json:encode-json-alist-to-string))
 
@@ -174,15 +174,15 @@
 (defun channel-comment-threads (channel-id)
   "channel comments for the current user"
   (comment-threads-get (params
-                       :part "snippet"
-                       :search-terms (session-channel-title)
-                       :all-threads-related-to-channel-id channel-id)))
+                        :part "snippet"
+                        :search-terms (session-channel-title)
+                        :all-threads-related-to-channel-id channel-id)))
 
 (defun uniquify (list &key (test ''equal)
                         (key-fn 'identity))
   (loop with table = (make-hash-table :test test)
      for elt in list
-       as key = (funcall key-fn elt)
+     as key = (funcall key-fn elt)
      do (setf (gethash elt table) elt)
      finally
        (return (loop for elt being the hash-values of table
