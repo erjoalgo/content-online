@@ -30,8 +30,7 @@
        (vom:debug "body-sym: ~A~%" ,body-sym)
        (if (not (eq ,ok-code ,http-code-sym))
            (progn
-             (vom:warn "unexpected code: ~A ~A ~A~%"
-                       ,body-sym ,http-code-sym ,resp-string-sym)
+             (vom:warn "unexpected code: ~A ~A~%" ,body-sym ,http-code-sym)
              (hunchentoot:abort-request-handler
               (format nil "~A ~A" ,http-code-sym ,body-sym)))
            ,body-sym))))
