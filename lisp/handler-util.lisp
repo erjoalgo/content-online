@@ -24,7 +24,7 @@
   (subseq string 0 (min (length string) n)))
 
 (defmacro check-http-ok (api-req-values &key (ok-code 200))
-  (with-gensyms (body-sym http-code-sym resp-string-sym)
+  (with-gensyms (body-sym http-code-sym)
     `(multiple-value-bind (,body-sym ,http-code-sym)
          ,api-req-values
        (vom:debug ",body-sym: ~A~%" ,body-sym)
