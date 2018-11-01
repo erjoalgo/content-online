@@ -122,7 +122,7 @@
                         :search-terms (session-channel-title)
                               :video-id video-id))))))
 
-(((:delete) "/comment/([^/]+)/delete" comment-id)
+(((:delete) "/comment/([^/]+)/delete$" comment-id)
 
     "delete a given comment"
   (vom:debug "deleting comment ~A~%" comment-id)
@@ -133,7 +133,7 @@
     (markup (:font :color (if (= 204 http-code) "green" "red")
                    (:b (write-to-string http-code))))))
 
-(((:post) "/feed-history/video-ids")
+(((:post) "/feed-history/video-ids$")
  "parse video ids from the inner html of https://www.youtube.com/feed/history/comment_history"
  (let* ((json (json-req))
         (video-ids (assoq json :video-ids))
