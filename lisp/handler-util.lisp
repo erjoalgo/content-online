@@ -3,24 +3,6 @@
 (defun string-truncate (string n)
   (subseq string 0 (min (length string) n)))
 
-(defmacro make-table (headers rows row-idx-sym row-sym row-cols-list)
-  `(markup
-    (:table
-     :border 1
-     :cellpadding 4
-     (:tr :align "left"
-          (loop for header in ,headers collect
-               (markup (:td (:b header)))))
-     (loop
-        for ,row-sym in ,rows
-        for ,row-idx-sym from 1
-        collect
-          (markup
-           (:tr :align "left"
-                (loop
-                   for cell in ,row-cols-list
-                   collect (markup (:td (raw cell))))))))))
-
 (defmacro check-http-ok (api-req-values &key (ok-code 200))
   (with-gensyms (body-sym http-code-sym resp-string-sym)
     `(multiple-value-bind (,body-sym ,http-code-sym)
@@ -35,45 +17,50 @@
            ,body-sym))))
 
 (defun channels-handler (channels &key (max-description-chars 100))
-  (markup-with-lazy-elements
-   (make-table '("#" "channel id" "title" "description" "commments" "count")
-               channels
-               chan-idx chan
+  (setf (hunchentoot:content-type*) "application/json")
+  (->
+   `(
+     ("headers" . ("channel-id" "title" "description" "comments" "count"))
+     ("items" .
+              ,(or (loop for chan in channels
+                      collect
                (with-slots (id title description) chan
-                 (let* ((url (channel-url id))
-                        (comments-link (format nil "/channels/~A/comments" id)))
-                   (list (write-to-string chan-idx)
-                         (markup (:a :href url id))
-                         title
-                         (string-truncate description max-description-chars)
-                         (markup (:a :href comments-link "comments!"))
-                         (js-lazy-element (format nil "/channels/~A/comments-count" id)
-                                          loading-gif-img-tag
-                                          :skip-self-replace-fun t)))))))
+                          (params
+                           "channel-id" (dom-link (channel-url id) id)
+                           "title" title
+                           "description" (string-truncate description max-description-chars)
+                           "comments" (dom-link (format nil "/channels/~A/comments.html" id)
+                                                "comments!")
+                           "count" (dom-lazy-elm
+                                    (format nil "/channels/~A/comments-count" id)))))
+                   *json-empty-list*)))
+   cl-json:encode-json-alist-to-string))
 
 (defun videos-handler (videos &key (max-description-chars 100))
   "videos is a video struct list"
-  (markup-with-lazy-elements
-   (make-table '("#" "title" "channel" "published" "description" "rating" "commments" "count")
-               videos
-               idx video
+  (->
+   `(
+     ("headers" . ("title" "channel" "published" "description" "rating" "comments" "count"))
+     ("items" .
+              ,(or
+                (loop for video in videos
+                   collect
                (with-slots (id title channel-id channel-title published description rating)
                    video
-                 (list (write-to-string idx)
-                       (markup
-                        (:a :href (video-url id) title))
-                       (markup
-                        (:a :href (channel-url channel-id) channel-title))
-                       published
-                       (when description
+                       (params
+                        "title" (dom-link (video-url id) title)
+                        "channel" (dom-link (channel-url channel-id) channel-title)
+                        "published" published
+                        "description" (when description
                          (string-truncate description max-description-chars))
-                       rating
-                       (markup
-                        (:a :href (format nil "/videos/~A/comments" id) "comments"))
+                        "rating" rating
+                        "comments" (dom-link (format nil "/videos/~A/comments.html" id)
+                                             "comments")
+                        "count"
                        (when id
-                         (js-lazy-element (format nil "/videos/~A/comments-count" id)
-                                          loading-gif-img-tag
-                                          :skip-self-replace-fun t)))))))
+                          (dom-lazy-elm (format nil "/videos/~A/comments-count" id))))))
+                *json-empty-list*)))
+   cl-json:encode-json-alist-to-string))
 
 (defun make-video-from-alist (video-alist)
   (with-json-paths video-alist
@@ -114,29 +101,32 @@
       (session-value 'channel-title) title))))
 
 (defun list-comments-handler (comments &key no-author-filter)
-  (markup-with-lazy-elements
-   (make-table '("#" "id" "author" "video or channel id" "reply count" "text" "delete")
+  (->
+   `(("headers" . ("id" "author" "video or channel id" "reply-count" "text" "delete"))
+     ("items" .
+              ,(or
+                (loop with comments =
                (if no-author-filter
                    comments
                    (loop for comment in comments when (equal (session-channel-title)
                                                              (comment-author comment))
                       collect comment))
-               comment-idx comment
+                    for comment in comments
+                  collect
                (with-slots (id author video-id channel-id reply-count text)
                    comment
-                 (list (write-to-string comment-idx)
-                       id
-                       author
-                       (markup (:a :href (if video-id (video-url video-id) (channel-url channel-id))
-                                   (or video-id channel-id)))
-                       (write-to-string reply-count)
-                       text
-                       (js-lazy-element
-                        (format nil "/comment/~A/delete" id)
-                        loading-gif-img-tag
-                        :as-button "delete!"
-                        :verb :delete
-                        :skip-self-replace-fun t))))))
+                      (params
+                       "id" id
+                       "author" author
+                       "video or channel id"
+                       (dom-link (if video-id (video-url video-id) (channel-url channel-id))
+                                 (or video-id channel-id))
+                       "reply-count" reply-count
+                       "text" text
+                       "delete" (dom-delete-button
+                                 (format nil "/comment/~A/delete" id)))))
+                *json-empty-list*)))
+   cl-json:encode-json-alist-to-string))
 
 (defun make-comment-from-json-alist (comment-thread-alist)
   (with-json-paths comment-thread-alist

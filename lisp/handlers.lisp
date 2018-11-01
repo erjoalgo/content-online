@@ -2,9 +2,15 @@
 
 (defroutes dispatchers-auth
 
-(((:get) "^/subscriptions/?$")
+(((:get) "^/subscriptions(.html)?/?$" is-html)
 
-    "list user's subscription channels"
+ (if is-html
+     (html
+      ;; (:head)
+      (:body
+       (:script :type "text/javascript"
+                :src (raw js-table-render-script-path)
+                "hello")))
   (channels-handler
    (loop for sub in (check-http-ok
                      (subscriptions-get (params
@@ -18,31 +24,46 @@
                 (make-channel
                  :id chan-id
                  :title title
-                 :description description)))))
+                    :description description))))))
 
-(((:get) "^/playlists/?$")
+  (((:get) "^/playlists(.html)?/?$" is-html)
 
-    "list user's playlists"
-  (markup-with-lazy-elements
-   (make-table '("#" "title"  "date published" "videos")
+   (if is-html
+       (html
+        (:script :type "text/javascript"
+                 :src (raw js-table-render-script-path)
+                 "hello"))
+       (progn
+         (setf (hunchentoot:content-type*) "application/json")
+         (->
+          `(
+            ("headers" . ("title"  "published" "videos"))
+            ("items" .
+                     ,(or (loop with playlists =
                (check-http-ok (playlists-get (params
                                          :mine "true"
                                          :part "snippet")))
-               idx playlist
+                             for playlist in playlists
+                             collect
                (with-json-paths playlist
                    ((id "id")
                     (title "snippet.title")
                     (published "snippet.publishedAt"))
-                 (list (write-to-string idx)
-                       (markup
-                        (:a :href (playlist-url id) title))
-                       published
-                       (markup
-                        (:a :href (format nil "/playlists/~A/videos"
-                                          id) "videos")))))))
+                                 (params
+                                  "title" (dom-link (playlist-url id) title)
+                                  "published" published
+                                  "videos" (dom-link (format nil "/playlists/~A/videos.html"
+                                                             id)
+                                                     "videos"))))
+                          *json-empty-list*)))
+          cl-json:encode-json-alist-to-string))))
 
-(((:get) "^/playlists/([^/]+)/videos/?$" playlist-id)
-    "list user's playlist videos"
+  (((:get) "^/playlists/([^/]+)/videos(.html)?/?$" playlist-id is-html)
+   (if is-html
+       (html
+        (:script :type "text/javascript"
+                 :src (raw js-table-render-script-path)
+                 "hello"))
   (videos-handler
    (loop for video-alist in (check-http-ok
                              (playlist-items-get (params
@@ -52,7 +73,7 @@
       as video = (make-video-from-alist video-alist)
       do (setf (video-id video)
                (-json-get-nested video-alist "snippet.resourceId.videoId"))
-      collect video)))
+           collect video))))
 
 (((:get) "^/videos/([^/]*)/comments-count$" video-id)
 
@@ -78,21 +99,28 @@
       ("maxResults" . "50"))
     :depaginator nil)))
 
-(((:get) "^/channels/([^/]*)/comments$" sub-channel-id)
+(((:get) "^/channels/([^/]*)/comments(.html)?/?$" sub-channel-id is-html)
+ (if is-html
+     (html
+      (:script :type "text/javascript"
+               :src (raw js-table-render-script-path)
+               "hello"))
+     ;; (assert (session-channel-title))
+     (list-comment-threads-handler (channel-comment-threads sub-channel-id))))
 
-    "list comments for the current user on the given channel"
-  (assert (session-channel-title))
-  (list-comment-threads-handler (channel-comment-threads sub-channel-id)))
-
-(((:get) "^/videos/([^/]*)/comments$" video-id)
-
-    "list comments for the current user on the given video"
+(((:get) "^/videos/([^/]+)/comments(.html)?/?$" video-id is-html)
+ (if is-html
+     (html
+      (:script :type "text/javascript"
+               :src (raw js-table-render-script-path)
+               "hello"))
+     (progn
   (assert (session-channel-title))
   (list-comment-threads-handler
    (comment-threads-get (params
                         :part "snippet"
                         :search-terms (session-channel-title)
-                        :video-id video-id))))
+                              :video-id video-id))))))
 
 (((:delete) "/comment/([^/]+)/delete" comment-id)
 
@@ -141,25 +169,4 @@
                                   :part "snippet"))
            as video = (make-video-from-alist video-alist)
            do (setf (video-rating video) rating)
-           collect video))))
-
-(((:get) "^/lazy-call$")
-
-    "list user's liked videos"
-  (let ((secs (+ 2 (random 2))))
-    (sleep secs)
-    (format nil "slept for ~A, verb was ~A" secs (hunchentoot:request-method*))))
-
-(((:get) "^/lazy$")
-
-    "list user's liked videos"
-  (js-lazy-element "/lazy-call"
-                   loading-gif-img-tag
-                   :verb :delete))
-
-(((:get) "^/lazy-butt$")
-    "list user's liked videos"
-  (js-lazy-element "/lazy-call"
-                   loading-gif-img-tag
-                   :as-button "click me!"
-                   :verb :delete)))
+           collect video)))))
