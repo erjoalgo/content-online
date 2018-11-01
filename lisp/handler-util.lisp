@@ -28,13 +28,13 @@
     `(multiple-value-bind (,body-sym ,http-code-sym)
          ,api-req-values
        (vom:debug "body-sym: ~A~%" ,body-sym)
-       (if (not (eq ,ok-code ,http-code-sym))
+       (if (eq ,ok-code ,http-code-sym)
+           ,body-sym
            (progn
              (vom:warn "unexpected code: ~A ~A~%" ,body-sym ,http-code-sym)
              (setf (hunchentoot:return-code*) ,http-code-sym)
              (hunchentoot:abort-request-handler
-              (format nil "~A ~A" ,http-code-sym ,body-sym)))
-           ,body-sym))))
+              (format nil "~A ~A" ,http-code-sym ,body-sym)))))))
 
 (defun channels-handler (channels &key (max-description-chars 100))
   (setf (hunchentoot:content-type*) "application/json")
