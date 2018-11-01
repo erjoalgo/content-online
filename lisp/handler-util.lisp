@@ -32,6 +32,9 @@
            ,body-sym
            (progn
              (vom:warn "unexpected code: ~A ~A~%" ,body-sym ,http-code-sym)
+             (when (eq 401 ,http-code-sym)
+               (vom:warn "invalidating session on 401...~%")
+               (setf (hunchentoot:session-value :login) nil))
              (setf (hunchentoot:return-code*) ,http-code-sym)
              (hunchentoot:abort-request-handler
               (format nil "~A ~A" ,http-code-sym ,body-sym)))))))
