@@ -1,8 +1,8 @@
 (in-package #:youtube-comments)
 
-(defroutes dispatchers-auth
+(defroutes *youtube-dispatchers*
 
-    (((:get) "^/subscriptions(.html)?/?$" is-html)
+    (((:get) "^/youtube/subscriptions(.html)?/?$" is-html)
 
      (if is-html
          render-table-html
@@ -21,7 +21,7 @@
                         :title title
                         :description description))))))
 
-  (((:get) "^/playlists(.html)?/?$" is-html)
+  (((:get) "^/youtube/playlists(.html)?/?$" is-html)
 
    (if is-html
        render-table-html
@@ -44,13 +44,13 @@
                                  (params
                                   "title" (dom-link (playlist-url id) title)
                                   "published" published
-                                  "videos" (dom-link (format nil "/playlists/~A/videos.html"
+                                  "videos" (dom-link (format nil "/youtube/playlists/~A/videos.html"
                                                              id)
                                                      "videos"))))
                           *json-empty-list*)))
           cl-json:encode-json-alist-to-string))))
 
-  (((:get) "^/playlists/([^/]+)/videos(.html)?/?$" playlist-id is-html)
+  (((:get) "^/youtube/playlists/([^/]+)/videos(.html)?/?$" playlist-id is-html)
    (if is-html
        render-table-html
        (videos-handler
@@ -64,7 +64,7 @@
                     (-json-get-nested video-alist "snippet.resourceId.videoId"))
            collect video))))
 
-  (((:get) "^/videos/([^/]*)/comments-count$" video-id)
+  (((:get) "^/youtube/videos/([^/]*)/comments-count$" video-id)
 
    "list number of matching comments for the current user on the given video"
    (assert (session-channel-title))
@@ -76,7 +76,7 @@
        ("maxResults" . "50"))
      :depaginator nil)))
 
-  (((:get) "^/channels/([^/]*)/comments-count$" channel-id)
+  (((:get) "^/youtube/channels/([^/]*)/comments-count$" channel-id)
 
    "list number of matching comments for the current user on the given video"
    (assert (session-channel-title))
@@ -88,7 +88,7 @@
        ("maxResults" . "50"))
      :depaginator nil)))
 
-  (((:get) "^/channels/([^/]*)/comments(.html)?/?$" sub-channel-id is-html)
+  (((:get) "^/youtube/channels/([^/]*)/comments(.html)?/?$" sub-channel-id is-html)
    (if is-html
        (html
         (:script :type "text/javascript"
@@ -97,7 +97,7 @@
        ;; (assert (session-channel-title))
        (list-comment-threads-handler (channel-comment-threads sub-channel-id))))
 
-  (((:get) "^/videos/([^/]+)/comments(.html)?/?$" video-id is-html)
+  (((:get) "^/youtube/videos/([^/]+)/comments(.html)?/?$" video-id is-html)
    (if is-html
        render-table-html
        (progn
@@ -108,7 +108,7 @@
                                 :search-terms (session-channel-title)
                                 :video-id video-id))))))
 
-  (((:delete) "/comment/([^/]+)/delete$" comment-id)
+  (((:delete) "^/youtube/comment/([^/]+)/delete$" comment-id)
 
    "delete a given comment"
    (vom:debug "deleting comment ~A~%" comment-id)
@@ -119,7 +119,7 @@
      (markup (:font :color (if (= 204 http-code) "green" "red")
                     (:b (write-to-string http-code))))))
 
-  (((:post) "/feed-history/video-ids$")
+  (((:post) "^/youtube/feed-history/video-ids$")
    "parse video ids from the inner html of https://www.youtube.com/feed/history/comment_history"
    (let* ((json (json-req))
           (video-ids (assoq json :video-ids))
@@ -132,9 +132,9 @@
            (session-value 'feed-req-ids))
      (json-resp
       `(("location" .
-                    ,(format nil "/feed-history/results/~A" unique-id))))))
+                    ,(format nil "/youtube/feed-history/results/~A" unique-id))))))
 
-  (((:get) "/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
+  (((:get) "^/youtube/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
 
    "parse video ids from the https://www.youtube.com/feed/history/comment_history inner html"
    (let ((req (assoq (session-value 'feed-req-ids) unique-id)))

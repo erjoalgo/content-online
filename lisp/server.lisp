@@ -1,88 +1,72 @@
 (in-package #:youtube-comments)
 
-(defvar *service* nil "the current service")
 
-(defparameter secrets-directory
-  #P"./secrets/")
 
 (defstruct config
   (port 4244)
-  (oauth-client-secret-json-path
-   (check-nonnil
-    (first-file-with-extension secrets-directory "json")))
-
   ;; a cons cell: (SSL-CERTIFICATE-FILE . SSL-PRIVATEKEY-FILE)
   (ssl-cert (cons
-             (check-nonnil (first-file-with-extension secrets-directory "cert"))
-             (check-nonnil (first-file-with-extension secrets-directory "key")))))
+             #P"./secrets/cert/*.cert"
+             #P"./secrets/cert/*.key")))
 
-(defstruct service
-  acceptor
-  config
-  oauth-client
-  protocol)
+(defclass service (hunchentoot:easy-ssl-acceptor)
+  ((config :accessor service-config :initarg :config)
+   (protocol :accessor service-protocol :initform "ssl")))
 
-(defun start (&rest make-config-args)
-  (start-with-config (apply 'make-config make-config-args)))
+(defvar *service* nil)
+(defun service-make-start (&rest make-config-args)
+  (when *service* (service-stop *service*))
+  (let* ((config (apply 'make-config make-config-args)))
+    (with-slots (port ssl-cert) config
+      (destructuring-bind (cert-rel . key-rel) ssl-cert
+        (setf *service*
+              (make-instance
+               'service
+               :CONFIG config
+               :SSL-CERTIFICATE-FILE (first-file-matching cert-rel)
+               :SSL-PRIVATEKEY-FILE (first-file-matching key-rel)
+               :PORT port
+               :DOCUMENT-ROOT #P"./www/")))
+      (service-start *service*))))
 
-(defparameter youtube-scopes
-  '("https://www.googleapis.com/auth/youtube.force-ssl"))
+(defmethod service-start ((service service))
+  (setf hunchentoot:*dispatch-table*
+        (list
+         (youtube-dispatcher)
+         (hunchentoot::create-folder-dispatcher-and-handler
+          "/www/" #P"./www/")))
+  (hunchentoot:start service))
 
-(defun start-with-config (config)
-  (when *service* (stop *service*))
-  (with-slots (port oauth-client-secret-json-path ssl-cert) config
-    (let ((acceptor-args (list :port port
-                               :document-root (truename "./www")))
-          acceptor-class
-          protocol)
+(defmethod service-stop ((service service))
+  (when (hunchentoot:started-p service)
+    (hunchentoot:stop service)))
 
-      (if ssl-cert
-          (setf acceptor-class 'hunchentoot:easy-ssl-acceptor
-                protocol "https"
-                acceptor-args (append acceptor-args
-                                      (destructuring-bind (cert . key) ssl-cert
-                                        (list :SSL-CERTIFICATE-FILE cert
-                                              :SSL-PRIVATEKEY-FILE key))))
-          (setf acceptor-class 'hunchentoot:easy-acceptor
-                protocol "http"))
 
-      (vom:info "making ~A service  ~A on port ~A~%" protocol acceptor-class port)
 
-      (setf *service*
-            (make-service
-             :acceptor (apply 'make-instance acceptor-class acceptor-args)
-             :protocol protocol
-             :config config
-             :oauth-client (oauth-make-client-from-file
-                            (config-oauth-client-secret-json-path config)
-                            :json-path-to-client "web"))))
 
-    (let* ((oauth-dispatcher
-            (erjoalgo-webutil:create-hunchentoot-oauth-redirect-dispatcher
-             (service-oauth-client *service*)
-             youtube-scopes))
-           (www-dispatcher
-            (hunchentoot::create-folder-dispatcher-and-handler
-             "/www/" #P"./www/"))
-           (app (append
-                 dispatchers-noauth
-                 (list
-                  www-dispatcher
-                  oauth-dispatcher)
-                 ;; anything below is authenticated
-                 dispatchers-auth)))
-      (setf hunchentoot:*dispatch-table* app))
-
-    (hunchentoot:start (service-acceptor *service*))
-    *service*))
-
-(defun stop (&optional service)
-  (setf service (or service *service*))
-  (when service
-    (vom:info "stopping...")
-    (let* ((acceptor (slot-value service 'acceptor)))
-      (when (and acceptor (hunchentoot:started-p acceptor))
-        (hunchentoot:stop acceptor)))))
+(defun youtube-dispatcher ()
+  (let* ((youtube-scopes '("https://www.googleapis.com/auth/youtube.force-ssl"))
+         (oauth-client (oauth-make-client-from-file
+                        (first-file-matching
+                         #P"./secrets/oauth-clients/google/*.json")
+                        :json-path-to-client "web"))
+         (youtube-handler
+          (lambda ()
+            ;; TODO akward handler-to-dispatcher translation
+            (loop
+               with request = hunchentoot:*request*
+               for dispatcher in *youtube-dispatchers*
+               as handler = (funcall dispatcher request)
+               when handler do
+                 (return (funcall handler))))))
+    (hunchentoot:create-prefix-dispatcher
+     "/youtube"
+     (hunchentoot-create-oauth-redirect-handler
+      oauth-client youtube-scopes
+      youtube-handler
+      ;; TODO decouple this from authenticator
+      :oauth-authorize-uri-path "/youtube/oauth/authorize"
+      :login-session-key google-login-key))))
 
 (defmethod hunchentoot:maybe-invoke-debugger
     ((condition SB-INT:CLOSED-STREAM-ERROR))
