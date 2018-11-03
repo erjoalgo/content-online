@@ -5,12 +5,7 @@
     (((:get) "^/subscriptions(.html)?/?$" is-html)
 
      (if is-html
-         (html
-          ;; (:head)
-          (:body
-           (:script :type "text/javascript"
-                    :src (raw js-table-render-script-path)
-                    "hello")))
+         render-table-html
          (channels-handler
           (loop for sub in (check-http-ok
                             (subscriptions-get (params
@@ -29,10 +24,7 @@
   (((:get) "^/playlists(.html)?/?$" is-html)
 
    (if is-html
-       (html
-        (:script :type "text/javascript"
-                 :src (raw js-table-render-script-path)
-                 "hello"))
+       render-table-html
        (progn
          (setf (hunchentoot:content-type*) "application/json")
          (->
@@ -60,10 +52,7 @@
 
   (((:get) "^/playlists/([^/]+)/videos(.html)?/?$" playlist-id is-html)
    (if is-html
-       (html
-        (:script :type "text/javascript"
-                 :src (raw js-table-render-script-path)
-                 "hello"))
+       render-table-html
        (videos-handler
         (loop for video-alist in (check-http-ok
                                   (playlist-items-get (params
@@ -110,10 +99,7 @@
 
   (((:get) "^/videos/([^/]+)/comments(.html)?/?$" video-id is-html)
    (if is-html
-       (html
-        (:script :type "text/javascript"
-                 :src (raw js-table-render-script-path)
-                 "hello"))
+       render-table-html
        (progn
          (assert (session-channel-title))
          (list-comment-threads-handler

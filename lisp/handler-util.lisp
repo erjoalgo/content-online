@@ -3,6 +3,13 @@
 (defparameter js-table-render-script-path
   "/www/js/renderTable.js")
 
+(defparameter render-table-html
+  (html
+   (:body
+    (:script :type "text/javascript"
+             :src (raw js-table-render-script-path)
+             "hello"))))
+
 
 (defvar *json-false* (progn
                        ;; https://stackoverflow.com/questions/27679494/
