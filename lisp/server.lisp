@@ -1,6 +1,5 @@
 (in-package #:youtube-comments)
 
-(defvar *sites-alist* nil)
 
 
 (defstruct config
@@ -10,7 +9,6 @@
              #P"./secrets/cert/*.cert"
              #P"./secrets/cert/*.key")))
 
-;; (defclass service (hunchentoot:ssl-acceptor)
 (defclass service (hunchentoot:easy-ssl-acceptor)
   ((config :accessor service-config :initarg :config)
    (protocol :accessor service-protocol :initform "ssl")))
@@ -43,26 +41,7 @@
   (when (hunchentoot:started-p service)
     (hunchentoot:stop service)))
 
-'(defstruct site
-  site-name
-  dispatcher-prefix
-  oauth-client-pathname
-  routes
-  top-level-links-alist)
 
-'(defparameter
-    youtube-site
-  (make-site
-   :site-name "youtube"
-   :dispatcher-prefix "/youtube"
-   :oauth-client-pathname '("" . ("web"))
-   :routes-fn 'youtube-app
-   :top-level-links-alist
-   (params
-    "/subscriptions.html" "subscriptions"
-    "/playlists.html" "playlists"
-    "/html/feed-history.html" "feed history upload"
-    "/rated-videos.html" "rated videos")))
 
 
 (defun youtube-dispatcher ()
