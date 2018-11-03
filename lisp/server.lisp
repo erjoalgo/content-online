@@ -1,10 +1,6 @@
 (in-package #:youtube-comments)
 
 
-(defun check-file-exists (pathname)
-  ;; TODO see C++ check impl
-  (progn (truename pathname)
-         pathname))
 
 (defstruct config
   (port 4244)
@@ -47,9 +43,6 @@
 
 
 
-(defmacro assoc-default (key alist value-form &key test)
-  `(cdr (or (assoc ,key ,alist ,@(when test `(:test ,test)))
-            (cdr (push (cons ,key ,value-form) ,alist)))))
 
 (defun youtube-dispatcher ()
   (let* ((youtube-scopes '("https://www.googleapis.com/auth/youtube.force-ssl"))
