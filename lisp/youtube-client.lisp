@@ -1,6 +1,5 @@
 (in-package #:youtube-comments)
 
-
 (SB-CLTL2:COMPILER-LET
     ((erjoalgo-webutil::authenticator 'erjoalgo-webutil::google-authenticator)
      (erjoalgo-webutil::depaginator nil)
