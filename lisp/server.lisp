@@ -10,7 +10,7 @@
   ((config :accessor service-config :initarg :config)))
 
 (defvar *service* nil)
-(defun service-make-start (&rest make-config-args)
+(defun start (&rest make-config-args)
   (when *service* (service-stop *service*))
   (let* ((config (apply 'make-config make-config-args)))
     (with-slots (port) config

@@ -20,4 +20,5 @@
                              (:file "dom-util")
                              (:file "handler-util")
                              (:file "handlers")
-                             (:file "handlers-noauth")))
+                             (:file "handlers-noauth")
+                             (:file "main")))
