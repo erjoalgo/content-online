@@ -3,30 +3,23 @@
 
 
 (defstruct config
-  (port 4244)
-  ;; a cons cell: (SSL-CERTIFICATE-FILE . SSL-PRIVATEKEY-FILE)
-  (ssl-cert (cons
-             #P"./secrets/cert/*.cert"
-             #P"./secrets/cert/*.key")))
+  (port 4244))
 
-(defclass service (hunchentoot:easy-ssl-acceptor)
-  ((config :accessor service-config :initarg :config)
-   (protocol :accessor service-protocol :initform "ssl")))
+;; subclass hunchentoot acceptor to add some custom accessors
+(defclass service (hunchentoot:easy-acceptor)
+  ((config :accessor service-config :initarg :config)))
 
 (defvar *service* nil)
 (defun service-make-start (&rest make-config-args)
   (when *service* (service-stop *service*))
   (let* ((config (apply 'make-config make-config-args)))
-    (with-slots (port ssl-cert) config
-      (destructuring-bind (cert-rel . key-rel) ssl-cert
-        (setf *service*
-              (make-instance
-               'service
-               :CONFIG config
-               :SSL-CERTIFICATE-FILE (first-file-matching cert-rel)
-               :SSL-PRIVATEKEY-FILE (first-file-matching key-rel)
-               :PORT port
-               :DOCUMENT-ROOT #P"./www/")))
+    (with-slots (port) config
+      (setf *service*
+            (make-instance
+             'service
+             :CONFIG config
+             :PORT port
+             :DOCUMENT-ROOT #P"./www/"))
       (service-start *service*))))
 
 (defmethod service-start ((service service))
