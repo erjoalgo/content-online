@@ -34,9 +34,6 @@
   (when (hunchentoot:started-p service)
     (hunchentoot:stop service)))
 
-
-
-
 (defun youtube-dispatcher ()
   (let* ((youtube-scopes '("https://www.googleapis.com/auth/youtube.force-ssl"))
          (oauth-client (oauth-make-client-from-file
