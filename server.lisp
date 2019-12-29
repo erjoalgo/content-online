@@ -319,8 +319,8 @@ The capturing behavior is based on wrapping `ppcre:register-groups-bind'
                  (list (write-to-string idx)
                        (markup
                         (:a :href (video-url id) (or title id)))
-                       (markup
-                        (:a :href (channel-url channel-id) channel-title))
+                       (when channel-id (markup
+                        (:a :href (channel-url channel-id) channel-title)))
                        published
                        (when description
                          (string-truncate description max-description-chars))
