@@ -31,20 +31,21 @@
   (subseq string 0 (min (length string) n)))
 
 (defmacro check-http-ok (api-req-values &key (ok-code 200))
-  (with-gensyms (body-sym http-code-sym)
-    `(multiple-value-bind (,body-sym ,http-code-sym)
+  (with-gensyms (body-sym http-code-sym raw-string)
+    `(multiple-value-bind (,body-sym ,http-code-sym ,raw-string)
          ,api-req-values
-       (vom:debug "body-sym: ~A~%" ,body-sym)
+       (vom:debug "raw-string: ~A~%" ,raw-string)
        (if (eq ,ok-code ,http-code-sym)
-           ,body-sym
+           ,raw-string
            (progn
-             (vom:warn "unexpected code: ~A ~A~%" ,body-sym ,http-code-sym)
+             (vom:warn "unexpected code: ~A ~A ~A~%"
+                       ,body-sym ,http-code-sym ,raw-string)
              (when (eq 401 ,http-code-sym)
                (vom:warn "invalidating session on 401...~%")
                (setf (hunchentoot:session-value :login) nil))
              (setf (hunchentoot:return-code*) ,http-code-sym)
              (hunchentoot:abort-request-handler
-              (format nil "~A ~A" ,http-code-sym ,body-sym)))))))
+              (format nil "~A ~A" ,http-code-sym ,raw-string)))))))
 
 (defun channels-handler (channels &key (max-description-chars 100))
   (setf (hunchentoot:content-type*) "application/json")
