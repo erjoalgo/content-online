@@ -29,14 +29,12 @@
       (vom:config t :debug)
       (vom:debug "verbose enabled"))
     (start :port port)
-    ;; TODO find a better solution to prevent lisp from exiting
-    ;; while the server is running
-    (while t (sleep 100))
+    ;; prevent lisp from exiting while the server is running
     ;; https://stackoverflow.com/questions/30422451/
     (sb-thread:join-thread
      (find-if
       (lambda (th)
-        (string= (sb-thread:thread-name th) "hunchentoot-listener-1"))
+        (cl-ppcre:scan "hunchentoot-listener-" (sb-thread:thread-name th)))
       (sb-thread:list-all-threads))))))
 
 (defun main (args)
