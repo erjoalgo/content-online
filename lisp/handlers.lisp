@@ -7,10 +7,11 @@
      (if is-html
          render-table-html
          (channels-handler
-          (loop for sub in (check-http-ok
-                            (subscriptions-get (params
+          (loop for sub in (-> (subscriptions-get (params
                                                 :mine "true"
-                                                :part "snippet")))
+                                                :part "snippet"))
+                               (check-http-ok)
+                               (-json-get-nested "items"))
 
              collect (with-json-paths sub
                          ((chan-id "snippet.resourceId.channelId")
@@ -32,9 +33,11 @@
             ("headers" . ("title"  "published" "videos"))
             ("items" .
                      ,(or (loop with playlists =
-                               (check-http-ok (playlists-get (params
-                                                              :mine "true"
-                                                              :part "snippet")))
+                                               (-> (playlists-get (params
+                                                                   :mine "true"
+                                                                   :part "snippet"))
+                                                   (check-http-ok)
+                                                   (-json-get-nested "items"))
                              for playlist in playlists
                              collect
                                (with-json-paths playlist
@@ -54,11 +57,13 @@
    (if is-html
        render-table-html
        (videos-handler
-        (loop for video-alist in (check-http-ok
+        (loop for video-alist in (->
                                   (playlist-items-get (params
                                                        :playlist-id playlist-id
                                                        :mine "true"
-                                                       :part "snippet")))
+                                                       :part "snippet"))
+                                  (check-http-ok)
+                                  (-json-get-nested "items"))
            as video = (make-video-from-alist video-alist)
            do (setf (video-id video)
                     (-json-get-nested video-alist "snippet.resourceId.videoId"))
